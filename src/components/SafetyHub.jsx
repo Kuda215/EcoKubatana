@@ -86,13 +86,6 @@ export default function SafetyHub() {
 
   return (
     <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">🗺️ Nearest Help & Safety Hubs</h1>
-          <p className="page__sub">Find emergency services and safe locations near you</p>
-        </div>
-      </div>
-
       <div className="safety-layout">
         {/* Map Section */}
         <div className="safety-map-container">

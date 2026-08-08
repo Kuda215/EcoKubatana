@@ -68,6 +68,7 @@ function AppContent() {
           </div>
           <div className="topbar__title">{currentTitle}</div>
           <div className="topbar__right">
+            <div className="topbar__user-name">{user?.name}</div>
             <button className="topbar__help-btn" onClick={() => setHelpModalOpen(true)}>
               🚨 Request Help
             </button>

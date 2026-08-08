@@ -97,6 +97,22 @@ body {
   margin-left: auto; 
 }
 
+.topbar__user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #e8fff8 0%, #d1fae5 100%);
+  border-radius: 20px;
+  border: 1px solid #00d98a;
+}
+
+@media (max-width: 768px) {
+  .topbar__user-name {
+    display: none;
+  }
+}
+
 .topbar__icon { 
   font-size: 20px; 
   background: none; 
@@ -243,17 +259,18 @@ body {
 
 .topbar__title {
   flex: 1;
-  text-align: center;
+  text-align: left;
   font-size: 18px;
   font-weight: 800;
   color: var(--primary-dark);
   letter-spacing: -0.5px;
+  margin-left: 24px;
 }
 
 @media (max-width: 768px) {
   .topbar__title {
     font-size: 14px;
-    text-align: left;
+    margin-left: 12px;
   }
 }
 
