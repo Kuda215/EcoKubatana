@@ -31,15 +31,6 @@ const weatherDays = [
 export default function Dashboard() {
   return (
     <div className="dashboard">
-      {/* Welcome Banner */}
-      <div className="dashboard__welcome">
-        <div>
-          <h1 className="dashboard__welcome-title">Welcome back, Thandiwe 🌿</h1>
-          <p className="dashboard__welcome-sub">Here's what's happening in your community.</p>
-        </div>
-        <span className="dashboard__date">July 2026</span>
-      </div>
-
       {/* Climate Incident Highlight */}
       <div className="dashboard__highlight">
         <div className="highlight__badge">⚠️ HIGHLIGHT: CLIMATE INCIDENT</div>
@@ -78,11 +69,83 @@ export default function Dashboard() {
         <div className="card">
           <h3 className="card__title">Incidents by Type (This Year)</h3>
           <div className="chart-placeholder">
-            <div className="donut-mock">
-              <div className="donut-segment floods">Floods 39%</div>
-              <div className="donut-segment droughts">Droughts 26%</div>
-              <div className="donut-segment winds">Strong Winds 22%</div>
-              <div className="donut-segment heatwaves">Heatwaves 13%</div>
+            <div className="donut-chart-container">
+              <svg className="donut-chart" viewBox="0 0 100 100">
+                {/* Background circle */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#f0f4f7"
+                  strokeWidth="12"
+                />
+                {/* Floods - 39% */}
+                <circle
+                  className="donut-segment-circle"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#f43f5e"
+                  strokeWidth="12"
+                  strokeDasharray="0 251"
+                  transform="rotate(-90 50 50)"
+                  style={{ '--segment-length': '98' }}
+                />
+                {/* Droughts - 26% */}
+                <circle
+                  className="donut-segment-circle"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#fb923c"
+                  strokeWidth="12"
+                  strokeDasharray="0 251"
+                  strokeDashoffset="-98"
+                  transform="rotate(-90 50 50)"
+                  style={{ '--segment-length': '65' }}
+                />
+                {/* Winds - 22% */}
+                <circle
+                  className="donut-segment-circle"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#0ea5e9"
+                  strokeWidth="12"
+                  strokeDasharray="0 251"
+                  strokeDashoffset="-163"
+                  transform="rotate(-90 50 50)"
+                  style={{ '--segment-length': '55' }}
+                />
+                {/* Heatwaves - 13% */}
+                <circle
+                  className="donut-segment-circle"
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#fbbf24"
+                  strokeWidth="12"
+                  strokeDasharray="0 251"
+                  strokeDashoffset="-218"
+                  transform="rotate(-90 50 50)"
+                  style={{ '--segment-length': '33' }}
+                />
+              </svg>
+              <div className="donut-center">
+                <div className="donut-total">74</div>
+                <div className="donut-label">Total</div>
+              </div>
+            </div>
+            <div className="donut-legend">
+              <div className="legend-item"><span className="legend-dot" style={{background: '#f43f5e'}}></span> Floods 39%</div>
+              <div className="legend-item"><span className="legend-dot" style={{background: '#fb923c'}}></span> Droughts 26%</div>
+              <div className="legend-item"><span className="legend-dot" style={{background: '#0ea5e9'}}></span> Winds 22%</div>
+              <div className="legend-item"><span className="legend-dot" style={{background: '#fbbf24'}}></span> Heatwaves 13%</div>
             </div>
           </div>
         </div>
