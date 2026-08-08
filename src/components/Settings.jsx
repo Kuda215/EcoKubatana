@@ -14,13 +14,6 @@ export default function Settings() {
 
   return (
     <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">⚙️ Settings</h1>
-          <p className="page__sub">Customize your EcoKubatana experience</p>
-        </div>
-      </div>
-
       <div className="settings-grid">
         {/* Font Size Settings */}
         <div className="card">

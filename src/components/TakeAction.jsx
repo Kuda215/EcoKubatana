@@ -13,12 +13,7 @@ const actions = [
 export default function TakeAction() {
   return (
     <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">🌱 Take Action</h1>
-          <p className="page__sub">Every action matters. Start here to make a difference in your community.</p>
-        </div>
-      </div>
+
 
       <div className="action-grid">
         {actions.map(a => (

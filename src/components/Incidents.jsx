@@ -18,19 +18,13 @@ export default function Incidents() {
 
   return (
     <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">⚠️ Incidents</h1>
-          <p className="page__sub">Track and review climate incidents in your community.</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="filter-tabs" style={{ marginBottom: 0 }}>
+          {types.map(t => (
+            <button key={t} className={`filter-tab ${filter === t ? 'filter-tab--active' : ''}`} onClick={() => setFilter(t)}>{t}</button>
+          ))}
         </div>
         <a href="/report" className="btn btn--primary">+ Report New Incident</a>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="filter-tabs">
-        {types.map(t => (
-          <button key={t} className={`filter-tab ${filter === t ? 'filter-tab--active' : ''}`} onClick={() => setFilter(t)}>{t}</button>
-        ))}
       </div>
 
       {/* Incident Cards */}

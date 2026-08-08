@@ -99,22 +99,43 @@ export default function SafetyHub() {
             </div>
           </div>
           
-          {/* Real OpenStreetMap */}
+          {/* Real OpenStreetMap with Interactive Markers */}
           <div className="real-map-container">
-            <iframe
-              title="Safety Locations Map"
-              width="100%"
-              height="500"
-              frameBorder="0"
-              scrolling="no"
-              marginHeight="0"
-              marginWidth="0"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=27.9298%2C-26.1275%2C28.0298%2C-26.0675&layer=mapnik&marker=-26.0975,27.9798"
-              style={{ border: '2px solid #e5e7eb', borderRadius: '8px' }}
-            ></iframe>
+            <div className="map-with-markers">
+              <iframe
+                title="Safety Locations Map"
+                width="100%"
+                height="500"
+                frameBorder="0"
+                scrolling="no"
+                marginHeight="0"
+                marginWidth="0"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=27.9298%2C-26.1275%2C28.0298%2C-26.0675&layer=mapnik&marker=-26.0975,27.9798"
+                style={{ border: '2px solid #e5e7eb', borderRadius: '8px' }}
+              ></iframe>
+              
+              {/* Interactive Markers Overlay */}
+              <div className="map-markers-overlay">
+                {safetyLocations.map(location => (
+                  <button
+                    key={location.id}
+                    className={`map-pin ${selectedLocation?.id === location.id ? 'map-pin--active' : ''} map-pin--${location.type.toLowerCase()}`}
+                    style={{
+                      left: `${location.coords.x}%`,
+                      top: `${location.coords.y}%`,
+                    }}
+                    onClick={() => setSelectedLocation(location)}
+                    title={location.name}
+                  >
+                    <span className="map-pin-icon">{getMarkerIcon(location.type)}</span>
+                    {location.type === 'Current' && <span className="map-pin-pulse"></span>}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="map-overlay-info">
               <p style={{ margin: 0, fontSize: '12px', color: '#6b7280', textAlign: 'center', marginTop: '8px' }}>
-                📍 Centered on Ferndale, Johannesburg | Click markers below for details
+                📍 Centered on Ferndale, Johannesburg | Click pins on map for details
               </p>
             </div>
           </div>

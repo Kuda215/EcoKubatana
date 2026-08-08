@@ -13,12 +13,8 @@ const levelColor  = { red: '#e63946',  orange: '#f4a261', yellow: '#e9c46a', gre
 export default function Alerts() {
   return (
     <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">🔔 Active Alerts</h1>
-          <p className="page__sub">Real-time climate alerts for your community area.</p>
-        </div>
-        <span className="badge badge--red">8 Active</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <span className="badge badge--red">🔔 8 Active Alerts</span>
       </div>
 
       <div className="alert-list">

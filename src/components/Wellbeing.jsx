@@ -3,12 +3,6 @@ import './PageStyles.css';
 export default function Wellbeing() {
   return (
     <div className="page">
-      <div className="page__header">
-        <div>
-          <h1 className="page__title">💚 Support &amp; Wellbeing</h1>
-          <p className="page__sub">Climate change affects our minds too. Find support and connect with others.</p>
-        </div>
-      </div>
 
       <div className="wellbeing-grid">
         <div className="card wellbeing-card">
