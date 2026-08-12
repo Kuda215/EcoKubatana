@@ -13,10 +13,10 @@
   flex-wrap: wrap;
   gap: 16px;
   padding: 24px;
-  background: white;
+  background: var(--bg-surface);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--neutral-200);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
 }
@@ -44,7 +44,7 @@
 }
 
 .dashboard__welcome-sub   { 
-  color: var(--neutral-500); 
+  color: var(--text-secondary); 
   margin: 8px 0 0; 
   font-size: 16px;
   font-weight: 500;
@@ -79,20 +79,20 @@
   margin-bottom: 12px;
   display: inline-block;
   padding: 6px 12px;
-  background: white;
+  background: var(--bg-surface);
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
 }
 
 .highlight__body h2 { 
   font-size: 22px; 
-  color: var(--primary-dark); 
+  color: var(--text-primary); 
   margin: 0 0 8px;
   font-weight: 800;
 }
 
 .highlight__location { 
-  color: var(--neutral-600); 
+  color: var(--text-secondary); 
   font-size: 15px; 
   margin: 0 0 12px;
   font-weight: 600;
@@ -100,7 +100,7 @@
 
 .highlight__body p   { 
   font-size: 14px; 
-  color: var(--neutral-700); 
+  color: var(--text-secondary); 
   margin: 4px 0;
   line-height: 1.6;
 }

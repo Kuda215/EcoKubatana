@@ -68,7 +68,7 @@ export default function Settings() {
             </select>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--neutral-400)', marginTop: '12px' }}>
-            💡 More languages coming soon
+            ⏳ More languages coming soon
           </p>
         </div>
 
@@ -154,7 +154,7 @@ export default function Settings() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <button className="btn btn--ghost">Download my data</button>
             <button className="btn btn--ghost">Privacy policy</button>
-            <button className="btn btn--ghost">Delete account</button>
+            <button className="btn btn--danger">Delete account</button>
           </div>
         </div>
       </div>

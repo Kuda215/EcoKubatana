@@ -21,7 +21,7 @@ export default function Wellbeing() {
           <div className="wellbeing-card__icon">📞</div>
           <h3>Crisis Line</h3>
           <p>24/7 confidential support line for anyone experiencing distress related to climate events or displacement.</p>
-          <button className="btn btn--primary" style={{ background: '#e63946' }}>Call Now</button>
+          <button className="btn btn--calm">Call Now</button>
         </div>
         <div className="card wellbeing-card">
           <div className="wellbeing-card__icon">📓</div>

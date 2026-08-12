@@ -112,10 +112,10 @@
 }
 
 .sidebar__link--active {
-  background: rgba(0, 217, 138, 0.15);
-  color: #00d98a;
+  background: rgba(0, 217, 138, 0.22);
+  color: white;
   border-left-color: #00d98a;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .sidebar__icon { 
@@ -157,7 +157,12 @@
 
 .sidebar__motto {
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
   text-align: center;
   margin: 0;
   font-weight: 500;

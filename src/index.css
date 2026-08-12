@@ -59,6 +59,56 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Semantic tokens — light mode defaults */
+  --bg-base:        var(--neutral-100);
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #ffffff;
+  --bg-muted:       var(--neutral-50);
+  --border-color:   var(--neutral-200);
+  --text-primary:   var(--neutral-800);
+  --text-secondary: var(--neutral-600);
+  --text-muted:     var(--neutral-400);
+  --topbar-bg:      #ffffff;
+  --sidebar-bg:     #0a3d2e;
+  --input-bg:       #ffffff;
+  --input-border:   var(--neutral-200);
+  --card-shadow:    var(--shadow-md);
+}
+
+/* ─── Dark Mode ──────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --neutral-50:  #1a1f2e;
+  --neutral-100: #151b27;
+  --neutral-200: #1e2537;
+  --neutral-300: #2d3650;
+  --neutral-400: #4a5578;
+  --neutral-500: #6b7aaa;
+  --neutral-600: #8f9fcb;
+  --neutral-700: #b8c5e0;
+  --neutral-800: #dde4f5;
+  --neutral-900: #f0f4ff;
+
+  --bg-base:        #151b27;
+  --bg-surface:     #1e2537;
+  --bg-elevated:    #242c42;
+  --bg-muted:       #1a1f2e;
+  --border-color:   #2d3650;
+  --text-primary:   #dde4f5;
+  --text-secondary: #8f9fcb;
+  --text-muted:     #4a5578;
+  --topbar-bg:      #1e2537;
+  --sidebar-bg:     #0d1a14;
+  --input-bg:       #1e2537;
+  --input-border:   #2d3650;
+  --card-shadow:    0 4px 16px rgba(0, 0, 0, 0.4);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.35);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.5);
 }
 
 * {
@@ -70,9 +120,10 @@
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  background: var(--neutral-100);
-  color: var(--neutral-800);
+  background: var(--bg-base);
+  color: var(--text-primary);
   line-height: 1.6;
+  transition: background 0.25s, color 0.25s;
 }
 
 #root {

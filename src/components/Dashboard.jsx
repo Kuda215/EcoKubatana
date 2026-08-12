@@ -154,7 +154,6 @@ export default function Dashboard() {
         <div className="card">
           <h3 className="card__title">Incidents Over Time</h3>
           <div className="chart-placeholder chart-placeholder--bar">
-            <p className="chart-placeholder__label">📈 Chart: Monthly incident trend (Jan–Jul 2026)</p>
             <div className="bar-mock">
               {[4,6,5,9,7,10,12].map((h, i) => (
                 <div key={i} className="bar" style={{ height: `${h * 6}px` }} />

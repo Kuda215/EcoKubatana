@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import Sidebar        from './components/Sidebar'
 import Dashboard      from './components/Dashboard'
 import SafetyHub      from './components/SafetyHub'
@@ -18,7 +19,7 @@ import './App.css'
 
 // Page title mapping
 const pageTitles = {
-  '/': (userName) => `Welcome back, ${userName}`,
+  '/': (userName) => `Welcome back, ${userName.split(' ')[0]}`,
   '/safety-hub': 'Nearest Help & Safety Hub',
   '/incidents': 'Climate Incidents',
   '/alerts': 'Weather & Climate Alerts',
@@ -37,6 +38,7 @@ function AppContent() {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const location = useLocation()
   const { user, logout, isAuthenticated, isAdmin } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
 
   if (!isAuthenticated) {
     return <Login />;
@@ -68,11 +70,20 @@ function AppContent() {
           </div>
           <div className="topbar__title">{currentTitle}</div>
           <div className="topbar__right">
-            <div className="topbar__user-name">{user?.name}</div>
             <button className="topbar__help-btn" onClick={() => setHelpModalOpen(true)}>
               🚨 Request Help
             </button>
-            <button className="topbar__icon" title="Alerts">🔔</button>
+            <button
+              className="topbar__icon topbar__theme-toggle"
+              onClick={toggleTheme}
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+            >
+              {isDark ? '☀️' : '🌙'}
+            </button>
+            <button className="topbar__icon topbar__icon--bell" title="Alerts">
+              🔔<span className="bell-count">8</span>
+            </button>
             <div className="topbar__profile">
               <button 
                 className="topbar__avatar" 
@@ -91,7 +102,7 @@ function AppContent() {
                     </div>
                   </div>
                   <div className="profile-menu-divider"></div>
-                  <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); }}>
+                  <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); window.location.href = '/settings'; }}>
                     ⚙️ Settings
                   </button>
                   {isAdmin && (
@@ -175,13 +186,15 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="app-shell">
-          <AppContent />
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="app-shell">
+            <AppContent />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

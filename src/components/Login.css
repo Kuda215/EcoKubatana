@@ -1,16 +1,21 @@
-/* Login Container */
+/* Login Container — true full-screen centering */
 .login-container {
   min-height: 100vh;
+  width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  position: relative;
-  overflow: hidden;
+  padding: 24px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
 }
 
 .login-background {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -34,27 +39,121 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 800px;
-  background: white;
+  max-width: 760px;
+  background: var(--bg-elevated);
   border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 36px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   animation: fadeIn 0.6s ease-out;
-  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
   .login-content {
     padding: 24px 20px;
-    max-width: 100%;
   }
 }
 
-@media (min-width: 769px) {
-  .login-content {
-    min-width: 600px;
+.login-footer-text {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  margin: 12px 0 0 0;
+  line-height: 1.4;
+  /* reset all inherited color overrides */
+  font-style: normal;
+}
+
+.login-footer-text * {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Auth choice screen */
+.auth-choice {
+  animation: slideIn 0.5s ease-out;
+}
+
+.auth-choice-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+@media (max-width: 540px) {
+  .auth-choice-buttons {
+    grid-template-columns: 1fr;
   }
 }
+
+.auth-choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px;
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.auth-choice-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.auth-choice-btn--primary {
+  border-color: #00d98a;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.auth-choice-btn--primary:hover {
+  border-color: #10b981;
+  box-shadow: 0 8px 24px rgba(0, 217, 138, 0.2);
+}
+
+.auth-choice-btn--secondary {
+  border-color: #e5e7eb;
+}
+
+.auth-choice-btn--secondary:hover {
+  border-color: #00d98a;
+}
+
+.auth-choice-icon {
+  font-size: 36px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.auth-choice-btn strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0a3d2e;
+  margin-bottom: 4px;
+}
+
+.auth-choice-btn span:not(.auth-choice-icon) {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.role-selection-header {
+  margin-bottom: 20px;
+}
+
+/* Remove @media (min-width) min-width override */
 
 /* Login Header */
 .login-header {
@@ -300,3 +399,49 @@
     transform: translateY(0);
   }
 }
+
+/* ── Role Toggle Pills (Sign-in screen) ─────────────────────── */
+.signin-role-toggle {
+  margin-bottom: 24px;
+}
+
+.signin-role-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 0 0 10px 0;
+}
+
+.role-toggle-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.role-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 2px solid;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.role-pill--active {
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.role-pill:hover:not(.role-pill--active) {
+  opacity: 0.75;
+  transform: scale(1.03);
+}
+

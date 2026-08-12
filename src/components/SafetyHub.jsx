@@ -212,9 +212,22 @@ export default function SafetyHub() {
             </div>
           ) : (
             <div className="location-placeholder">
-              <span style={{ fontSize: '48px' }}>🗺️</span>
-              <h3>Select a location</h3>
-              <p>Click on any marker on the map to view details and contact information</p>
+              <div className="location-placeholder-list">
+                <h4>📍 Nearby Emergency Services</h4>
+                {safetyLocations.filter(l => l.type !== 'Current').map(loc => (
+                  <button
+                    key={loc.id}
+                    className="quick-access-card"
+                    onClick={() => setSelectedLocation(loc)}
+                  >
+                    <span className="quick-access-icon" style={{ fontSize: '24px' }}>{getMarkerIcon(loc.type)}</span>
+                    <div className="quick-access-info">
+                      <div className="quick-access-name">{loc.name}</div>
+                      <div className="quick-access-type">{loc.type} · {loc.contacts[0]?.number}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
