@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { communityAPI } from '../lib/api';
 import './PageStyles.css';
 
 const CATEGORIES = ['Event', 'Solution', 'Campaign', 'Tip', 'Alert', 'Discussion'];
@@ -12,92 +13,61 @@ const catIcon = {
   Tip: '🌿', Alert: '⚠️', Discussion: '💬'
 };
 
-const INITIAL_POSTS = [
-  {
-    id: 1, author: 'Thandiwe M.', avatar: 'T', area: 'Nkulu Village', time: '2h ago',
-    category: 'Event', verified: true,
-    content: 'Rainwater harvesting training this Saturday 9am at the Community Hall. Bring your household water needs discussion.',
-    likes: 24, likedByUser: false, pinned: true,
-    images: [],
-    comments: [
-      { id: 1, author: 'John D.', avatar: 'J', content: 'This is great! Will definitely attend.', time: '1h ago', likes: 3 },
-      { id: 2, author: 'Sarah K.', avatar: 'S', content: 'Can we bring kids along?', time: '30m ago', likes: 1 }
-    ]
-  },
-  {
-    id: 2, author: 'Dumisani K.', avatar: 'D', area: 'Zava Village', time: '4h ago',
-    category: 'Solution', verified: true,
-    content: 'We built fenced garden beds to prevent soil erosion during heavy rain. I can share the plans with anyone interested! The design uses repurposed timber and costs under R200.',
-    likes: 41, likedByUser: false, pinned: false,
-    images: [],
-    comments: [
-      { id: 1, author: 'Mike T.', avatar: 'M', content: 'Would love to see the plans!', time: '2h ago', likes: 5 },
-      { id: 2, author: 'Alice M.', avatar: 'A', content: 'How much did it cost?', time: '1h ago', likes: 2 }
-    ]
-  },
-  {
-    id: 3, author: 'Miriam C.', avatar: 'M', area: 'All Areas', time: '1d ago',
-    category: 'Campaign', verified: false,
-    content: 'Community clean-up campaign next weekend. Let\'s clear drainage channels before the rainy season. Who is joining? 🙋 We need at least 30 volunteers!',
-    likes: 63, likedByUser: false, pinned: false,
-    images: [],
-    comments: [
-      { id: 1, author: 'David L.', avatar: 'D', content: 'Count me in! I can bring my team.', time: '12h ago', likes: 8 },
-      { id: 2, author: 'Emma W.', avatar: 'E', content: 'What time does it start?', time: '8h ago', likes: 2 },
-      { id: 3, author: 'Frank M.', avatar: 'F', content: 'I can bring tools and a trailer.', time: '6h ago', likes: 4 }
-    ]
-  },
-  {
-    id: 4, author: 'Joseph N.', avatar: 'J', area: 'Chakoma Area', time: '2d ago',
-    category: 'Tip', verified: true,
-    content: '🌱 Tip: Plant vetiver grass along slopes to reduce runoff. It\'s cheap, grows fast and saves your soil! Also great for stabilizing riverbanks.',
-    likes: 37, likedByUser: false, pinned: false,
-    images: [],
-    comments: [
-      { id: 1, author: 'Grace T.', avatar: 'G', content: 'Where can I get the seeds?', time: '1d ago', likes: 6 }
-    ]
-  },
-  {
-    id: 5, author: 'EcoKubatana Team', avatar: 'E', area: 'All Areas', time: '3d ago',
-    category: 'Alert', verified: true,
-    content: '⚠️ WEATHER ALERT: Heavy rainfall expected this weekend across all zones. Please clear gutters, check drainage, and prepare emergency kits. Stay safe, community!',
-    likes: 89, likedByUser: false, pinned: false,
-    images: [],
-    comments: [
-      { id: 1, author: 'Linda B.', avatar: 'L', content: 'Thanks for the heads up!', time: '2d ago', likes: 12 },
-      { id: 2, author: 'Tom R.', avatar: 'T', content: 'Will do! Please keep us updated.', time: '2d ago', likes: 7 }
-    ]
-  },
-];
-
-const LEADERBOARD = [
-  { rank: 1, name: 'Miriam C.',   avatar: 'M', points: 276, posts: 18, badge: '🏆', medalClass: 'medal--gold' },
-  { rank: 2, name: 'Dumisani K.', avatar: 'D', points: 241, posts: 15, badge: '🥈', medalClass: 'medal--silver' },
-  { rank: 3, name: 'Thandiwe M.', avatar: 'T', points: 198, posts: 12, badge: '🥉', medalClass: 'medal--bronze' },
-  { rank: 4, name: 'Joseph N.',   avatar: 'J', points: 156, posts: 10, badge: '⭐', medalClass: '' },
-  { rank: 5, name: 'Sarah K.',    avatar: 'S', points: 132, posts: 9,  badge: '⭐', medalClass: '' },
-];
-
 const ACTIVE_EVENTS = [
   { id: 1, title: 'Rainwater Training', date: 'Sat 16 Aug', spots: 12, registered: 8, color: '#2d6a4f' },
   { id: 2, title: 'Drainage Clean-up',  date: 'Sun 17 Aug', spots: 30, registered: 21, color: '#e07b00' },
   { id: 3, title: 'Tree Planting Day',  date: 'Sat 23 Aug', spots: 20, registered: 5, color: '#10b981' },
 ];
 
-function timeAgo(date) {
-  const diff = Date.now() - date;
+function timeAgo(dateString) {
+  if (!dateString) return 'Just now';
+  const date = new Date(dateString);
+  const diff = Date.now() - date.getTime();
   if (diff < 60000) return 'Just now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  return `${Math.floor(diff / 86400000)}d ago`;
 }
 
 export default function CommunityBoard() {
   const { user } = useAuth();
-  const [posts, setPosts] = useState(INITIAL_POSTS);
+  const [posts, setPosts] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [stats, setStats] = useState({ totalMembers: 0, totalPosts: 0, activeMembers: 0 });
+  const [loading, setLoading] = useState(true);
   const [newPost, setNewPost] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedComments, setExpandedComments] = useState({});
+  const [newComment, setNewComment] = useState({});
+  const [showLeaderboard, setShowLeaderboard] = useState(true);
+  const [toast, setToast] = useState(null);
+  const [events, setEvents] = useState(ACTIVE_EVENTS);
+  const postRef = useRef(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [postsResult, leaderboardResult, statsResult] = await Promise.all([
+        communityAPI.getPosts(),
+        communityAPI.getLeaderboard(),
+        communityAPI.getStats(),
+      ]);
+
+      if (postsResult.success) setPosts(postsResult.data);
+      if (leaderboardResult.success) setLeaderboard(leaderboardResult.data);
+      if (statsResult.success) setStats(statsResult.data);
+    } catch (error) {
+      console.error('Error loading community data:', error);
+      showToast('Error loading data. Please refresh.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
   const [newComment, setNewComment] = useState({});
   const [showLeaderboard, setShowLeaderboard] = useState(true);
   const [toast, setToast] = useState(null);
@@ -109,56 +79,76 @@ export default function CommunityBoard() {
     setTimeout(() => setToast(null), 2800);
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!newPost.trim()) return;
-    const post = {
-      id: Date.now(),
-      author: user?.name || 'Community Member',
-      avatar: (user?.name || 'C')[0].toUpperCase(),
-      area: user?.location || 'Your Area',
-      time: 'Just now',
-      createdAt: Date.now(),
-      category: selectedTag || 'Discussion',
-      verified: false,
-      content: newPost.trim(),
-      likes: 0,
-      likedByUser: false,
-      pinned: false,
-      images: [],
-      comments: []
-    };
-    setPosts(prev => [post, ...prev]);
-    setNewPost('');
-    setSelectedTag('');
-    showToast('Your post is live! 🎉');
+    
+    try {
+      const result = await communityAPI.createPost({
+        content: newPost.trim(),
+        category: selectedTag || 'Discussion',
+      });
+
+      if (result.success) {
+        setPosts(prev => [result.data, ...prev]);
+        setNewPost('');
+        setSelectedTag('');
+        showToast('Your post is live! 🎉');
+        // Reload stats
+        const statsResult = await communityAPI.getStats();
+        if (statsResult.success) setStats(statsResult.data);
+      } else {
+        showToast('Failed to post. Try again.', 'error');
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+      showToast('Error creating post', 'error');
+    }
   };
 
-  const handleLike = (postId) => {
-    setPosts(prev => prev.map(p =>
-      p.id === postId
-        ? { ...p, likes: p.likedByUser ? p.likes - 1 : p.likes + 1, likedByUser: !p.likedByUser }
-        : p
-    ));
+  const handleLike = async (postId) => {
+    try {
+      const result = await communityAPI.toggleLike(postId);
+      
+      if (result.success) {
+        setPosts(prev => prev.map(p =>
+          p.id === postId
+            ? { 
+                ...p, 
+                likes_count: result.liked ? p.likes_count + 1 : p.likes_count - 1, 
+                likedByUser: result.liked 
+              }
+            : p
+        ));
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
   };
 
-  const handleAddComment = (postId) => {
+  const handleAddComment = async (postId) => {
     if (!newComment[postId]?.trim()) return;
-    setPosts(prev => prev.map(p => {
-      if (p.id !== postId) return p;
-      return {
-        ...p,
-        comments: [...p.comments, {
-          id: Date.now(),
-          author: user?.name || 'Anonymous',
-          avatar: (user?.name || 'A')[0].toUpperCase(),
-          content: newComment[postId].trim(),
-          time: 'Just now',
-          likes: 0
-        }]
-      };
-    }));
-    setNewComment(prev => ({ ...prev, [postId]: '' }));
-    showToast('Comment added!');
+    
+    try {
+      const result = await communityAPI.addComment(postId, newComment[postId].trim());
+      
+      if (result.success) {
+        setPosts(prev => prev.map(p => {
+          if (p.id !== postId) return p;
+          return {
+            ...p,
+            comments: [...p.comments, result.data],
+            comments_count: p.comments_count + 1,
+          };
+        }));
+        setNewComment(prev => ({ ...prev, [postId]: '' }));
+        showToast('Comment added!');
+      } else {
+        showToast('Failed to add comment', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      showToast('Error adding comment', 'error');
+    }
   };
 
   const handleRegisterEvent = (eventId) => {
@@ -175,6 +165,17 @@ export default function CommunityBoard() {
   const pinnedPosts = filteredPosts.filter(p => p.pinned);
   const regularPosts = filteredPosts.filter(p => !p.pinned);
   const sortedPosts = [...pinnedPosts, ...regularPosts];
+
+  if (loading) {
+    return (
+      <div className="page">
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌿</div>
+          <p style={{ color: '#6b7280', fontSize: '16px' }}>Loading community board...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -260,14 +261,14 @@ export default function CommunityBoard() {
               {/* Post Header */}
               <div className="cb-post-header">
                 <div className="cb-avatar" style={{ background: catColor[post.category] || '#2d6a4f' }}>
-                  {post.avatar}
+                  {(post.author?.name || 'U')[0].toUpperCase()}
                 </div>
                 <div className="cb-post-meta">
                   <div className="cb-post-author">
-                    {post.author}
+                    {post.author?.name || 'Community Member'}
                     {post.verified && <span className="cb-verified-badge">✓</span>}
                   </div>
-                  <div className="cb-post-location">📍 {post.area} · 🕐 {post.time}</div>
+                  <div className="cb-post-location">📍 {user?.location || 'EcoKubatana'} · 🕐 {timeAgo(post.created_at)}</div>
                 </div>
                 <span className="cb-category-pill"
                   style={{ background: catColor[post.category] + '20', color: catColor[post.category], borderColor: catColor[post.category] + '40' }}
@@ -283,10 +284,10 @@ export default function CommunityBoard() {
                   className={`cb-action-btn ${post.likedByUser ? 'cb-action-btn--liked' : ''}`}
                   onClick={() => handleLike(post.id)}
                 >
-                  {post.likedByUser ? '❤️' : '🤍'} {post.likes} {post.likes === 1 ? 'Like' : 'Likes'}
+                  {post.likedByUser ? '❤️' : '🤍'} {post.likes_count} {post.likes_count === 1 ? 'Like' : 'Likes'}
                 </button>
                 <button className="cb-action-btn" onClick={() => setExpandedComments(prev => ({ ...prev, [post.id]: !prev[post.id] }))}>
-                  💬 {post.comments.length} {post.comments.length === 1 ? 'Comment' : 'Comments'}
+                  💬 {post.comments_count} {post.comments_count === 1 ? 'Comment' : 'Comments'}
                 </button>
                 <button className="cb-action-btn" onClick={() => showToast('Link copied! 🔗')}>
                   🔗 Share
@@ -296,13 +297,15 @@ export default function CommunityBoard() {
               {/* Comments */}
               {expandedComments[post.id] && (
                 <div className="cb-comments-section">
-                  {post.comments.map(c => (
+                  {(post.comments || []).map(c => (
                     <div key={c.id} className="cb-comment">
-                      <div className="cb-comment-avatar" style={{ background: '#10b981' }}>{c.avatar}</div>
+                      <div className="cb-comment-avatar" style={{ background: '#10b981' }}>
+                        {(c.author?.name || 'U')[0].toUpperCase()}
+                      </div>
                       <div className="cb-comment-body">
                         <div className="cb-comment-meta">
-                          <span className="cb-comment-author">{c.author}</span>
-                          <span className="cb-comment-time">{c.time}</span>
+                          <span className="cb-comment-author">{c.author?.name || 'Anonymous'}</span>
+                          <span className="cb-comment-time">{timeAgo(c.created_at)}</span>
                         </div>
                         <p className="cb-comment-text">{c.content}</p>
                       </div>
@@ -370,12 +373,10 @@ export default function CommunityBoard() {
                 {showLeaderboard ? '−' : '+'}
               </button>
             </div>
-            {showLeaderboard && (
-              <div className="leaderboard-list">
-                {LEADERBOARD.map(m => (
+            {showleaderboard.map(m => (
                   <div key={m.rank} className={`leaderboard-item ${m.medalClass}`}>
                     <div className="leaderboard-rank">{m.badge}</div>
-                    <div className="leaderboard-avatar">{m.avatar}</div>
+                    <div className="leaderboard-avatar">{(m.name || 'U')[0].toUpperCase()}</div>
                     <div className="leaderboard-info">
                       <div className="leaderboard-name">{m.name}</div>
                       <div className="leaderboard-stats">{m.points} pts · {m.posts} posts</div>
@@ -389,85 +390,13 @@ export default function CommunityBoard() {
           {/* Community Stats */}
           <div className="stats-card">
             <h4>📊 Community Stats</h4>
-            <div className="stat-row"><span>Total Posts</span><strong>{posts.length + 137}</strong></div>
-            <div className="stat-row"><span>Active Members</span><strong>2,345</strong></div>
-            <div className="stat-row"><span>This Week</span><strong>+{posts.filter(p => p.createdAt).length + 28} posts</strong></div>
-            <div className="stat-row"><span>Total Likes</span><strong>{posts.reduce((s, p) => s + p.likes, 0) + 412}</strong></div>
+            <div className="stat-row"><span>Total Posts</span><strong>{stats.totalPosts || 0}</strong></div>
+            <div className="stat-row"><span>Total Members</span><strong>{stats.totalMembers || 0}</strong></div>
+            <div className="stat-row"><span>Active Members</span><strong>{stats.activeMembers || 0}</strong></div>
+            <div className="stat-row"><span>Total Likes</span><strong>{posts.reduce((s, p) => s + (p.likes_count || 0), 0)}</strong></div>
           </div>
         </aside>
       </div>
     </div>
   );
 }
-
-
-const initialPosts = [
-  { 
-    id: 1, 
-    author: 'Thandiwe M.', 
-    avatar: 'T', 
-    area: 'Nkulu Village', 
-    time: '2h ago', 
-    category: 'Event',    
-    content: 'Rainwater harvesting training this Saturday 9am at the Community Hall. Bring your household water needs discussion.', 
-    likes: 24, 
-    likedByUser: false,
-    comments: [
-      { id: 1, author: 'John D.', content: 'This is great! Will definitely attend.', time: '1h ago' },
-      { id: 2, author: 'Sarah K.', content: 'Can we bring kids along?', time: '30m ago' }
-    ]
-  },
-  { 
-    id: 2, 
-    author: 'Dumisani K.', 
-    avatar: 'D', 
-    area: 'Zava Village',   
-    time: '4h ago', 
-    category: 'Solution', 
-    content: 'We built fenced garden beds to prevent soil erosion during heavy rain. I can share the plans with anyone interested!', 
-    likes: 41, 
-    likedByUser: false,
-    comments: [
-      { id: 1, author: 'Mike T.', content: 'Would love to see the plans!', time: '2h ago' },
-      { id: 2, author: 'Alice M.', content: 'How much did it cost?', time: '1h ago' }
-    ]
-  },
-  { 
-    id: 3, 
-    author: 'Miriam C.',   
-    avatar: 'M', 
-    area: 'All Areas',      
-    time: '1d ago', 
-    category: 'Campaign', 
-    content: 'Community clean-up campaign next weekend. Let\'s clear drainage channels before the rainy season. Who is joining? 🙋', 
-    likes: 63, 
-    likedByUser: false,
-    comments: [
-      { id: 1, author: 'David L.', content: 'Count me in!', time: '12h ago' },
-      { id: 2, author: 'Emma W.', content: 'What time does it start?', time: '8h ago' },
-      { id: 3, author: 'Frank M.', content: 'I can bring tools', time: '6h ago' }
-    ]
-  },
-  { 
-    id: 4, 
-    author: 'Joseph N.',   
-    avatar: 'J', 
-    area: 'Chakoma Area',   
-    time: '2d ago', 
-    category: 'Tip',      
-    content: 'Tip: Plant vetiver grass along slopes to reduce runoff. It\'s cheap, grows fast and saves your soil!', 
-    likes: 37, 
-    likedByUser: false,
-    comments: [
-      { id: 1, author: 'Grace T.', content: 'Where can I get the seeds?', time: '1d ago' }
-    ]
-  },
-];
-
-const leaderboard = [
-  { rank: 1, name: 'Miriam C.', avatar: 'M', points: 276, posts: 18, badge: '🏆', medalClass: 'medal--gold' },
-  { rank: 2, name: 'Dumisani K.', avatar: 'D', points: 241, posts: 15, badge: '🥈', medalClass: 'medal--silver' },
-  { rank: 3, name: 'Thandiwe M.', avatar: 'T', points: 198, posts: 12, badge: '🥉', medalClass: 'medal--bronze' },
-  { rank: 4, name: 'Joseph N.', avatar: 'J', points: 156, posts: 10, badge: '⭐', medalClass: '' },
-  { rank: 5, name: 'Sarah K.', avatar: 'S', points: 132, posts: 9, badge: '⭐', medalClass: '' },
-];

@@ -1,20 +1,67 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { incidentsAPI } from '../lib/api';
 import './PageStyles.css';
-
-const incidents = [
-  { id: 1, type: 'Flood',    title: 'Heavy Rainfall & Flooding', location: 'Nkulu Village, Guta District', date: '14–16 Jul 2026', severity: 'high',   status: 'Active',   desc: 'River overflow caused flooding across low-lying areas. 40+ families displaced.' },
-  { id: 2, type: 'Drought',  title: 'Severe Water Shortage',     location: 'Zava Village',                 date: '01 Jul 2026',    severity: 'medium', status: 'Ongoing',  desc: 'Borehole levels critically low. Livestock and crops at risk.' },
-  { id: 3, type: 'Heatwave', title: 'Extreme Heat Warning',      location: 'Chakoma Area',                 date: '10 Jul 2026',    severity: 'medium', status: 'Resolved', desc: 'Temperatures reached 42°C for 3 consecutive days.' },
-  { id: 4, type: 'Wind',     title: 'Strong Winds & Roof Damage',location: 'Harare North',                 date: '05 Jul 2026',    severity: 'low',    status: 'Resolved', desc: 'Several homes lost roofing sheets. Community repair efforts underway.' },
-];
 
 const severityColor = { high: '#e63946', medium: '#f4a261', low: '#52b788' };
 
+console.log('Incidents component initialized.');
 export default function Incidents() {
+  console.log('Incidents component mounted.');
   const [filter, setFilter] = useState('All');
-  const types = ['All', 'Flood', 'Drought', 'Heatwave', 'Wind'];
+  const [incidents, setIncidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const types = ['All', 'Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Wildfire', 'Pollution'];
+
+  useEffect(() => {
+    loadIncidents();
+  }, []);
+
+  const loadIncidents = async () => {
+    console.log('Loading incidents...');
+    try {
+      setLoading(true);
+      const result = await incidentsAPI.list();
+
+      console.log('Incidents loaded:', result);
+      if (result.success) {
+        setIncidents(result.data);
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = filter === 'All' ? incidents : incidents.filter(i => i.type === filter);
+
+  if (loading) {
+    return (
+      <div className="page">
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌍</div>
+          <p style={{ color: '#6b7280', fontSize: '16px' }}>Loading incidents...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page">
+        <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+          <h3 style={{ color: '#e63946', marginBottom: '8px' }}>Error Loading Incidents</h3>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>{error}</p>
+          <button className="btn btn--primary" onClick={loadIncidents}>Try Again</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -26,6 +73,16 @@ export default function Incidents() {
         </div>
         <a href="/report" className="btn btn--primary">+ Report New Incident</a>
       </div>
+
+      {filtered.length === 0 && (
+        <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
+          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🌤️</div>
+          <h3 style={{ marginBottom: '8px' }}>No Incidents</h3>
+          <p style={{ color: '#6b7280' }}>
+            {filter === 'All' ? 'No incidents reported yet.' : `No ${filter} incidents found.`}
+          </p>
+        </div>
+      )}
 
       {/* Incident Cards */}
       <div className="incident-grid">
