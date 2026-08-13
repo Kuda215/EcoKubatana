@@ -445,3 +445,40 @@
   transform: scale(1.03);
 }
 
+/* ── Error Message ─────────────────────────────────────────── */
+.auth-error {
+  background: linear-gradient(135deg, #fde8e8 0%, #ffd1d1 100%);
+  border: 2px solid #f43f5e;
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+  color: #be123c;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* ── Local Mode Badge ──────────────────────────────────────── */
+.local-mode-badge {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  color: #1e40af;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease-out;
+  letter-spacing: 0.5px;
+}
+
+
+

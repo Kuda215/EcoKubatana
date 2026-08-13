@@ -9,7 +9,7 @@ const ROLE_OPTIONS = [
 ];
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const [mode, setMode] = useState('choose'); // 'choose' | 'register' | 'signin'
   const [step, setStep] = useState(1);        // for register: 1 = role, 2 = form
   const [role, setRole] = useState('');
@@ -18,31 +18,61 @@ export default function Login() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     phone: '',
     location: 'Ferndale, Johannesburg'
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleRoleSelect = (selectedRole) => {
     setRole(selectedRole);
     setStep(2);
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    login({ ...formData, role, joinedAt: new Date().toISOString() });
+    setError('');
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
+    const result = await register(formData.email, formData.password, {
+      name: formData.name,
+      role,
+      location: formData.location,
+      phone: formData.phone
+    });
+
+    setLoading(false);
+
+    if (result.success) {
+      // Success - user is now logged in
+    } else {
+      setError(result.error || 'Registration failed');
+    }
   };
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    const identifier = signinData.identifier.trim();
-    const name = identifier.includes('@') ? identifier.split('@')[0] : identifier;
-    login({
-      name,
-      email: identifier.includes('@') ? identifier : `${identifier}@ecokubatana.app`,
-      role: signinRole,
-      location: 'Ferndale, Johannesburg',
-      joinedAt: new Date().toISOString()
-    });
+    setError('');
+    setLoading(true);
+
+    const result = await login(signinData.identifier, signinData.password);
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.error || 'Login failed');
+    }
   };
 
   const handleChange = (e) => {
@@ -64,10 +94,17 @@ export default function Login() {
           <p className="login-tagline">Stronger Communities, Safer Tomorrow</p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="auth-error">
+            ⚠️ {error}
+          </div>
+        )}
+
         {/* Sign in mode */}
         {mode === 'signin' && (
           <div className="login-form-container">
-            <button className="back-button" onClick={() => setMode('choose')}>← Back</button>
+            <button className="back-button" onClick={() => { setMode('choose'); setError(''); }}>← Back</button>
             <div className="selected-role-badge" style={{ background: '#0a3d2e' }}>
               <span className="selected-role-icon">🔑</span>
               <span className="selected-role-label">Sign in to your account</span>
@@ -93,16 +130,16 @@ export default function Login() {
 
             <form className="login-form" onSubmit={handleSignIn}>
               <div className="form-group">
-                <label htmlFor="signin-identifier" className="form-label">Username or Email *</label>
+                <label htmlFor="signin-identifier" className="form-label">Email *</label>
                 <input
-                  type="text"
+                  type="email"
                   id="signin-identifier"
                   className="form-input"
                   required
-                  placeholder="Enter username or email"
+                  placeholder="your.email@example.com"
                   value={signinData.identifier}
                   onChange={e => setSigninData({ ...signinData, identifier: e.target.value })}
-                  autoComplete="username"
+                  autoComplete="email"
                 />
               </div>
               <div className="form-group">
@@ -118,7 +155,9 @@ export default function Login() {
                   autoComplete="current-password"
                 />
               </div>
-              <button type="submit" className="btn-submit">Sign In →</button>
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? 'Signing In...' : 'Sign In →'}
+              </button>
             </form>
           </div>
         )}
@@ -154,7 +193,7 @@ export default function Login() {
         {/* New user: details form */}
         {mode === 'register' && step === 2 && (
           <div className="login-form-container">
-            <button className="back-button" onClick={() => setStep(1)}>← Back to role selection</button>
+            <button className="back-button" onClick={() => { setStep(1); setError(''); }}>← Back to role selection</button>
             <div className="selected-role-badge" style={{ background: '#0a3d2e' }}>
               <span className="selected-role-icon">{ROLE_OPTIONS.find(r => r.value === role)?.icon}</span>
               <span className="selected-role-label">Joining as {ROLE_OPTIONS.find(r => r.value === role)?.label}</span>
@@ -168,7 +207,17 @@ export default function Login() {
               <div className="form-group">
                 <label htmlFor="email" className="form-label">Email Address *</label>
                 <input type="email" id="email" name="email" className="form-input" value={formData.email}
-                  onChange={handleChange} required placeholder="your.email@example.com" />
+                  onChange={handleChange} required placeholder="your.email@example.com" autoComplete="email" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password" className="form-label">Password *</label>
+                <input type="password" id="password" name="password" className="form-input" value={formData.password}
+                  onChange={handleChange} required placeholder="At least 6 characters" autoComplete="new-password" minLength={6} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="confirmPassword" className="form-label">Confirm Password *</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" className="form-input" value={formData.confirmPassword}
+                  onChange={handleChange} required placeholder="Re-enter your password" autoComplete="new-password" minLength={6} />
               </div>
               <div className="form-group">
                 <label htmlFor="phone" className="form-label">Phone Number *</label>
@@ -180,7 +229,9 @@ export default function Login() {
                 <input type="text" id="location" name="location" className="form-input" value={formData.location}
                   onChange={handleChange} required placeholder="City, Region" />
               </div>
-              <button type="submit" className="btn-submit">Join EcoKubatana →</button>
+              <button type="submit" className="btn-submit" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Join EcoKubatana →'}
+              </button>
               <p className="login-footer-text">
                 By joining, you agree to receive climate alerts and emergency notifications.
               </p>
