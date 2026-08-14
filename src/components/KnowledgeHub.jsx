@@ -1,6 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { aiAssistantAPI, faqsAPI, videosAPI } from '../lib/api';
 import './PageStyles.css';
 
+function getYouTubeEmbedId(url) {
+  const match = url?.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
 const videoContent = [
   { 
     id: 1, 
@@ -78,6 +83,48 @@ const resources = [
 export default function KnowledgeHub() {
   const [activeTab, setActiveTab] = useState('learning');
   const [aiMessage, setAiMessage] = useState('');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [sending, setSending] = useState(false);
+  const [faqs, setFaqs] = useState([]);
+  const [faqsLoading, setFaqsLoading] = useState(true);
+  const [videos, setVideos] = useState([]);
+  const [videosLoading, setVideosLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    faqsAPI.list()
+      .then(result => { if (result.success) setFaqs(result.data); })
+      .catch(err => console.error('Failed to load FAQs:', err))
+      .finally(() => setFaqsLoading(false));
+
+    videosAPI.list()
+      .then(result => { if (result.success) setVideos(result.data); })
+      .catch(err => console.error('Failed to load videos:', err))
+      .finally(() => setVideosLoading(false));
+  }, []);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const handleAskAI = async () => {
+    if (!aiMessage.trim() || sending) return;
+    const nextMessages = [...chatMessages, { role: 'user', content: aiMessage.trim() }];
+    setChatMessages(nextMessages);
+    setAiMessage('');
+    setSending(true);
+    try {
+      const result = await aiAssistantAPI.chat(nextMessages);
+      const reply = result.success ? result.reply : (result.error || 'Something went wrong. Please try again.');
+      setChatMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+    } catch (error) {
+      console.error('AI assistant error:', error);
+      setChatMessages(prev => [...prev, { role: 'assistant', content: 'Could not reach the AI assistant right now. Please try again.' }]);
+    } finally {
+      setSending(false);
+    }
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
@@ -163,6 +210,48 @@ export default function KnowledgeHub() {
       {/* Video Learning Tab */}
       {activeTab === 'learning' && (
         <div className="tab-content">
+          <div className="card" style={{ marginBottom: '24px' }}>
+            <h3 className="card__title">🎓 Educational Videos</h3>
+            <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
+              Watch and learn about climate adaptation, sustainable practices, and community action
+            </p>
+          </div>
+
+          {selectedVideo && (
+            <div className="card" style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <div>
+                  <div className="video-title" style={{ fontSize: '16px' }}>{selectedVideo.title}</div>
+                  <div className="video-meta">{selectedVideo.category}</div>
+                </div>
+                <button className="btn btn--ghost" onClick={() => setSelectedVideo(null)}>✕ Close</button>
+              </div>
+              {getYouTubeEmbedId(selectedVideo.youtube_url) ? (
+                <div style={{ position: 'relative', paddingTop: '56.25%' }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${getYouTubeEmbedId(selectedVideo.youtube_url)}`}
+                    title={selectedVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0, borderRadius: '8px' }}
+                  />
+                </div>
+              ) : (
+                <p style={{ color: 'var(--neutral-500)' }}>This video's link couldn't be played — invalid YouTube URL.</p>
+              )}
+            </div>
+          )}
+
+          {videosLoading && <p style={{ color: 'var(--neutral-500)' }}>Loading videos…</p>}
+          {!videosLoading && videos.length === 0 && (
+            <div className="cb-empty">No videos yet. 🌿</div>
+          )}
+          <div className="video-grid">
+            {videos.map(video => (
+              <div key={video.id} className="video-card" onClick={() => setSelectedVideo(video)} style={{ cursor: 'pointer' }}>
+                <div className="video-thumb">
+                  <span className="video-thumb__emoji">{video.emoji}</span>
+                  <span className="video-duration">{video.duration}</span>
           {/* Video Grid - 2 rows of 3 videos */}
           <div style={{ 
             display: 'grid', 
@@ -328,27 +417,54 @@ export default function KnowledgeHub() {
             <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
               Ask questions about climate change, get local solutions, and learn adaptation strategies
             </p>
+            {chatMessages.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '360px', overflowY: 'auto', marginBottom: '16px', padding: '4px' }}>
+                {chatMessages.map((msg, idx) => (
+                  <div key={idx} style={{
+                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '80%',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    background: msg.role === 'user' ? '#0a3d2e' : '#f1f5f4',
+                    color: msg.role === 'user' ? 'white' : '#0a3d2e',
+                    fontSize: '14px',
+                    whiteSpace: 'pre-wrap',
+                  }}>
+                    {msg.content}
+                  </div>
+                ))}
+                {sending && (
+                  <div style={{ alignSelf: 'flex-start', color: 'var(--neutral-500)', fontSize: '13px', padding: '0 14px' }}>
+                    Thinking…
+                  </div>
+                )}
+                <div ref={chatEndRef} />
+              </div>
+            )}
             <div className="ai-chat-box">
               <textarea
                 className="form-textarea"
                 placeholder="Ask me anything about climate change, adaptation, or local solutions..."
                 value={aiMessage}
                 onChange={(e) => setAiMessage(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && e.ctrlKey) handleAskAI(); }}
                 rows={3}
               />
-              <button className="btn btn--primary" style={{ marginTop: '12px' }}>
-                Ask AI Assistant
+              <button className="btn btn--primary" style={{ marginTop: '12px' }}
+                onClick={handleAskAI} disabled={sending || !aiMessage.trim()}>
+                {sending ? 'Thinking…' : 'Ask AI Assistant'}
               </button>
             </div>
           </div>
 
           <div className="card">
             <h3 className="card__title">❓ Frequently Asked Questions</h3>
+            {faqsLoading && <p style={{ color: 'var(--neutral-500)' }}>Loading FAQs…</p>}
             <div className="faq-list">
-              {faqs.map((faq, idx) => (
-                <div key={idx} className="faq-item">
-                  <div className="faq-question">Q: {faq.q}</div>
-                  <div className="faq-answer">A: {faq.a}</div>
+              {faqs.map((faq) => (
+                <div key={faq.id} className="faq-item">
+                  <div className="faq-question">Q: {faq.question}</div>
+                  <div className="faq-answer">A: {faq.answer}</div>
                 </div>
               ))}
             </div>

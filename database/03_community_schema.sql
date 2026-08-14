@@ -294,32 +294,44 @@ CREATE TRIGGER comment_likes_count_trigger
   EXECUTE FUNCTION update_comment_likes_count();
 
 -- Auto-join users to default community on profile creation
+-- NOTE: this trigger fires from within the Auth service's own transaction
+-- (chained off auth.users -> profiles insert), which executes under a role
+-- whose search_path does NOT include `public` by default — unqualified
+-- table names here resolve to nothing ("relation does not exist"), unlike
+-- the original handle_new_user() which already qualifies `public.profiles`.
+-- Schema-qualifying every reference is the real fix; the exception handler
+-- stays as a safety net so this auxiliary side effect can never again be
+-- able to roll back and block account creation, whatever the reason.
 CREATE OR REPLACE FUNCTION auto_join_default_community()
 RETURNS TRIGGER AS $$
 DECLARE
   default_community_id UUID;
 BEGIN
-  -- Get default community ID
-  SELECT id INTO default_community_id
-  FROM communities
-  WHERE name = 'EcoKubatana Zimbabwe'
-  LIMIT 1;
+  BEGIN
+    -- Get default community ID
+    SELECT id INTO default_community_id
+    FROM public.communities
+    WHERE name = 'EcoKubatana Zimbabwe'
+    LIMIT 1;
 
-  -- Join user to default community
-  IF default_community_id IS NOT NULL THEN
-    INSERT INTO community_members (community_id, user_id)
-    VALUES (default_community_id, NEW.id)
-    ON CONFLICT DO NOTHING;
-    
-    -- Update community member count
-    UPDATE communities
-    SET member_count = member_count + 1
-    WHERE id = default_community_id;
-  END IF;
+    -- Join user to default community
+    IF default_community_id IS NOT NULL THEN
+      INSERT INTO public.community_members (community_id, user_id)
+      VALUES (default_community_id, NEW.id)
+      ON CONFLICT DO NOTHING;
+
+      -- Update community member count
+      UPDATE public.communities
+      SET member_count = member_count + 1
+      WHERE id = default_community_id;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'auto_join_default_community failed for profile %: % (%)', NEW.id, SQLERRM, SQLSTATE;
+  END;
 
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS auto_join_community ON profiles;
 CREATE TRIGGER auto_join_community

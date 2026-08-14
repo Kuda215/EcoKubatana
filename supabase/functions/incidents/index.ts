@@ -162,6 +162,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase.rpc('verify_incident', {
         incident_id: incidentId,
+        admin_id: userId,
       });
 
       if (error) throw error;
@@ -185,6 +186,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase.rpc('reject_incident', {
         incident_id: incidentId,
+        admin_id: userId,
       });
 
       if (error) throw error;
@@ -208,6 +210,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase.rpc('resolve_incident', {
         incident_id: incidentId,
+        admin_id: userId,
       });
 
       if (error) throw error;
