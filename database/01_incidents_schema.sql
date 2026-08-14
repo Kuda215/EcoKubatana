@@ -71,35 +71,17 @@ CREATE POLICY "Users can view own incidents"
 -- Admins can view all incidents
 CREATE POLICY "Admins can view all incidents"
   ON incidents FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+  USING (is_admin());
 
 -- Admins can update incidents (verify/reject/resolve)
 CREATE POLICY "Admins can update incidents"
   ON incidents FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+  USING (is_admin());
 
 -- Admins can delete incidents
 CREATE POLICY "Admins can delete incidents"
   ON incidents FOR DELETE
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+  USING (is_admin());
 
 -- ─────────────────────────────────────────────
 -- 4. CREATE HELPER FUNCTIONS
@@ -128,10 +110,7 @@ DECLARE
   result incidents;
 BEGIN
   -- Check if user is admin
-  IF NOT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  ) THEN
+  IF NOT is_admin() THEN
     RAISE EXCEPTION 'Only admins can verify incidents';
   END IF;
 
@@ -155,10 +134,7 @@ DECLARE
   result incidents;
 BEGIN
   -- Check if user is admin
-  IF NOT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  ) THEN
+  IF NOT is_admin() THEN
     RAISE EXCEPTION 'Only admins can reject incidents';
   END IF;
 
@@ -182,10 +158,7 @@ DECLARE
   result incidents;
 BEGIN
   -- Check if user is admin
-  IF NOT EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  ) THEN
+  IF NOT is_admin() THEN
     RAISE EXCEPTION 'Only admins can resolve incidents';
   END IF;
 

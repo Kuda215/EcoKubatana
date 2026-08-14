@@ -4,8 +4,6 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if keys are configured
-console.log('Supabase URL:', supabaseUrl);
-console.log('Supabase Anon Key:', supabaseAnonKey);
 const hasValidKeys = supabaseUrl && 
                      supabaseAnonKey && 
                      supabaseUrl.includes('supabase.co');
@@ -41,10 +39,6 @@ Current values:
   `);
 }
 
-console.log(`Supabase Client Initialized:
-  URL: ${supabaseUrl || 'NOT SET'}
-  Anon Key: ${supabaseAnonKey ? 'SET' : 'NOT SET'}
-  Valid Keys: ${hasValidKeys ? '✅ Yes' : '❌ No'}
-`);
+
 export const supabase = hasValidKeys ? createClient(supabaseUrl, supabaseAnonKey) : null;
 export const isSupabaseConfigured = hasValidKeys;

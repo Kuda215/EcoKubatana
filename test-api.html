@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoKubatana API Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2d6a4f; }
+        h2 { color: #333; font-size: 18px; margin-top: 0; }
+        button {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover { background: #1e4d36; }
+        pre {
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .status { padding: 8px 12px; border-radius: 4px; margin: 10px 0; font-weight: 500; }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        .status.info { background: #dbeafe; color: #1e40af; }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        label { font-weight: 500; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🌿 EcoKubatana API Test</h1>
+    
+    <div class="card">
+        <h2>Configuration</h2>
+        <label>Supabase URL:</label>
+        <input type="text" id="supabaseUrl" value="https://djhgufqvjhgzzbnhzsnk.supabase.co">
+        <div id="configStatus"></div>
+    </div>
+
+    <div class="card">
+        <h2>Test Incidents API</h2>
+        <button onclick="testIncidentsList()">List Incidents</button>
+        <div id="incidentsResult"></div>
+    </div>
+
+    <div class="card">
+        <h2>Test Community API</h2>
+        <button onclick="testCommunityPosts()">List Posts</button>
+        <button onclick="testCommunityStats()">Get Stats</button>
+        <button onclick="testLeaderboard()">Get Leaderboard</button>
+        <div id="communityResult"></div>
+    </div>
+
+    <script>
+        function getEdgeFunctionUrl() {
+            const url = document.getElementById('supabaseUrl').value;
+            return url + '/functions/v1';
+        }
+
+        function showStatus(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function showResult(elementId, title, data, error) {
+            const el = document.getElementById(elementId);
+            if (error) {
+                el.innerHTML = `
+                    <div class="status error">❌ ${title} Failed</div>
+                    <pre>${JSON.stringify(error, null, 2)}</pre>
+                `;
+            } else {
+                el.innerHTML = `
+                    <div class="status success">✅ ${title} Success!</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            }
+        }
+
+        async function testIncidentsList() {
+            const url = getEdgeFunctionUrl() + '/incidents';
+            console.log('Testing:', url);
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showResult('incidentsResult', 'List Incidents', null, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: data
+                    });
+                } else {
+                    showResult('incidentsResult', 'List Incidents', data);
+                }
+            } catch (error) {
+                showResult('incidentsResult', 'List Incidents', null, {
+                    message: error.message,
+                    hint: 'Edge function might not be deployed or CORS issue'
+                });
+            }
+        }
+
+        async function testCommunityPosts() {
+            const url = getEdgeFunctionUrl() + '/community/posts';
+            console.log('Testing:', url);
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showResult('communityResult', 'List Posts', null, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: data
+                    });
+                } else {
+                    showResult('communityResult', 'List Posts', data);
+                }
+            } catch (error) {
+                showResult('communityResult', 'List Posts', null, {
+                    message: error.message,
+                    hint: 'Edge function might not be deployed or CORS issue'
+                });
+            }
+        }
+
+        async function testCommunityStats() {
+            const url = getEdgeFunctionUrl() + '/community/stats';
+            console.log('Testing:', url);
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showResult('communityResult', 'Community Stats', null, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: data
+                    });
+                } else {
+                    showResult('communityResult', 'Community Stats', data);
+                }
+            } catch (error) {
+                showResult('communityResult', 'Community Stats', null, {
+                    message: error.message,
+                    hint: 'Edge function might not be deployed or CORS issue'
+                });
+            }
+        }
+
+        async function testLeaderboard() {
+            const url = getEdgeFunctionUrl() + '/community/leaderboard';
+            console.log('Testing:', url);
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showResult('communityResult', 'Leaderboard', null, {
+                        status: response.status,
+                        statusText: response.statusText,
+                        data: data
+                    });
+                } else {
+                    showResult('communityResult', 'Leaderboard', data);
+                }
+            } catch (error) {
+                showResult('communityResult', 'Leaderboard', null, {
+                    message: error.message,
+                    hint: 'Edge function might not be deployed or CORS issue'
+                });
+            }
+        }
+
+        // Check config on load
+        window.onload = function() {
+            const url = document.getElementById('supabaseUrl').value;
+            if (url.includes('supabase.co')) {
+                showStatus('configStatus', `✅ Edge Functions URL: ${getEdgeFunctionUrl()}`, 'success');
+            } else {
+                showStatus('configStatus', '⚠️ Please enter your Supabase URL', 'error');
+            }
+        };
+    </script>
+</body>
+</html>

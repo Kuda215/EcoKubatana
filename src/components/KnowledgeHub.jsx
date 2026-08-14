@@ -2,12 +2,60 @@ import { useState } from 'react';
 import './PageStyles.css';
 
 const videoContent = [
-  { id: 1, title: 'Understanding Climate Change', emoji: '🌍', duration: '12:34', category: 'Basics' },
-  { id: 2, title: 'Water Conservation at Home', emoji: '💧', duration: '8:45', category: 'Water' },
-  { id: 3, title: 'Growing Climate-Resilient Crops', emoji: '🌾', duration: '15:22', category: 'Agriculture' },
-  { id: 4, title: 'Solar Energy for Beginners', emoji: '☀️', duration: '10:15', category: 'Energy' },
-  { id: 5, title: 'Community Action Planning', emoji: '👥', duration: '18:30', category: 'Community' },
-  { id: 6, title: 'Disaster Preparedness', emoji: '🚨', duration: '14:10', category: 'Safety' },
+  { 
+    id: 1, 
+    title: 'What Causes Floods?', 
+    emoji: '🌊', 
+    duration: '8:24', 
+    category: 'Floods',
+    url: 'https://www.youtube.com/watch?v=yIUNr0H0I88',
+    thumbnail: 'https://img.youtube.com/vi/yIUNr0H0I88/maxresdefault.jpg'
+  },
+  { 
+    id: 2, 
+    title: 'Climate Change Explained', 
+    emoji: '🌍', 
+    duration: '10:15', 
+    category: 'Climate',
+    url: 'https://www.youtube.com/watch?v=F8vI5_gN90g',
+    thumbnail: 'https://img.youtube.com/vi/F8vI5_gN90g/maxresdefault.jpg'
+  },
+  { 
+    id: 3, 
+    title: 'Understanding Extreme Weather', 
+    emoji: '⛈️', 
+    duration: '12:45', 
+    category: 'Weather',
+    url: 'https://www.youtube.com/watch?v=eeISzbk9SeE',
+    thumbnail: 'https://img.youtube.com/vi/eeISzbk9SeE/maxresdefault.jpg'
+  },
+  { 
+    id: 4, 
+    title: 'Water Conservation at Home', 
+    emoji: '💧', 
+    duration: '9:30', 
+    category: 'Water',
+    url: 'https://www.youtube.com/watch?v=eVdTkQ8_bk4',
+    thumbnail: 'https://img.youtube.com/vi/eVdTkQ8_bk4/maxresdefault.jpg'
+  },
+  { 
+    id: 5, 
+    title: 'Disaster Preparedness Guide', 
+    emoji: '🚨', 
+    duration: '14:20', 
+    category: 'Safety',
+    url: 'https://www.youtube.com/watch?v=VMF4tDaJJXo',
+    thumbnail: 'https://img.youtube.com/vi/VMF4tDaJJXo/maxresdefault.jpg'
+  },
+  { 
+    id: 6, 
+    title: 'Building Climate Resilience', 
+    emoji: '🏘️', 
+    duration: '11:05', 
+    category: 'Community',
+    url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
+    thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
+  },
 ];
 
 const faqs = [
@@ -30,13 +78,63 @@ const resources = [
 export default function KnowledgeHub() {
   const [activeTab, setActiveTab] = useState('learning');
   const [aiMessage, setAiMessage] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const categories = ['All', 'Floods', 'Climate', 'Weather', 'Water', 'Safety', 'Community'];
 
   return (
     <div className="page">
-      <div className="page__header">
+      <div className="page__header" style={{ marginBottom: '20px' }}>
         <div>
           <h1 className="page__title">🤖 AI Knowledge Hub</h1>
           <p className="page__sub">AI-powered learning, resources, and expert guidance</p>
+        </div>
+        
+        {/* Search and Filters in Header */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end', width: '100%', maxWidth: '500px' }}>
+          {/* Search Bar */}
+          <div style={{ position: 'relative', width: '100%' }}>
+            <input 
+              type="text"
+              className="form-input" 
+              placeholder="🔍 Search topics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ 
+                width: '100%', 
+                padding: '10px 16px 10px 40px',
+                borderRadius: '8px',
+                fontSize: '14px',
+                border: '2px solid #e5e7eb'
+              }}
+            />
+            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px' }}>🔍</span>
+          </div>
+
+          {/* Category Filter Buttons */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {categories.map(cat => (
+              <button 
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className="filter-tab"
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: '16px',
+                  border: selectedCategory === cat ? '2px solid #667eea' : '2px solid #e5e7eb',
+                  background: selectedCategory === cat ? '#667eea' : 'white',
+                  color: selectedCategory === cat ? 'white' : '#6b7280',
+                  fontWeight: selectedCategory === cat ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -65,26 +163,159 @@ export default function KnowledgeHub() {
       {/* Video Learning Tab */}
       {activeTab === 'learning' && (
         <div className="tab-content">
-          <div className="card" style={{ marginBottom: '24px' }}>
-            <h3 className="card__title">🎓 Educational Videos</h3>
-            <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-              Watch and learn about climate adaptation, sustainable practices, and community action
-            </p>
+          {/* Video Grid - 2 rows of 3 videos */}
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+            gap: '24px',
+            marginBottom: '32px'
+          }}>
+            {videoContent.map(video => (
+              <a 
+                key={video.id} 
+                href={video.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="video-card-enhanced"
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  background: 'white',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  cursor: 'pointer',
+                  border: '2px solid transparent'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-8px)';
+                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(102, 126, 234, 0.3)';
+                  e.currentTarget.style.borderColor = '#667eea';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+                  e.currentTarget.style.borderColor = 'transparent';
+                }}
+              >
+                {/* Video Thumbnail */}
+                <div style={{ position: 'relative', paddingTop: '56.25%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: `url(${video.thumbnail})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}>
+                    {/* Play Button Overlay */}
+                    <div style={{
+                      width: '68px',
+                      height: '68px',
+                      borderRadius: '50%',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <span style={{ fontSize: '28px', marginLeft: '4px', color: '#667eea' }}>▶</span>
+                    </div>
+                  </div>
+                  
+                  {/* Duration Badge */}
+                  <span style={{
+                    position: 'absolute',
+                    bottom: '12px',
+                    right: '12px',
+                    background: 'rgba(0, 0, 0, 0.85)',
+                    color: 'white',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}>
+                    {video.duration}
+                  </span>
+
+                  {/* Category Badge */}
+                  <span style={{
+                    position: 'absolute',
+                    top: '12px',
+                    left: '12px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    color: '#667eea',
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: 'bold'
+                  }}>
+                    {video.category}
+                  </span>
+                </div>
+
+                {/* Video Info */}
+                <div style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '28px', flexShrink: 0 }}>{video.emoji}</span>
+                    <h4 style={{ 
+                      margin: 0, 
+                      fontSize: '17px', 
+                      fontWeight: 'bold', 
+                      color: '#1f2937',
+                      lineHeight: '1.4'
+                    }}>
+                      {video.title}
+                    </h4>
+                  </div>
+                  
+                  <div style={{ 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '13px',
+                    color: '#667eea',
+                    fontWeight: '600',
+                    marginTop: '12px'
+                  }}>
+                    Watch Now
+                    <span style={{ fontSize: '16px' }}>→</span>
+                  </div>
+                </div>
+              </a>
+            ))}
           </div>
 
-          <div className="video-grid">
-            {videoContent.map(video => (
-              <div key={video.id} className="video-card">
-                <div className="video-thumb">
-                  <span className="video-thumb__emoji">{video.emoji}</span>
-                  <span className="video-duration">{video.duration}</span>
-                </div>
-                <div className="video-info">
-                  <div className="video-title">{video.title}</div>
-                  <div className="video-meta">{video.category}</div>
-                </div>
+          {/* Stats Banner */}
+          <div className="card" style={{ 
+            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
+            color: 'white', 
+            padding: '24px',
+            textAlign: 'center'
+          }}>
+            <h4 style={{ marginBottom: '12px', fontSize: '20px' }}>📊 Learning Statistics</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '20px' }}>
+              <div>
+                <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{videoContent.length}</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>Total Videos</div>
               </div>
-            ))}
+              <div>
+                <div style={{ fontSize: '32px', fontWeight: 'bold' }}>12.5k</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>Total Views</div>
+              </div>
+              <div>
+                <div style={{ fontSize: '32px', fontWeight: 'bold' }}>45+</div>
+                <div style={{ fontSize: '14px', opacity: 0.9 }}>Topics Covered</div>
+              </div>
+            </div>
           </div>
         </div>
       )}

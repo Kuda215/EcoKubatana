@@ -4,8 +4,10 @@ import { incidentsAPI } from '../lib/api';
 import './PageStyles.css';
 
 const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
-
+console.log('ReportIncident component initialized.');
 export default function ReportIncident() {
+
+  console.log('ReportIncident component mounted.');
   const { user } = useAuth();
   const [form, setForm] = useState({ title: '', type: '', location: '', description: '', severity: 'medium', reporter_name: '', reporter_contact: '' });
   const [submitted, setSubmitted] = useState(false);
@@ -111,7 +113,14 @@ export default function ReportIncident() {
           </div>
 
           <div className="form-group">
-            <label classNamreporter_name" className="form-input" placeholder={user?.name || "Anonymous if left blank"} value={form.reporter_name} onChange={handleChange} />
+            <label className="form-label">Description *</label>
+            <textarea name="description" required className="form-input" rows="4" placeholder="Describe what happened and current situation..." value={form.description} onChange={handleChange}></textarea>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Your Name (optional)</label>
+              <input name="reporter_name" className="form-input" placeholder={user?.name || "Anonymous if left blank"} value={form.reporter_name} onChange={handleChange} />
             </div>
             <div className="form-group">
               <label className="form-label">Contact (optional)</label>
@@ -121,21 +130,6 @@ export default function ReportIncident() {
 
           <button type="submit" disabled={submitting} className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
             {submitting ? 'Submitting...' : 'Submit Incident Report'}
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Your Name (optional)</label>
-              <input name="name" className="form-input" placeholder="Anonymous if left blank" value={form.name} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Contact (optional)</label>
-              <input name="contact" className="form-input" placeholder="Phone or WhatsApp number" value={form.contact} onChange={handleChange} />
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
-            Submit Incident Report
           </button>
         </form>
       </div>
