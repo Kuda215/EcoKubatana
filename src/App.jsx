@@ -7,8 +7,8 @@ import Dashboard      from './components/Dashboard'
 import SafetyHub      from './components/SafetyHub'
 import Incidents      from './components/Incidents'
 import Alerts         from './components/Alerts'
-// import CommunityBoard from './components/CommunityBoard'
-// import ReportIncident from './components/ReportIncident'
+ import CommunityBoard from './components/CommunityBoard'
+import ReportIncident from './components/ReportIncident'
 import TakeAction     from './components/TakeAction'
 import KnowledgeHub   from './components/KnowledgeHub'
 import Wellbeing      from './components/Wellbeing'
@@ -241,11 +241,11 @@ function AppContent() {
             <Route path="/safety-hub" element={<SafetyHub />} />
             <Route path="/incidents"  element={<Incidents />} />
             <Route path="/alerts"     element={<Alerts />} />
-            {/* <Route path="/community"  element={<CommunityBoard />} /> */}
+            <Route path="/community"  element={<CommunityBoard />} /> 
             <Route path="/knowledge"  element={<KnowledgeHub />} />
             <Route path="/take-action"element={<TakeAction />} />
             <Route path="/wellbeing"  element={<Wellbeing />} />
-            {/* <Route path="/report"     element={<ReportIncident />} /> */}
+            <Route path="/report"     element={<ReportIncident />} />
             <Route path="/settings"   element={<Settings />} />
             <Route path="/admin"      element={isAdmin ? <AdminPortal /> : <Navigate to="/" />} />
           </Routes>

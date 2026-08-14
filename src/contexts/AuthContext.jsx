@@ -3,7 +3,6 @@ import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 
 const AuthContext = createContext(null);
 
-console.log('AuthContext initialized. Supabase configured:', isSupabaseConfigured);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -22,7 +21,6 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
-    console.log('AuthProvider useEffect: Checking for existing session...');
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -32,7 +30,6 @@ export const AuthProvider = ({ children }) => {
       }
     });
 
-    console.log('AuthProvider useEffect: Setting up auth state change listener...');
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
@@ -42,12 +39,10 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     });
-    console.log('AuthProvider useEffect: Auth state change listener set up.');
     return () => subscription.unsubscribe();
   }, []);
 
   const loadUserProfile = async (userId) => {
-    console.log('Loading user profile for userId:', userId);
     try {
       const { data, error } = await supabase
         .from('profiles')
@@ -58,7 +53,6 @@ export const AuthProvider = ({ children }) => {
       if (error) throw error;
       setUser(data);
 
-      console.log('User profile loaded:', data);
     } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
@@ -67,14 +61,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password, userData) => {
-    console.log('Registering user with email:', email, 'and userData:', userData);
     if (!isSupabaseConfigured) {
       return { 
         success: false, 
         error: 'Supabase not configured. Please add your API keys to .env file and restart the server.' 
       };
     }
-    console.log('Supabase is configured. Proceeding with registration...');
 
     try {
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
@@ -87,10 +79,7 @@ export const AuthProvider = ({ children }) => {
         }
       });
 
-      console.log('Supabase signUp response:', authData, 'Error:', signUpError);
-
       if (signUpError) throw signUpError;
-
 
       if (authData.user) {
         const { error: profileError } = await supabase
@@ -103,11 +92,9 @@ export const AuthProvider = ({ children }) => {
           })
           .eq('id', authData.user.id);
 
-        console.log('Profile update response:', profileError);
         if (profileError) throw profileError;
         await loadUserProfile(authData.user.id);
 
-        console.log('User registered and profile updated successfully:', authData.user);
       }
 
       return { success: true };

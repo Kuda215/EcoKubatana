@@ -165,25 +165,12 @@ CREATE POLICY "Authors can update own posts"
 -- Posts: Admins can update any post
 CREATE POLICY "Admins can update any post"
   ON community_posts FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+  USING (is_admin());
 
 -- Posts: Authors and admins can delete
 CREATE POLICY "Authors and admins can delete posts"
   ON community_posts FOR DELETE
-  USING (
-    auth.uid() = author_id OR
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+  USING (auth.uid() = author_id OR is_admin());
 
 -- Likes: Everyone can view
 CREATE POLICY "Anyone can view likes"
@@ -218,14 +205,7 @@ CREATE POLICY "Authors can update own comments"
 -- Comments: Authors and admins can delete
 CREATE POLICY "Authors and admins can delete comments"
   ON post_comments FOR DELETE
-  USING (
-    auth.uid() = author_id OR
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE profiles.id = auth.uid()
-      AND profiles.role = 'admin'
-    )
-  );
+  USING (auth.uid() = author_id OR is_admin());
 
 -- Comment likes policies (similar to post likes)
 CREATE POLICY "Anyone can view comment likes"

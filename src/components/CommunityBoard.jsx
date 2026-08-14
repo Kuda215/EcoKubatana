@@ -35,6 +35,7 @@ export default function CommunityBoard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [stats, setStats] = useState({ totalMembers: 0, totalPosts: 0, activeMembers: 0 });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [newPost, setNewPost] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
@@ -52,28 +53,44 @@ export default function CommunityBoard() {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [postsResult, leaderboardResult, statsResult] = await Promise.all([
         communityAPI.getPosts(),
         communityAPI.getLeaderboard(),
         communityAPI.getStats(),
       ]);
 
-      if (postsResult.success) setPosts(postsResult.data);
-      if (leaderboardResult.success) setLeaderboard(leaderboardResult.data);
-      if (statsResult.success) setStats(statsResult.data);
+      console.log('Community data loaded:', { postsResult, leaderboardResult, statsResult });
+
+      if (postsResult.success) {
+        setPosts(postsResult.data);
+      } else {
+        console.error('Failed to load posts:', postsResult.error);
+      }
+      
+      if (leaderboardResult.success) {
+        setLeaderboard(leaderboardResult.data);
+      } else {
+        console.error('Failed to load leaderboard:', leaderboardResult.error);
+      }
+      
+      if (statsResult.success) {
+        setStats(statsResult.data);
+      } else {
+        console.error('Failed to load stats:', statsResult.error);
+      }
+
+      // If all three failed, show error
+      if (!postsResult.success && !leaderboardResult.success && !statsResult.success) {
+        setError(postsResult.error || 'Failed to load community data. Please check your Supabase Edge Functions are deployed.');
+      }
     } catch (error) {
       console.error('Error loading community data:', error);
-      showToast('Error loading data. Please refresh.', 'error');
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
-  const [newComment, setNewComment] = useState({});
-  const [showLeaderboard, setShowLeaderboard] = useState(true);
-  const [toast, setToast] = useState(null);
-  const [events, setEvents] = useState(ACTIVE_EVENTS);
-  const postRef = useRef(null);
-
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 2800);
@@ -172,6 +189,22 @@ export default function CommunityBoard() {
         <div style={{ textAlign: 'center', padding: '60px 20px' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌿</div>
           <p style={{ color: '#6b7280', fontSize: '16px' }}>Loading community board...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page">
+        <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+          <h3 style={{ color: '#e63946', marginBottom: '8px' }}>Error Loading Community Board</h3>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>{error}</p>
+          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
+            Make sure your Supabase Edge Functions are deployed. Check the browser console for details.
+          </p>
+          <button className="btn btn--primary" onClick={loadData}>Try Again</button>
         </div>
       </div>
     );
@@ -373,19 +406,18 @@ export default function CommunityBoard() {
                 {showLeaderboard ? '−' : '+'}
               </button>
             </div>
-            {showleaderboard.map(m => (
-                  <div key={m.rank} className={`leaderboard-item ${m.medalClass}`}>
-                    <div className="leaderboard-rank">{m.badge}</div>
-                    <div className="leaderboard-avatar">{(m.name || 'U')[0].toUpperCase()}</div>
-                    <div className="leaderboard-info">
-                      <div className="leaderboard-name">{m.name}</div>
-                      <div className="leaderboard-stats">{m.points} pts · {m.posts} posts</div>
-                    </div>
-                  </div>
-                ))}
+            {showLeaderboard && leaderboard.map(m => (
+              <div key={m.rank} className={`leaderboard-item ${m.medalClass}`}>
+                <div className="leaderboard-rank">{m.badge}</div>
+                <div className="leaderboard-avatar">{(m.name || 'U')[0].toUpperCase()}</div>
+                <div className="leaderboard-info">
+                  <div className="leaderboard-name">{m.name}</div>
+                  <div className="leaderboard-stats">{m.points} pts · {m.posts} posts</div>
+                </div>
               </div>
-            )}
+            ))}
           </div>
+        
 
           {/* Community Stats */}
           <div className="stats-card">

@@ -11,16 +11,30 @@ const EDGE_FUNCTION_URL = import.meta.env.VITE_SUPABASE_URL?.replace(
   'https://'
 ).replace('.supabase.co', '.supabase.co/functions/v1');
 
+console.log('🔧 API Configuration:');
+console.log('  VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('  Edge Function URL:', EDGE_FUNCTION_URL);
+console.log('  Supabase Client:', supabase ? 'Initialized ✅' : 'Not initialized ❌');
+
 // Helper to get auth headers
 async function getAuthHeaders() {
-  const { data: { session } } = await supabase.auth.getSession();
-  
   const headers = {
     'Content-Type': 'application/json',
   };
 
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
+  if (!supabase) {
+    console.warn('Supabase client not initialized');
+    return headers;
+  }
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session?.access_token) {
+      headers['Authorization'] = `Bearer ${session.access_token}`;
+    }
+  } catch (error) {
+    console.error('Error getting auth session:', error);
   }
 
   return headers;
@@ -33,24 +47,51 @@ async function getAuthHeaders() {
 export const incidentsAPI = {
   // Get all incidents
   async list(filters = {}) {
-    const headers = await getAuthHeaders();
-    const params = new URLSearchParams(filters).toString();
-    const url = `${EDGE_FUNCTION_URL}/incidents${params ? `?${params}` : ''}`;
-    
-    const response = await fetch(url, { headers });
-    return response.json();
+    try {
+      const headers = await getAuthHeaders();
+      const params = new URLSearchParams(filters).toString();
+      const url = `${EDGE_FUNCTION_URL}/incidents${params ? `?${params}` : ''}`;
+      
+      console.log('Fetching incidents from:', url);
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        console.error('Incidents API error:', response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}: ${response.statusText}`, data: [] };
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching incidents:', error);
+      return { success: false, error: error.message, data: [] };
+    }
   },
 
   // Create new incident
   async create(incidentData) {
-    const headers = await getAuthHeaders();
-    
-    const response = await fetch(`${EDGE_FUNCTION_URL}/incidents`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(incidentData),
-    });
-    return response.json();
+    try {
+      console.log('Creating incident with data:', incidentData);
+      const headers = await getAuthHeaders();
+      const url = `${EDGE_FUNCTION_URL}/incidents`;
+      
+      console.log('Posting to:', url);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(incidentData),
+      });
+      
+      if (!response.ok) {
+        console.error('Create incident error:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        return { success: false, error: errorData.error || `HTTP ${response.status}` };
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error creating incident:', error);
+      return { success: false, error: error.message };
+    }
   },
 
   // Verify incident (admin only)
@@ -105,25 +146,50 @@ export const incidentsAPI = {
 export const communityAPI = {
   // Get all posts
   async getPosts(category = null) {
-    const headers = await getAuthHeaders();
-    const params = category && category !== 'All' ? `?category=${category}` : '';
-    
-    const response = await fetch(`${EDGE_FUNCTION_URL}/community/posts${params}`, {
-      headers,
-    });
-    return response.json();
+    try {
+      const headers = await getAuthHeaders();
+      const params = category && category !== 'All' ? `?category=${category}` : '';
+      const url = `${EDGE_FUNCTION_URL}/community/posts${params}`;
+      
+      console.log('Fetching community posts from:', url);
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        console.error('Community posts API error:', response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}`, data: [] };
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching community posts:', error);
+      return { success: false, error: error.message, data: [] };
+    }
   },
 
   // Create new post
   async createPost(postData) {
-    const headers = await getAuthHeaders();
-    
-    const response = await fetch(`${EDGE_FUNCTION_URL}/community/posts`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(postData),
-    });
-    return response.json();
+    try {
+      const headers = await getAuthHeaders();
+      const url = `${EDGE_FUNCTION_URL}/community/posts`;
+      
+      console.log('Creating post:', postData);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(postData),
+      });
+      
+      if (!response.ok) {
+        console.error('Create post error:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        return { success: false, error: errorData.error || `HTTP ${response.status}` };
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error creating post:', error);
+      return { success: false, error: error.message };
+    }
   },
 
   // Toggle like on post
@@ -151,12 +217,23 @@ export const communityAPI = {
 
   // Get community statistics
   async getStats() {
-    const headers = await getAuthHeaders();
-    
-    const response = await fetch(`${EDGE_FUNCTION_URL}/community/stats`, {
-      headers,
-    });
-    return response.json();
+    try {
+      const headers = await getAuthHeaders();
+      const url = `${EDGE_FUNCTION_URL}/community/stats`;
+      
+      console.log('Fetching community stats from:', url);
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        console.error('Community stats API error:', response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}`, data: { totalMembers: 0, totalPosts: 0, activeMembers: 0 } };
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching community stats:', error);
+      return { success: false, error: error.message, data: { totalMembers: 0, totalPosts: 0, activeMembers: 0 } };
+    }
   },
 
   // Get leaderboard
@@ -167,6 +244,23 @@ export const communityAPI = {
       headers,
     });
     return response.json();
+    try {
+      const headers = await getAuthHeaders();
+      const url = `${EDGE_FUNCTION_URL}/community/leaderboard`;
+      
+      console.log('Fetching leaderboard from:', url);
+      const response = await fetch(url, { headers });
+      
+      if (!response.ok) {
+        console.error('Leaderboard API error:', response.status, response.statusText);
+        return { success: false, error: `HTTP ${response.status}`, data: [] };
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+      return { success: false, error: error.message, data: [] };
+    }
   },
 };
 
