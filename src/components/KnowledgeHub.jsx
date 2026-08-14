@@ -6,6 +6,7 @@ function getYouTubeEmbedId(url) {
   const match = url?.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
 }
+
 const videoContent = [
   { 
     id: 1, 
@@ -61,14 +62,24 @@ const videoContent = [
     url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
     thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
   },
-];
-
-const faqs = [
-  { q: 'What is climate change?', a: 'Climate change refers to long-term shifts in temperatures and weather patterns, primarily caused by human activities.' },
-  { q: 'How can I reduce my water usage?', a: 'Fix leaks, use water-efficient fixtures, harvest rainwater, and be mindful of daily consumption.' },
-  { q: 'What crops grow well in drought conditions?', a: 'Drought-resistant crops include sorghum, millet, cassava, and certain varieties of beans.' },
-  { q: 'How do I report a climate incident?', a: 'Use the "Report Incident" feature in the navigation menu to submit detailed information.' },
-  { q: 'Can I get AI help for climate questions?', a: 'Yes! Our AI assistant can answer your questions about climate adaptation, mitigation, and local solutions.' },
+  { 
+    id: 7, 
+    title: 'Disaster Preparedness Guide', 
+    emoji: '🚨', 
+    duration: '14:20', 
+    category: 'Safety',
+    url: 'https://www.youtube.com/watch?v=VMF4tDaJJXo',
+    thumbnail: 'https://img.youtube.com/vi/VMF4tDaJJXo/maxresdefault.jpg'
+  },
+  { 
+    id: 8, 
+    title: 'Building Climate Resilience', 
+    emoji: '🏘️', 
+    duration: '11:05', 
+    category: 'Community',
+    url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
+    thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
+  },
 ];
 
 const resources = [
@@ -91,6 +102,10 @@ export default function KnowledgeHub() {
   const [videosLoading, setVideosLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const chatEndRef = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const categories = ['All', 'Floods', 'Climate', 'Weather', 'Water', 'Safety', 'Community'];
 
   useEffect(() => {
     faqsAPI.list()
@@ -125,10 +140,15 @@ export default function KnowledgeHub() {
       setSending(false);
     }
   };
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = ['All', 'Floods', 'Climate', 'Weather', 'Water', 'Safety', 'Community'];
+  // Optional: filter the static videos by search + category
+  const filteredVideos = videoContent.filter(video => {
+    const matchesCategory = selectedCategory === 'All' || video.category === selectedCategory;
+    const matchesSearch = !searchQuery || 
+      video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      video.category.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="page">
@@ -140,7 +160,6 @@ export default function KnowledgeHub() {
         
         {/* Search and Filters in Header */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end', width: '100%', maxWidth: '500px' }}>
-          {/* Search Bar */}
           <div style={{ position: 'relative', width: '100%' }}>
             <input 
               type="text"
@@ -159,7 +178,6 @@ export default function KnowledgeHub() {
             <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px' }}>🔍</span>
           </div>
 
-          {/* Category Filter Buttons */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             {categories.map(cat => (
               <button 
@@ -217,49 +235,14 @@ export default function KnowledgeHub() {
             </p>
           </div>
 
-          {selectedVideo && (
-            <div className="card" style={{ marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <div>
-                  <div className="video-title" style={{ fontSize: '16px' }}>{selectedVideo.title}</div>
-                  <div className="video-meta">{selectedVideo.category}</div>
-                </div>
-                <button className="btn btn--ghost" onClick={() => setSelectedVideo(null)}>✕ Close</button>
-              </div>
-              {getYouTubeEmbedId(selectedVideo.youtube_url) ? (
-                <div style={{ position: 'relative', paddingTop: '56.25%' }}>
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeEmbedId(selectedVideo.youtube_url)}`}
-                    title={selectedVideo.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0, borderRadius: '8px' }}
-                  />
-                </div>
-              ) : (
-                <p style={{ color: 'var(--neutral-500)' }}>This video's link couldn't be played — invalid YouTube URL.</p>
-              )}
-            </div>
-          )}
-
-          {videosLoading && <p style={{ color: 'var(--neutral-500)' }}>Loading videos…</p>}
-          {!videosLoading && videos.length === 0 && (
-            <div className="cb-empty">No videos yet. 🌿</div>
-          )}
-          <div className="video-grid">
-            {videos.map(video => (
-              <div key={video.id} className="video-card" onClick={() => setSelectedVideo(video)} style={{ cursor: 'pointer' }}>
-                <div className="video-thumb">
-                  <span className="video-thumb__emoji">{video.emoji}</span>
-                  <span className="video-duration">{video.duration}</span>
-          {/* Video Grid - 2 rows of 3 videos */}
+          {/* Enhanced Video Grid */}
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
             gap: '24px',
             marginBottom: '32px'
           }}>
-            {videoContent.map(video => (
+            {filteredVideos.map(video => (
               <a 
                 key={video.id} 
                 href={video.url}
@@ -304,7 +287,6 @@ export default function KnowledgeHub() {
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                   }}>
-                    {/* Play Button Overlay */}
                     <div style={{
                       width: '68px',
                       height: '68px',
@@ -320,7 +302,6 @@ export default function KnowledgeHub() {
                     </div>
                   </div>
                   
-                  {/* Duration Badge */}
                   <span style={{
                     position: 'absolute',
                     bottom: '12px',
@@ -335,7 +316,6 @@ export default function KnowledgeHub() {
                     {video.duration}
                   </span>
 
-                  {/* Category Badge */}
                   <span style={{
                     position: 'absolute',
                     top: '12px',
