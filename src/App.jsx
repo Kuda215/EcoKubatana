@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import Sidebar        from './components/Sidebar'
@@ -55,6 +55,7 @@ function AppContent() {
   const [recentAlerts, setRecentAlerts] = useState([])
   const [lastSeenAlertsAt, setLastSeenAlertsAt] = useState('1970-01-01T00:00:00Z')
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, logout, isAuthenticated, isAdmin } = useAuth()
   const { isDark, toggleTheme } = useTheme()
 
@@ -194,7 +195,7 @@ function AppContent() {
                     ))}
                   </div>
                   <div className="profile-menu-divider"></div>
-                  <button className="profile-menu-item" onClick={() => { setBellOpen(false); window.location.href = '/alerts'; }}>
+                  <button className="profile-menu-item" onClick={() => { setBellOpen(false); navigate('/alerts'); }}>
                     See all alerts →
                   </button>
                 </div>
@@ -218,11 +219,11 @@ function AppContent() {
                     </div>
                   </div>
                   <div className="profile-menu-divider"></div>
-                  <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); window.location.href = '/settings'; }}>
+                  <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); navigate('/settings'); }}>
                     ⚙️ Settings
                   </button>
                   {isAdmin && (
-                    <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); window.location.href = '/admin'; }}>
+                    <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); navigate('/admin'); }}>
                       🔧 Admin Portal
                     </button>
                   )}
