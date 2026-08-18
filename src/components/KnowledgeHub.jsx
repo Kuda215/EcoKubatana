@@ -80,6 +80,15 @@ const videoContent = [
     url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
     thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
   },
+  { 
+    id: 9, 
+    title: 'Building Climate Resilience', 
+    emoji: '🏘️', 
+    duration: '11:05', 
+    category: 'Community',
+    url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
+    thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
+  }
 ];
 
 const resources = [

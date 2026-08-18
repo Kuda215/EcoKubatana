@@ -4,14 +4,15 @@ import './Sidebar.css';
 
 const navItems = [
   { path: '/',              label: 'Dashboard',         icon: '🏠' },
+  { path: '/CommunitySolutions',    label: 'Where to now? ',        icon: '👀' },
   { path: '/safety-hub',    label: 'Safety Hub',        icon: '🗺️' },
   { path: '/incidents',     label: 'Incidents',         icon: '⚠️' },
   { path: '/alerts',        label: 'Alerts',            icon: '🔔' },
   { path: '/community',     label: 'Community Board',   icon: '👥' },
   { path: '/knowledge',     label: 'AI Knowledge Hub',  icon: '🤖' },
-  { path: '/take-action',   label: 'Take Action',       icon: '🌱' },
+  // { path: '/take-action',   label: 'Take Action',       icon: '🌱' },
   { path: '/wellbeing',     label: 'Support & Wellbeing', icon: '💚' },
-  { path: '/report',        label: 'Report Incident',   icon: '📋' },
+  // { path: '/report',        label: 'Report Incident',   icon: '📋' },
   { path: '/settings',      label: 'Settings',          icon: '⚙️' },
 ];
 

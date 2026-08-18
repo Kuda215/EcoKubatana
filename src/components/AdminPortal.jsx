@@ -85,9 +85,25 @@ export default function AdminPortal() {
   };
 
   const triggerPopup = (type, data) => {
-    setPopup({ type, data });
-    setPopupVisible(true);
-    if (type === 'verify' || type === 'reject') {
+  setPopup({ type, data });
+  setPopupVisible(true);
+
+   if (type === "verify") {
+    const beep1 = new Audio("/sounds/beep.mp3");
+
+    beep1.play().catch(console.error);
+
+    beep1.addEventListener(
+      "ended",
+      () => {
+        const beep2 = new Audio("/sounds/beep.mp3");
+        beep2.play().catch(console.error);
+      },
+      { once: true }
+    );
+  }
+
+    if (type === "verify" || type === "reject") {
       setTimeout(() => {
         setPopupVisible(false);
         setTimeout(() => setPopup(null), 400);

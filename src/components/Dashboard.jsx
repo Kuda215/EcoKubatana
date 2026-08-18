@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
+import { useState, useEffect, useRef } from 'react';
 
 const stats = [
   { label: 'Peer Incidents',       value: '12', sub: 'This Year',       icon: '⚠️',  trend: '+20% from last year' },
@@ -28,26 +29,261 @@ const weatherDays = [
   { day: 'Sat',   icon: '⛅', temp: '19°C' },
 ];
 
+
 export default function Dashboard() {
+const [selectedZone, setSelectedZone] = useState(null);
+
   return (
     <div className="dashboard">
       {/* Climate Incident Highlight */}
-      <div className="dashboard__highlight">
-        <div className="highlight__badge">⚠️ HIGHLIGHT: CLIMATE INCIDENT</div>
-        <div className="highlight__body">
-          <div className="highlight__info">
-            <h2>🌧️ Heavy Rainfall &amp; Flooding</h2>
-            <p className="highlight__location">Nkulu Village, Guta District 📍</p>
-            <p><strong>Date:</strong> 14–16 July 2026</p>
-            <p>Heavy rainfall caused river overflow and flooding in low-lying areas. Stay safe and follow local alerts.</p>
-            <div className="highlight__actions">
-              <Link to="/incidents" className="btn btn--primary">View Incident Details</Link>
-              <Link to="/alerts" className="btn btn--ghost">See All Alerts →</Link>
-            </div>
-          </div>
+      <div
+      style={{
+        position: "relative",
+        height: "300px",
+        borderRadius: "12px",
+        overflow: "hidden",
+        border: "2px solid #e5e7eb",
+      }}
+    >
+      <iframe
+        title="Climate Risk Map - Ferndale Randburg"
+        width="100%"
+        height="300"
+        frameBorder="0"
+        scrolling="no"
+        marginHeight="0"
+        marginWidth="0"
+        src="https://maps.google.com/maps?q=Ferndale%20Randburg&t=k&z=14&output=embed"
+        style={{
+          width: "100%",
+          height: "100%",
+          border: "none",
+        }}
+      ></iframe>
+
+      {/* HIGH RISK */}
+      <div
+        style={{
+          position: "absolute",
+          top: "28%",
+          left: "58%",
+          zIndex: 1000,
+          width: "880px",
+          height: "280px",
+          borderRadius: "50%",
+          background: "rgba(239, 68, 68, 0.25)",
+          border: "4px solid rgba(233, 19, 19, 0.7)",
+          boxShadow: "0 0 50px rgba(239, 68, 68, 0.6)",
+          cursor: "pointer",
+          transition: "all 0.3s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "scale(1.1)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "scale(1)";
+        }}
+        onClick={() =>
+          setSelectedZone({
+            level: "High Risk",
+            color: "#ffa600",
+            location: "Ferndale CBD",
+            reports: 24,
+            recommendation: "Avoid flooded roads and monitor community alerts.",
+          })
+        }
+      >
+        <div
+          style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", color: "#fff", fontWeight: "bold",
+            background: "rgba(0,0,0,0.7)", padding: "8px 12px",  borderRadius: "8px",
+          }}
+        >          
         </div>
       </div>
 
+      {selectedZone && (
+      <div
+        style={{
+          position: "absolute",
+          right: "10px",
+          top: "10px",
+          width: "220px",
+          background: "rgba(255,255,255,0.95)",
+          backdropFilter: "blur(8px)",
+          borderRadius: "10px",
+          padding: "10px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          zIndex: 2000,
+          fontSize: "12px",
+          lineHeight: "1.4",
+        }}
+      >
+        <button
+          onClick={() => setSelectedZone(null)}
+          style={{
+            float: "right",
+            border: "none",
+            background: "none",
+            cursor: "pointer",
+            fontSize: "14px",
+            padding: 0,
+          }}
+        >
+          ✕
+        </button>
+
+        <div
+          style={{
+            display: "inline-block",
+            padding: "2px 6px",
+            borderRadius: "999px",
+            background: selectedZone.color,
+            color: "white",
+            fontSize: "10px",
+            fontWeight: 600,
+            marginBottom: "6px",
+          }}
+        >
+          {selectedZone.level}
+        </div>
+
+        <h4
+          style={{
+            margin: "4px 0",
+            fontSize: "13px",
+          }}
+        >
+          📍 {selectedZone.location}
+        </h4>
+
+        <p style={{ margin: "4px 0" }}>
+          <strong>Reports:</strong> {selectedZone.reports}
+        </p>
+
+        <p style={{ margin: "4px 0" }}>
+          <strong>Action:</strong> {selectedZone.recommendation}
+        </p>
+
+        <div
+          style={{
+            marginTop: "6px",
+            padding: "6px",
+            background: "#f8fafc",
+            borderRadius: "6px",
+            fontSize: "11px",
+          }}
+        >
+          🤖 Elevated flood risk detected.
+        </div>
+      </div>
+    )}
+
+
+      {/* MODERATE RISK */}
+      <div
+          style={{
+            position: "absolute",
+            top: "-100%",
+            left: "0%",
+            zIndex: 1000,
+            width: "0",
+            height: "0",
+            borderRadius: "50%",
+            background: "rgba(245, 158, 11, 0.25)",
+            border: "4px solid rgba(245, 158, 11, 0.7)",
+            boxShadow: "0 0 50px rgba(245, 158, 11, 0.6)",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+          onClick={() =>
+            setSelectedZone({
+              level: "Moderate Risk",
+              color: "#f59e0b",
+              location: "Randburg Sports Grounds",
+              reports: 12,
+              recommendation:
+                "Heavy rainfall expected. Exercise caution and monitor community alerts.",
+            })
+          }
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              color: "#fff",
+              fontWeight: "bold",
+              background: "rgba(0,0,0,0.7)",
+              padding: "8px 12px",
+              borderRadius: "8px",
+              fontSize: "14px",
+            }}
+          >
+            MODERATE RISK
+          </div>
+        </div>
+
+      {/* SAFE AREA */}
+      <div
+        title="Safe Area"
+        style={{
+          position: "absolute",
+          top: "-20%",
+          left: "-2%",
+          zIndex: 1000,
+          fontSize: "40px",
+          cursor: "pointer",
+          background: "rgba(197, 154, 34, 0.15)",
+          border: "3px solid #ffa600",
+          borderRadius: "50%",
+          width: "220px",
+          height: "270px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        onClick={() =>
+          setSelectedZone({
+            level: "Safe Area",
+            color: "#c58422",
+            location: "Ferndale Residential",
+            reports: 0,
+            recommendation:
+              "No active climate incidents reported. Continue monitoring conditions.",
+          })
+        }
+      >
+        
+      </div>
+
+      {/* LEGEND */}
+      <div
+        style={{
+          position: "absolute",
+          right: "15px",
+          bottom: "15px",
+          background: "white",
+          padding: "12px",
+          borderRadius: "10px",
+          boxShadow: "0 4px 12px rgba(0,0,0,.2)",
+          zIndex: 1000,
+          fontSize: "14px",
+        }}
+      >
+        <div>🔴 High Risk (Flooding)</div>
+        <div>🟡 Moderate Risk (Heavy Rain)</div>
+        <div>🟢 Safe Area</div>
+      </div>
+    </div>
+    
+      
       {/* Stats Cards */}
       <div className="dashboard__stats">
         {stats.map((s) => (

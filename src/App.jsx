@@ -15,6 +15,8 @@ import Wellbeing      from './components/Wellbeing'
 import Settings       from './components/Settings'
 import Login          from './components/Login'
 import AdminPortal    from './components/AdminPortal'
+import CommunitySolutions    from './components/CommunitySolutions'
+
 import { helpRequestsAPI, alertsAPI, notificationsAPI } from './lib/api'
 import './App.css'
 
@@ -243,9 +245,9 @@ function AppContent() {
             <Route path="/alerts"     element={<Alerts />} />
             <Route path="/community"  element={<CommunityBoard />} /> 
             <Route path="/knowledge"  element={<KnowledgeHub />} />
-            <Route path="/take-action"element={<TakeAction />} />
+            <Route path="/CommunitySolutions"element={<CommunitySolutions />} />
             <Route path="/wellbeing"  element={<Wellbeing />} />
-            <Route path="/report"     element={<ReportIncident />} />
+            {/* <Route path="/report"     element={<ReportInkcident />} /> */}
             <Route path="/settings"   element={<Settings />} />
             <Route path="/admin"      element={isAdmin ? <AdminPortal /> : <Navigate to="/" />} />
           </Routes>
