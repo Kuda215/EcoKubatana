@@ -345,6 +345,75 @@ export const aiAssistantAPI = {
     });
     return response.json();
   },
+
+  // Speech-to-text via OpenAI Whisper. audioBase64 is the raw recording
+  // (no data: URI prefix), mimeType e.g. 'audio/webm'.
+  async transcribe(audioBase64, mimeType) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/ai-assistant/transcribe`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ audio_base64: audioBase64, mime_type: mimeType }),
+    });
+    return response.json();
+  },
+
+  // Text-to-speech via OpenAI TTS. Returns { success, audio_base64, mime_type }.
+  async speak(text, voice) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/ai-assistant/speak`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ text, voice }),
+    });
+    return response.json();
+  },
+};
+
+// ══════════════════════════════════════════
+// INCIDENT ANALYSIS API
+// ══════════════════════════════════════════
+// Real OpenAI vision analysis of an uploaded incident photo.
+
+export const incidentAnalysisAPI = {
+  async analyze(imageUrl) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/incident-analysis`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ image_url: imageUrl }),
+    });
+    return response.json();
+  },
+};
+
+// ══════════════════════════════════════════
+// INCIDENT IMAGES (STORAGE) API
+// ══════════════════════════════════════════
+// Uploads a photo to the incident-images storage bucket and returns its
+// public URL, for use as both the incident's image_url and the input to
+// incidentAnalysisAPI.analyze().
+
+export const incidentImagesAPI = {
+  async upload(file) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'You must be signed in to upload a photo.' };
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `${user.id}/${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('incident-images')
+      .upload(path, file, { contentType: file.type });
+
+    if (uploadError) return { success: false, error: uploadError.message };
+
+    const { data } = supabase.storage.from('incident-images').getPublicUrl(path);
+    return { success: true, url: data.publicUrl };
+  },
 };
 
 // ══════════════════════════════════════════

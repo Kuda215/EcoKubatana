@@ -15,6 +15,7 @@ import Wellbeing      from './components/Wellbeing'
 import Settings       from './components/Settings'
 import Login          from './components/Login'
 import AdminPortal    from './components/AdminPortal'
+import VoiceReport    from './components/VoiceReport'
 import { helpRequestsAPI, alertsAPI, notificationsAPI } from './lib/api'
 import './App.css'
 
@@ -47,6 +48,7 @@ const pageTitles = {
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [helpModalOpen, setHelpModalOpen] = useState(false)
+  const [voiceReportOpen, setVoiceReportOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [helpForm, setHelpForm] = useState({ type: 'Medical', priority: 'medium', location: '', description: '' })
   const [helpSubmitting, setHelpSubmitting] = useState(false)
@@ -150,6 +152,9 @@ function AppContent() {
           </div>
           <div className="topbar__title">{currentTitle}</div>
           <div className="topbar__right">
+            <button className="topbar__help-btn" style={{ background: '#0a3d2e' }} onClick={() => setVoiceReportOpen(true)}>
+              🎙️ Voice Report
+            </button>
             <button className="topbar__help-btn" onClick={openHelpModal}>
               🚨 Request Help
             </button>
@@ -349,6 +354,8 @@ function AppContent() {
             </div>
           </div>
         )}
+
+        <VoiceReport isOpen={voiceReportOpen} onClose={() => setVoiceReportOpen(false)} />
       </div>
     </>
   )

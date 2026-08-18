@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { incidentsAPI } from '../lib/api';
+import { incidentsAPI, incidentImagesAPI, incidentAnalysisAPI, alertsAPI } from '../lib/api';
 import './PageStyles.css';
 
 const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
+
+const ALERT_TYPE_FOR = { Flood: 'Flood Warning', Wildfire: 'Fire Emergency' };
+const ALERT_LEVEL_FOR = { high: 'Critical', medium: 'Warning', low: 'Info' };
+
 console.log('ReportIncident component initialized.');
 export default function ReportIncident() {
 
@@ -14,7 +18,78 @@ export default function ReportIncident() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [alertProposing, setAlertProposing] = useState(false);
+  const [alertProposed, setAlertProposed] = useState(false);
+
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageError(null);
+    setAiAnalysis(null);
+    setAlertProposed(false);
+    setImageUploading(true);
+    setImageUrl(null);
+
+    try {
+      const uploadResult = await incidentImagesAPI.upload(file);
+      if (!uploadResult.success) {
+        setImageError(uploadResult.error || 'Failed to upload photo');
+        setImageUploading(false);
+        return;
+      }
+      setImageUrl(uploadResult.url);
+      setImageUploading(false);
+
+      setAnalyzing(true);
+      const analysisResult = await incidentAnalysisAPI.analyze(uploadResult.url);
+      if (analysisResult.success) {
+        setAiAnalysis(analysisResult.data);
+      } else {
+        setImageError(analysisResult.error || 'Could not analyze this photo');
+      }
+    } catch (err) {
+      setImageError(err.message);
+    } finally {
+      setImageUploading(false);
+      setAnalyzing(false);
+    }
+  };
+
+  const applyAiSuggestion = () => {
+    if (!aiAnalysis) return;
+    setForm(f => ({ ...f, type: aiAnalysis.likelyType, severity: aiAnalysis.suggestedSeverity }));
+  };
+
+  const handleProposeAlert = async () => {
+    if (!aiAnalysis) return;
+    setAlertProposing(true);
+    try {
+      const result = await alertsAPI.create({
+        type: ALERT_TYPE_FOR[aiAnalysis.likelyType] || 'General Emergency',
+        level: ALERT_LEVEL_FOR[aiAnalysis.suggestedSeverity] || 'Warning',
+        area: form.location || 'All Areas',
+        message: `AI-assisted report: ${aiAnalysis.assessment} Please stay alert and follow official guidance for this area.`,
+        targets: { all: true, volunteers: true, admins: false },
+      });
+      if (result.success) {
+        setAlertProposed(true);
+      } else {
+        setImageError(result.error || 'Failed to propose alert');
+      }
+    } catch (err) {
+      setImageError(err.message);
+    } finally {
+      setAlertProposing(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,11 +105,15 @@ export default function ReportIncident() {
         severity: form.severity,
         reporter_name: form.reporter_name || user?.name || 'Anonymous',
         reporter_contact: form.reporter_contact,
+        image_url: imageUrl || undefined,
       });
 
       if (result.success) {
         setSubmitted(true);
         setForm({ title: '', type: '', location: '', description: '', severity: 'medium', reporter_name: '', reporter_contact: '' });
+        setImageUrl(null);
+        setAiAnalysis(null);
+        setAlertProposed(false);
       } else {
         setError(result.error || 'Failed to submit incident');
       }
@@ -115,6 +194,47 @@ export default function ReportIncident() {
           <div className="form-group">
             <label className="form-label">Description *</label>
             <textarea name="description" required className="form-input" rows="4" placeholder="Describe what happened and current situation..." value={form.description} onChange={handleChange}></textarea>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Photo (optional)</label>
+            <input type="file" accept="image/*" className="form-input" onChange={handleImageChange} disabled={imageUploading || analyzing} />
+            {imageError && <p style={{ color: '#e63946', fontSize: '13px', marginTop: '6px' }}>{imageError}</p>}
+
+            {imageUrl && (
+              <img src={imageUrl} alt="Uploaded incident" style={{ marginTop: '10px', maxWidth: '240px', borderRadius: '8px', display: 'block' }} />
+            )}
+
+            {(imageUploading || analyzing) && (
+              <p style={{ fontSize: '13px', color: 'var(--neutral-500)', marginTop: '8px' }}>
+                {imageUploading ? 'Uploading photo…' : '🤖 Analyzing photo…'}
+              </p>
+            )}
+
+            {aiAnalysis && (
+              <div style={{ marginTop: '12px', padding: '14px', background: '#f1f5f4', borderRadius: '8px', border: '1px solid #d1dbd8' }}>
+                <div style={{ fontWeight: 700, color: '#0a3d2e', marginBottom: '4px' }}>🤖 AI Photo Assessment</div>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#374151' }}>
+                  Likely type: <strong>{aiAnalysis.likelyType}</strong> · Suggested severity: <strong>{aiAnalysis.suggestedSeverity}</strong>
+                  <br />
+                  {aiAnalysis.assessment}
+                </p>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button type="button" className="btn btn--secondary" onClick={applyAiSuggestion}>
+                    Use this type & severity
+                  </button>
+                  {alertProposed ? (
+                    <span style={{ fontSize: '13px', color: '#10b981', fontWeight: 600, alignSelf: 'center' }}>
+                      ✓ Alert proposed — pending admin review
+                    </span>
+                  ) : (
+                    <button type="button" className="btn btn--primary" onClick={handleProposeAlert} disabled={alertProposing}>
+                      {alertProposing ? 'Proposing…' : '🚨 Alert nearby communities?'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="form-row">
