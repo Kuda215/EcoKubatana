@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
@@ -30,19 +31,18 @@ function timeAgo(date) {
   return `${Math.floor(diff / 86400000)}d ago`
 }
 
-// Page title mapping
-const pageTitles = {
-  '/': (userName) => `Welcome back, ${userName.split(' ')[0]}`,
-  '/safety-hub': 'Nearest Help & Safety Hub',
-  '/incidents': 'Climate Incidents',
-  '/alerts': 'Weather & Climate Alerts',
-  '/community': 'Community Board',
-  '/knowledge': 'AI Knowledge Hub',
-  '/take-action': 'Take Action',
-  '/wellbeing': 'Support & Wellbeing',
-  '/report': 'Report Incident',
-  '/settings': 'Settings',
-  '/admin': 'Admin Portal'
+// Page title mapping - maps each route to its pageTitles.* translation key
+const pageTitleKeys = {
+  '/safety-hub': 'safetyHub',
+  '/incidents': 'incidents',
+  '/alerts': 'alerts',
+  '/community': 'community',
+  '/knowledge': 'knowledge',
+  '/take-action': 'takeAction',
+  '/wellbeing': 'wellbeing',
+  '/report': 'report',
+  '/settings': 'settings',
+  '/admin': 'admin',
 }
 
 function AppContent() {
@@ -56,6 +56,7 @@ function AppContent() {
   const [bellOpen, setBellOpen] = useState(false)
   const [recentAlerts, setRecentAlerts] = useState([])
   const [lastSeenAlertsAt, setLastSeenAlertsAt] = useState('1970-01-01T00:00:00Z')
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout, isAuthenticated, isAdmin } = useAuth()
@@ -127,11 +128,11 @@ function AppContent() {
   }
 
   const getPageTitle = (path) => {
-    const title = pageTitles[path];
-    if (typeof title === 'function') {
-      return title(user?.name || 'User');
+    if (path === '/') {
+      return t('pageTitles.welcomeBack', { name: (user?.name || 'User').split(' ')[0] });
     }
-    return title || 'EcoKubatana';
+    const key = pageTitleKeys[path];
+    return key ? t(`pageTitles.${key}`) : 'EcoKubatana';
   };
 
   const currentTitle = getPageTitle(location.pathname)
@@ -153,10 +154,10 @@ function AppContent() {
           <div className="topbar__title">{currentTitle}</div>
           <div className="topbar__right">
             <button className="topbar__help-btn" style={{ background: '#0a3d2e' }} onClick={() => setVoiceReportOpen(true)}>
-              🎙️ Voice Report
+              🎙️ {t('topbar.voiceReport')}
             </button>
             <button className="topbar__help-btn" onClick={openHelpModal}>
-              🚨 Request Help
+              🚨 {t('topbar.requestHelp')}
             </button>
             <button
               className="topbar__icon topbar__theme-toggle"

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { aiAssistantAPI, faqsAPI, videosAPI } from '../lib/api';
+import { useTranslation } from 'react-i18next';
+import { aiAssistantAPI, faqsAPI, videosAPI, translationsAPI } from '../lib/api';
 import './PageStyles.css';
 
 function getYouTubeEmbedId(url) {
@@ -92,12 +93,15 @@ const resources = [
 ];
 
 export default function KnowledgeHub() {
+  const { i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState('learning');
   const [aiMessage, setAiMessage] = useState('');
   const [chatMessages, setChatMessages] = useState([]);
   const [sending, setSending] = useState(false);
   const [faqs, setFaqs] = useState([]);
   const [faqsLoading, setFaqsLoading] = useState(true);
+  const [faqTranslations, setFaqTranslations] = useState({});
+  const [translatingFaqs, setTranslatingFaqs] = useState(false);
   const [videos, setVideos] = useState([]);
   const [videosLoading, setVideosLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -122,6 +126,37 @@ export default function KnowledgeHub() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  // Translate stored FAQ content on demand when the UI language isn't
+  // English. Falls back to the original English text while a translation
+  // is loading or if it fails - never blocks rendering.
+  useEffect(() => {
+    if (i18n.language === 'en' || faqs.length === 0) return;
+    let cancelled = false;
+    setTranslatingFaqs(true);
+
+    Promise.all(faqs.map(async (faq) => {
+      const [qResult, aResult] = await Promise.all([
+        translationsAPI.translate({ sourceType: 'faq_question', sourceId: faq.id, text: faq.question, language: i18n.language }),
+        translationsAPI.translate({ sourceType: 'faq_answer', sourceId: faq.id, text: faq.answer, language: i18n.language }),
+      ]);
+      return {
+        id: faq.id,
+        question: qResult.success ? qResult.translated_text : faq.question,
+        answer: aResult.success ? aResult.translated_text : faq.answer,
+      };
+    }))
+      .then(results => {
+        if (cancelled) return;
+        const map = {};
+        results.forEach(r => { map[r.id] = { question: r.question, answer: r.answer }; });
+        setFaqTranslations(map);
+      })
+      .catch(err => console.error('Failed to translate FAQs:', err))
+      .finally(() => { if (!cancelled) setTranslatingFaqs(false); });
+
+    return () => { cancelled = true; };
+  }, [i18n.language, faqs]);
 
   const handleAskAI = async () => {
     if (!aiMessage.trim() || sending) return;
@@ -440,13 +475,17 @@ export default function KnowledgeHub() {
           <div className="card">
             <h3 className="card__title">❓ Frequently Asked Questions</h3>
             {faqsLoading && <p style={{ color: 'var(--neutral-500)' }}>Loading FAQs…</p>}
+            {translatingFaqs && <p style={{ color: 'var(--neutral-500)', fontSize: '13px' }}>Translating…</p>}
             <div className="faq-list">
-              {faqs.map((faq) => (
-                <div key={faq.id} className="faq-item">
-                  <div className="faq-question">Q: {faq.question}</div>
-                  <div className="faq-answer">A: {faq.answer}</div>
-                </div>
-              ))}
+              {faqs.map((faq) => {
+                const translated = i18n.language !== 'en' ? faqTranslations[faq.id] : null;
+                return (
+                  <div key={faq.id} className="faq-item">
+                    <div className="faq-question">Q: {translated?.question || faq.question}</div>
+                    <div className="faq-answer">A: {translated?.answer || faq.answer}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

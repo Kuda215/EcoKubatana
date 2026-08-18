@@ -758,3 +758,24 @@ export const wellbeingAPI = {
     return response.json();
   },
 };
+
+// ══════════════════════════════════════════
+// TRANSLATIONS API
+// ══════════════════════════════════════════
+// On-demand translation of stored content (FAQ answers, incident
+// descriptions, alert messages, etc.), cached server-side per
+// (source_type, source_id, language) so the same content is only ever
+// translated once via OpenAI.
+
+export const translationsAPI = {
+  async translate({ sourceType, sourceId, text, language }) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/translate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ source_type: sourceType, source_id: sourceId, text, language }),
+    });
+    return response.json();
+  },
+};

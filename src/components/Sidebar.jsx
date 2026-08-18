@@ -1,25 +1,27 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import './Sidebar.css';
 
 const navItems = [
-  { path: '/',              label: 'Dashboard',         icon: '🏠' },
-  { path: '/safety-hub',    label: 'Safety Hub',        icon: '🗺️' },
-  { path: '/incidents',     label: 'Incidents',         icon: '⚠️' },
-  { path: '/alerts',        label: 'Alerts',            icon: '🔔' },
-  { path: '/community',     label: 'Community Board',   icon: '👥' },
-  { path: '/knowledge',     label: 'AI Knowledge Hub',  icon: '🤖' },
-  { path: '/take-action',   label: 'Take Action',       icon: '🌱' },
-  { path: '/wellbeing',     label: 'Support & Wellbeing', icon: '💚' },
-  { path: '/report',        label: 'Report Incident',   icon: '📋' },
-  { path: '/settings',      label: 'Settings',          icon: '⚙️' },
+  { path: '/',              key: 'dashboard',  icon: '🏠' },
+  { path: '/safety-hub',    key: 'safetyHub',  icon: '🗺️' },
+  { path: '/incidents',     key: 'incidents',  icon: '⚠️' },
+  { path: '/alerts',        key: 'alerts',     icon: '🔔' },
+  { path: '/community',     key: 'community',  icon: '👥' },
+  { path: '/knowledge',     key: 'knowledge',  icon: '🤖' },
+  { path: '/take-action',   key: 'takeAction', icon: '🌱' },
+  { path: '/wellbeing',     key: 'wellbeing',  icon: '💚' },
+  { path: '/report',        key: 'report',     icon: '📋' },
+  { path: '/settings',      key: 'settings',   icon: '⚙️' },
 ];
 
-const adminNavItem = { path: '/admin', label: 'Admin Portal', icon: '🔧' };
+const adminNavItem = { path: '/admin', key: 'admin', icon: '🔧' };
 
 export default function Sidebar({ isOpen, onClose }) {
   const { isAdmin } = useAuth();
-  
+  const { t } = useTranslation();
+
   return (
     <>
       {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
@@ -28,12 +30,12 @@ export default function Sidebar({ isOpen, onClose }) {
           <span className="sidebar__logo">🌿</span>
           <div>
             <span className="sidebar__name">EcoKubatana</span>
-            <span className="sidebar__tagline">Stronger Communities</span>
+            <span className="sidebar__tagline">{t('sidebar.tagline')}</span>
           </div>
         </div>
 
         <nav className="sidebar__nav">
-          {navItems.map(({ path, label, icon }) => (
+          {navItems.map(({ path, key, icon }) => (
             <NavLink
               key={path}
               to={path}
@@ -44,10 +46,10 @@ export default function Sidebar({ isOpen, onClose }) {
               onClick={onClose}
             >
               <span className="sidebar__icon">{icon}</span>
-              <span className="sidebar__label">{label}</span>
+              <span className="sidebar__label">{t(`sidebar.${key}`)}</span>
             </NavLink>
           ))}
-          
+
           {/* Admin Portal - Only visible to admins */}
           {isAdmin && (
             <>
@@ -60,14 +62,14 @@ export default function Sidebar({ isOpen, onClose }) {
                 onClick={onClose}
               >
                 <span className="sidebar__icon">{adminNavItem.icon}</span>
-                <span className="sidebar__label">{adminNavItem.label}</span>
+                <span className="sidebar__label">{t(`sidebar.${adminNavItem.key}`)}</span>
               </NavLink>
             </>
           )}
         </nav>
 
         <div className="sidebar__footer">
-          <p className="sidebar__motto">Ubuntu · Collaboration · Resilience</p>
+          <p className="sidebar__motto">{t('sidebar.motto')}</p>
         </div>
       </aside>
     </>

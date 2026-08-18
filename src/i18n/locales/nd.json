@@ -1,0 +1,39 @@
+{
+  "sidebar": {
+    "dashboard": "Ikhasi Elikhulu",
+    "safetyHub": "Indawo Yokuphepha",
+    "incidents": "Iziyenzakalo",
+    "alerts": "Izixwayiso",
+    "community": "Ibhodi Lomphakathi",
+    "knowledge": "Isikhungo Solwazi lwe-AI",
+    "takeAction": "Thatha Isinyathelo",
+    "wellbeing": "Ukusekelwa Lempilakahle",
+    "report": "Bika Isigameko",
+    "settings": "Izilungiselelo",
+    "admin": "Isango Labaphathi",
+    "tagline": "Imiphakathi Eqinileyo",
+    "motto": "Ubuntu · Ukusebenzisana · Ukuqina"
+  },
+  "topbar": {
+    "voiceReport": "Umbiko Ngelizwi",
+    "requestHelp": "Cela Usizo"
+  },
+  "pageTitles": {
+    "welcomeBack": "Wamukelekile futhi, {{name}}",
+    "safetyHub": "Usizo Lokuphepha Oluseduze",
+    "incidents": "Iziyenzakalo Zesimo Sezulu",
+    "alerts": "Izixwayiso Zesimo Sezulu",
+    "community": "Ibhodi Lomphakathi",
+    "knowledge": "Isikhungo Solwazi lwe-AI",
+    "takeAction": "Thatha Isinyathelo",
+    "wellbeing": "Ukusekelwa Lempilakahle",
+    "report": "Bika Isigameko",
+    "settings": "Izilungiselelo",
+    "admin": "Isango Labaphathi"
+  },
+  "settings": {
+    "language": "Ulimi",
+    "languageDesc": "Khetha ulimi olulithandayo",
+    "languageLabel": "Ukukhethwa Kolimi"
+  }
+}
