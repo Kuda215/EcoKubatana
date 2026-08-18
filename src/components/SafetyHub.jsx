@@ -50,6 +50,18 @@ const safetyLocations = [
     ],
     services: ['Fire Emergency', 'Rescue', 'Disaster Response']
   },
+   {
+    id: 6,
+    name: 'Centurion Police Station',
+    type: 'Fire',
+    address: 'Celtisdal, Centurion',
+    coords: { x: 30, y: 42 },
+    contacts: [
+      { label: 'Emergency', number: '10177' },
+      { label: 'Station', number: '011 567 8901' },
+    ],
+    services: ['Fire Emergency', 'Rescue', 'Disaster Response']
+  },
   {
     id: 5,
     name: 'Your Location',
