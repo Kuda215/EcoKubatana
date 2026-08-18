@@ -634,3 +634,127 @@ export const notificationsAPI = {
     return { success: true, data: now };
   },
 };
+
+// ══════════════════════════════════════════
+// WELLBEING API
+// ══════════════════════════════════════════
+
+export const wellbeingAPI = {
+  async getShares(limit = 20, includeHidden = false) {
+    const headers = await getAuthHeaders();
+
+    const params = new URLSearchParams();
+
+    params.set('limit', limit);
+
+    if (includeHidden) {
+      params.set('include_hidden', 'true');
+    }
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares?${params.toString()}`,
+      {
+        method: 'GET',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//create a wellbeing share
+  async createShare(content) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares`,
+      {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+        }),
+      }
+    );
+
+    return response.json();
+  },
+
+//support a share
+  async supportShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/support`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//report a wellbeing share
+  async flagShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/flag`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//unreport a share (admin)
+  async unflagShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/unflag`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//hide a share (admin)
+  async hideShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/hide`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//unhide a share (admin)
+  async unhideShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/unhide`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+};
