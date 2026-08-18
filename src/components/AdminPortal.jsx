@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { alertsAPI, faqsAPI, videosAPI, helpRequestsAPI, incidentsAPI, adminStatsAPI } from '../lib/api';
+import { alertsAPI, faqsAPI, videosAPI, helpRequestsAPI, incidentsAPI, adminStatsAPI, wellbeingAPI } from '../lib/api';
 
 function formatRelativeTime(dateString) {
   const diffMs = Date.now() - new Date(dateString).getTime();
@@ -20,6 +20,9 @@ export default function AdminPortal() {
   const [popup, setPopup] = useState(null); // { type: 'verify'|'reject'|'view', data: {} }
   const [popupVisible, setPopupVisible] = useState(false);
   const [reports, setReports] = useState([]);
+  const [wellbeingShares, setWellbeingShares] = useState([]);
+  const [wellbeingLoading, setWellbeingLoading] = useState(false);
+  const [wellbeingError, setWellbeingError] = useState('');
   const [memberCounts, setMemberCounts] = useState({ totalMembers: 0, totalVolunteers: 0 });
   const [members, setMembers] = useState([
     { id: 1, name: 'David Lee',     role: 'member',    location: 'Ferndale',   joined: '2026-08-08', status: 'active' },
@@ -55,6 +58,27 @@ export default function AdminPortal() {
 
   useEffect(loadAlerts, [user?.role]);
 
+  const fetchFlaggedWellbeing = async () => {
+    setWellbeingLoading(true);
+    setWellbeingError('');
+
+    try {
+      const result = await wellbeingAPI.getShares(100, true);
+
+      if (!result.success) {
+        setWellbeingError(result.error || 'Failed to load flagged wellbeing shares');
+        return;
+      }
+
+      setWellbeingShares((result.data || []).filter(share => share.reported === true));
+    } catch (error) {
+      console.error('Failed to load flagged wellbeing shares:', error);
+      setWellbeingError('Failed to load flagged wellbeing shares');
+    } finally {
+      setWellbeingLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user?.role !== 'admin') return;
     faqsAPI.list()
@@ -72,6 +96,7 @@ export default function AdminPortal() {
     adminStatsAPI.getMemberCounts()
       .then(result => { if (result.success) setMemberCounts(result.data); })
       .catch(err => console.error('Failed to load member counts:', err));
+   fetchFlaggedWellbeing();
   }, [user?.role]);
 
   const stats = {
@@ -81,7 +106,8 @@ export default function AdminPortal() {
     pendingReports: reports.filter(r => r.status === 'pending').length,
     alertsSent: publishedAlerts.length,
     pendingAlerts: pendingAlerts.length,
-    helpRequests: helpRequests.filter(r => r.status === 'open').length
+    helpRequests: helpRequests.filter(r => r.status === 'open').length,
+    flaggedWellbeing: wellbeingShares.length
   };
 
   const triggerPopup = (type, data) => {
@@ -138,6 +164,99 @@ export default function AdminPortal() {
     } catch (error) {
       console.error('Failed to reject incident:', error);
       triggerPopup('reject', { type: 'Update Failed', location: 'Please try again' });
+    }
+  };
+
+    const handleUnreportWellbeing = async (share) => {
+    try {
+      const result = await wellbeingAPI.unflagShare(share.id);
+
+      if (!result.success) {
+        triggerPopup('reject', {
+          type: 'Unreport Failed',
+          location: result.error || 'Please try again'
+        });
+        return;
+      }
+
+      setWellbeingShares(prev => prev.filter(s => s.id !== share.id));
+
+      triggerPopup('verify', {
+        type: 'Share Unreported',
+        location: 'Anonymous wellbeing share'
+      });
+    } catch (error) {
+      console.error('Failed to unreport wellbeing share:', error);
+      triggerPopup('reject', {
+        type: 'Unreport Failed',
+        location: 'Please try again'
+      });
+    }
+  };
+
+  const handleHideWellbeing = async (share) => {
+    try {
+      const result = await wellbeingAPI.hideShare(share.id);
+
+      if (!result.success) {
+        triggerPopup('reject', {
+          type: 'Hide Failed',
+          location: result.error || 'Please try again'
+        });
+        return;
+      }
+
+      setWellbeingShares(prev =>
+        prev.map(s =>
+          s.id === share.id
+            ? { ...s, is_hidden: true }
+            : s
+        )
+      );
+
+      triggerPopup('verify', {
+        type: 'Share Hidden',
+        location: 'Anonymous wellbeing share'
+      });
+    } catch (error) {
+      console.error('Failed to hide wellbeing share:', error);
+      triggerPopup('reject', {
+        type: 'Hide Failed',
+        location: 'Please try again'
+      });
+    }
+  };
+
+    const handleUnhideWellbeing = async (share) => {
+    try {
+      const result = await wellbeingAPI.unhideShare(share.id);
+
+      if (!result.success) {
+        triggerPopup('reject', {
+          type: 'Unhide Failed',
+          location: result.error || 'Please try again'
+        });
+        return;
+      }
+
+      setWellbeingShares(prev =>
+        prev.map(s =>
+          s.id === share.id
+            ? { ...s, is_hidden: false }
+            : s
+        )
+      );
+
+      triggerPopup('verify', {
+        type: 'Share Unhidden',
+        location: 'Anonymous wellbeing share'
+      });
+    } catch (error) {
+      console.error('Failed to unhide wellbeing share:', error);
+      triggerPopup('reject', {
+        type: 'Unhide Failed',
+        location: 'Please try again'
+      });
     }
   };
 
@@ -444,7 +563,7 @@ export default function AdminPortal() {
 
       {/* Tabs */}
       <div className="filter-tabs">
-        {['overview', 'reports', 'help-requests', 'members', 'alerts', 'faqs', 'videos'].map(tab => (
+        {['overview', 'reports', 'help-requests', 'members', 'alerts', 'wellbeing', 'faqs', 'videos'].map(tab => (
           <button key={tab}
             className={`filter-tab ${activeTab === tab ? 'filter-tab--active' : ''}`}
             onClick={() => setActiveTab(tab)}
@@ -454,6 +573,7 @@ export default function AdminPortal() {
             {tab === 'help-requests' && `Help Requests ${stats.helpRequests > 0 ? `(${stats.helpRequests})` : ''}`}
             {tab === 'members' && 'Members'}
             {tab === 'alerts' && `Pending Alerts ${stats.pendingAlerts > 0 ? `(${stats.pendingAlerts})` : ''}`}
+            {tab === 'wellbeing' && `Flagged Wellbeing ${stats.flaggedWellbeing > 0 ? `(${stats.flaggedWellbeing})` : ''}`}
             {tab === 'faqs' && 'FAQs'}
             {tab === 'videos' && 'Videos'}
           </button>
@@ -472,6 +592,7 @@ export default function AdminPortal() {
               { icon: '📢', value: stats.alertsSent,                   label: 'Alerts Sent',          bg: 'linear-gradient(135deg,#e8fff8,#d1fae5)' },
               { icon: '📝', value: stats.pendingAlerts,                label: 'Pending Alerts',       bg: 'linear-gradient(135deg,#fef3c7,#fde68a)' },
               { icon: '🚨', value: stats.helpRequests,                 label: 'Active Help Requests', bg: 'linear-gradient(135deg,#fff8f0,#fde8e8)' },
+              { icon: '🚩', value: stats.flaggedWellbeing,             label: 'Flagged Wellbeing',    bg: 'linear-gradient(135deg,#fee2e2,#fecaca)' },
             ].map((s, i) => (
               <div key={i} className="admin-stat-card">
                 <div className="admin-stat-icon" style={{ background: s.bg }}>{s.icon}</div>
@@ -490,6 +611,7 @@ export default function AdminPortal() {
                 { icon: '📋', title: 'Review Reports',  desc: 'Process pending incident reports',          tab: 'reports' },
                 { icon: '🚨', title: 'Help Requests',   desc: 'View and respond to emergency requests',    tab: 'help-requests' },
                 { icon: '👥', title: 'Manage Members',  desc: 'View and manage community members',         tab: 'members' },
+                { icon: '🚩', title: 'Flagged Wellbeing', desc: 'Review reported anonymous wellbeing shares', tab: 'wellbeing' },
               ].map(a => (
                 <button key={a.tab} className="action-card" onClick={() => setActiveTab(a.tab)}>
                   <div className="action-card__icon">{a.icon}</div>
@@ -704,6 +826,170 @@ export default function AdminPortal() {
           )}
         </div>
       )}
+  
+     {/* Flagged Wellbeing Tab */}
+{activeTab === 'wellbeing' && (
+  <div className="admin-table-container">
+    <div className="admin-table-header">
+      <div>
+        <h3>🚩 Flagged Wellbeing Shares</h3>
+        <p style={{ marginTop: '5px', color: '#6b7280', fontSize: '14px' }}>
+          Anonymous wellbeing shares reported by the community.
+        </p>
+      </div>
+
+      <button
+        className="btn btn--secondary"
+        onClick={fetchFlaggedWellbeing}
+        disabled={wellbeingLoading}
+      >
+        {wellbeingLoading ? 'Refreshing...' : '↻ Refresh'}
+      </button>
+    </div>
+
+    {wellbeingError && (
+      <div
+        className="wellbeing-message wellbeing-message--error"
+        style={{ margin: '20px' }}
+      >
+        {wellbeingError}
+      </div>
+    )}
+
+    {wellbeingLoading && (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+        Loading flagged wellbeing shares...
+      </div>
+    )}
+
+    {!wellbeingLoading && !wellbeingError && wellbeingShares.length === 0 && (
+      <div style={{ padding: '50px 20px', textAlign: 'center' }}>
+        <div style={{ fontSize: '42px', marginBottom: '12px' }}>✓</div>
+        <h3>No Flagged Shares</h3>
+        <p style={{ color: '#6b7280' }}>
+          There are currently no wellbeing shares requiring review.
+        </p>
+      </div>
+    )}
+
+    {!wellbeingLoading && !wellbeingError && wellbeingShares.length > 0 && (
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>Share</th>
+            <th>Support</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {wellbeingShares.map(share => (
+            <tr
+              key={share.id}
+              className={share.is_hidden ? 'admin-table-row--muted' : ''}
+            >
+              {/* Share content */}
+              <td style={{ maxWidth: '420px' }}>
+                <div
+                  style={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: '420px'
+                  }}
+                  title={share.content}
+                >
+                  {share.content}
+                </div>
+              </td>
+
+              {/* Support count */}
+              <td>
+                ❤️ {share.support_count || 0}
+              </td>
+
+              {/* Status */}
+              <td>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  <span className="status-badge status-badge--rejected">
+                    🚩 Reported
+                  </span>
+
+                  {share.is_hidden && (
+                    <span
+                      className="status-badge"
+                      style={{
+                        background: '#e5e7eb',
+                        color: '#4b5563'
+                      }}
+                    >
+                      Hidden
+                    </span>
+                  )}
+                </div>
+              </td>
+
+              {/* Date */}
+              <td>
+                {new Date(share.created_at).toLocaleDateString()}
+              </td>
+
+              {/* Actions */}
+              <td className="admin-table-actions">
+                <button
+                  type="button"
+                  className="btn-table-action"
+                  onClick={() =>
+                    triggerPopup('view', {
+                      type: 'Anonymous Wellbeing Share',
+                      reporter: 'Anonymous',
+                      location: 'Community Wellbeing',
+                      date: new Date(share.created_at).toLocaleString(),
+                      status: share.is_hidden ? 'hidden' : 'reported',
+                      description: share.content
+                    })
+                  }
+                >
+                  👁 View
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-table-action btn-table-action--primary"
+                  onClick={() => handleUnreportWellbeing(share)}
+                >
+                  ✓ Unreport
+                </button>
+
+                {!share.is_hidden && (
+                  <button
+                    type="button"
+                    className="btn-table-action btn-table-action--danger"
+                    onClick={() => handleHideWellbeing(share)}
+                  >
+                    🗑 Hide
+                  </button>
+                )}
+
+                {share.is_hidden && (
+                  <button
+                    type="button"
+                    className="btn-table-action btn-table-action--primary"
+                    onClick={() => handleUnhideWellbeing(share)}
+                  >
+                    ↩ Unhide
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+)}
 
       {/* FAQs Tab */}
       {activeTab === 'faqs' && (

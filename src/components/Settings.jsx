@@ -1,9 +1,16 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES } from '../i18n';
 import './PageStyles.css';
 
 export default function Settings() {
+  const { t, i18n } = useTranslation();
   const [fontSize, setFontSize] = useState('medium');
-  const [language, setLanguage] = useState('en');
+
+  const handleLanguageChange = (lang) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('ecokubatana_language', lang);
+  };
 
   const handleFontChange = (size) => {
     setFontSize(size);
@@ -48,23 +55,23 @@ export default function Settings() {
 
         {/* Language Settings */}
         <div className="card">
-          <h3 className="card__title">🌍 Language</h3>
+          <h3 className="card__title">🌍 {t('settings.language')}</h3>
           <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Select your preferred language
+            {t('settings.languageDesc')}
           </p>
           <div className="form-group">
-            <label className="form-label">Language Selection</label>
+            <label className="form-label">{t('settings.languageLabel')}</label>
             <select
               className="form-input"
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
+              value={SUPPORTED_LANGUAGES.includes(i18n.language) ? i18n.language : 'en'}
+              onChange={(e) => handleLanguageChange(e.target.value)}
             >
               <option value="en">English</option>
               <option value="sn">Shona</option>
               <option value="nd">Ndebele</option>
-              <option value="sw">Swahili</option>
-              <option value="fr">French</option>
-              <option value="pt">Portuguese</option>
+              <option value="sw" disabled>Swahili (coming soon)</option>
+              <option value="fr" disabled>French (coming soon)</option>
+              <option value="pt" disabled>Portuguese (coming soon)</option>
             </select>
           </div>
           <p style={{ fontSize: '13px', color: 'var(--neutral-400)', marginTop: '12px' }}>

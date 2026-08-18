@@ -1,0 +1,39 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "safetyHub": "Nzvimbo yeKuchengetedzeka",
+    "incidents": "Zviitiko",
+    "alerts": "Yambiro",
+    "community": "Bhodhi reNharaunda",
+    "knowledge": "Nzvimbo yeRuzivo rwe AI",
+    "takeAction": "Ita Chiito",
+    "wellbeing": "Rutsigiro neUpenyu Hwakanaka",
+    "report": "Shuma Chiitiko",
+    "settings": "Zvirongwa",
+    "admin": "Gonhi reVatungamiriri",
+    "tagline": "Nharaunda Dzakasimba",
+    "motto": "Ubuntu · Kushandira Pamwe · Kusimba"
+  },
+  "topbar": {
+    "voiceReport": "Shuma neInzwi",
+    "requestHelp": "Kumbira Rubatsiro"
+  },
+  "pageTitles": {
+    "welcomeBack": "Tinokugamuchira, {{name}}",
+    "safetyHub": "Rubatsiro neKuchengetedzeka Padyo",
+    "incidents": "Zviitiko Zvemamiriro ekunze",
+    "alerts": "Yambiro dzeMamiriro ekunze",
+    "community": "Bhodhi reNharaunda",
+    "knowledge": "Nzvimbo yeRuzivo rwe AI",
+    "takeAction": "Ita Chiito",
+    "wellbeing": "Rutsigiro neUpenyu Hwakanaka",
+    "report": "Shuma Chiitiko",
+    "settings": "Zvirongwa",
+    "admin": "Gonhi reVatungamiriri"
+  },
+  "settings": {
+    "language": "Mutauro",
+    "languageDesc": "Sarudza mutauro waunoda",
+    "languageLabel": "Kusarudza Mutauro"
+  }
+}

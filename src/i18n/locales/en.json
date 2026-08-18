@@ -1,0 +1,39 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "safetyHub": "Safety Hub",
+    "incidents": "Incidents",
+    "alerts": "Alerts",
+    "community": "Community Board",
+    "knowledge": "AI Knowledge Hub",
+    "takeAction": "Take Action",
+    "wellbeing": "Support & Wellbeing",
+    "report": "Report Incident",
+    "settings": "Settings",
+    "admin": "Admin Portal",
+    "tagline": "Stronger Communities",
+    "motto": "Ubuntu · Collaboration · Resilience"
+  },
+  "topbar": {
+    "voiceReport": "Voice Report",
+    "requestHelp": "Request Help"
+  },
+  "pageTitles": {
+    "welcomeBack": "Welcome back, {{name}}",
+    "safetyHub": "Nearest Help & Safety Hub",
+    "incidents": "Climate Incidents",
+    "alerts": "Weather & Climate Alerts",
+    "community": "Community Board",
+    "knowledge": "AI Knowledge Hub",
+    "takeAction": "Take Action",
+    "wellbeing": "Support & Wellbeing",
+    "report": "Report Incident",
+    "settings": "Settings",
+    "admin": "Admin Portal"
+  },
+  "settings": {
+    "language": "Language",
+    "languageDesc": "Select your preferred language",
+    "languageLabel": "Language Selection"
+  }
+}

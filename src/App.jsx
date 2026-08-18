@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
 import Sidebar        from './components/Sidebar'
@@ -15,6 +16,7 @@ import Wellbeing      from './components/Wellbeing'
 import Settings       from './components/Settings'
 import Login          from './components/Login'
 import AdminPortal    from './components/AdminPortal'
+import VoiceReport    from './components/VoiceReport'
 import CommunitySolutions    from './components/CommunitySolutions'
 
 import { helpRequestsAPI, alertsAPI, notificationsAPI } from './lib/api'
@@ -31,24 +33,24 @@ function timeAgo(date) {
   return `${Math.floor(diff / 86400000)}d ago`
 }
 
-// Page title mapping
-const pageTitles = {
-  '/': (userName) => `Welcome back, ${userName.split(' ')[0]}`,
-  '/safety-hub': 'Nearest Help & Safety Hub',
-  '/incidents': 'Climate Incidents',
-  '/alerts': 'Weather & Climate Alerts',
-  '/community': 'Community Board',
-  '/knowledge': 'AI Knowledge Hub',
-  '/take-action': 'Take Action',
-  '/wellbeing': 'Support & Wellbeing',
-  '/report': 'Report Incident',
-  '/settings': 'Settings',
-  '/admin': 'Admin Portal'
+// Page title mapping - maps each route to its pageTitles.* translation key
+const pageTitleKeys = {
+  '/safety-hub': 'safetyHub',
+  '/incidents': 'incidents',
+  '/alerts': 'alerts',
+  '/community': 'community',
+  '/knowledge': 'knowledge',
+  '/take-action': 'takeAction',
+  '/wellbeing': 'wellbeing',
+  '/report': 'report',
+  '/settings': 'settings',
+  '/admin': 'admin',
 }
 
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [helpModalOpen, setHelpModalOpen] = useState(false)
+  const [voiceReportOpen, setVoiceReportOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [helpForm, setHelpForm] = useState({ type: 'Medical', priority: 'medium', location: '', description: '' })
   const [helpSubmitting, setHelpSubmitting] = useState(false)
@@ -56,7 +58,9 @@ function AppContent() {
   const [bellOpen, setBellOpen] = useState(false)
   const [recentAlerts, setRecentAlerts] = useState([])
   const [lastSeenAlertsAt, setLastSeenAlertsAt] = useState('1970-01-01T00:00:00Z')
+  const { t } = useTranslation()
   const location = useLocation()
+  const navigate = useNavigate()
   const { user, logout, isAuthenticated, isAdmin } = useAuth()
   const { isDark, toggleTheme } = useTheme()
 
@@ -126,11 +130,11 @@ function AppContent() {
   }
 
   const getPageTitle = (path) => {
-    const title = pageTitles[path];
-    if (typeof title === 'function') {
-      return title(user?.name || 'User');
+    if (path === '/') {
+      return t('pageTitles.welcomeBack', { name: (user?.name || 'User').split(' ')[0] });
     }
-    return title || 'EcoKubatana';
+    const key = pageTitleKeys[path];
+    return key ? t(`pageTitles.${key}`) : 'EcoKubatana';
   };
 
   const currentTitle = getPageTitle(location.pathname)
@@ -151,8 +155,11 @@ function AppContent() {
           </div>
           <div className="topbar__title">{currentTitle}</div>
           <div className="topbar__right">
+            <button className="topbar__help-btn" style={{ background: '#0a3d2e' }} onClick={() => setVoiceReportOpen(true)}>
+              🎙️ {t('topbar.voiceReport')}
+            </button>
             <button className="topbar__help-btn" onClick={openHelpModal}>
-              🚨 Request Help
+              🚨 {t('topbar.requestHelp')}
             </button>
             <button
               className="topbar__icon topbar__theme-toggle"
@@ -196,7 +203,7 @@ function AppContent() {
                     ))}
                   </div>
                   <div className="profile-menu-divider"></div>
-                  <button className="profile-menu-item" onClick={() => { setBellOpen(false); window.location.href = '/alerts'; }}>
+                  <button className="profile-menu-item" onClick={() => { setBellOpen(false); navigate('/alerts'); }}>
                     See all alerts →
                   </button>
                 </div>
@@ -220,11 +227,11 @@ function AppContent() {
                     </div>
                   </div>
                   <div className="profile-menu-divider"></div>
-                  <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); window.location.href = '/settings'; }}>
+                  <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); navigate('/settings'); }}>
                     ⚙️ Settings
                   </button>
                   {isAdmin && (
-                    <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); window.location.href = '/admin'; }}>
+                    <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); navigate('/admin'); }}>
                       🔧 Admin Portal
                     </button>
                   )}
@@ -350,6 +357,8 @@ function AppContent() {
             </div>
           </div>
         )}
+
+        <VoiceReport isOpen={voiceReportOpen} onClose={() => setVoiceReportOpen(false)} />
       </div>
     </>
   )

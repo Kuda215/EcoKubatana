@@ -345,6 +345,75 @@ export const aiAssistantAPI = {
     });
     return response.json();
   },
+
+  // Speech-to-text via OpenAI Whisper. audioBase64 is the raw recording
+  // (no data: URI prefix), mimeType e.g. 'audio/webm'.
+  async transcribe(audioBase64, mimeType) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/ai-assistant/transcribe`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ audio_base64: audioBase64, mime_type: mimeType }),
+    });
+    return response.json();
+  },
+
+  // Text-to-speech via OpenAI TTS. Returns { success, audio_base64, mime_type }.
+  async speak(text, voice) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/ai-assistant/speak`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ text, voice }),
+    });
+    return response.json();
+  },
+};
+
+// ══════════════════════════════════════════
+// INCIDENT ANALYSIS API
+// ══════════════════════════════════════════
+// Real OpenAI vision analysis of an uploaded incident photo.
+
+export const incidentAnalysisAPI = {
+  async analyze(imageUrl) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/incident-analysis`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ image_url: imageUrl }),
+    });
+    return response.json();
+  },
+};
+
+// ══════════════════════════════════════════
+// INCIDENT IMAGES (STORAGE) API
+// ══════════════════════════════════════════
+// Uploads a photo to the incident-images storage bucket and returns its
+// public URL, for use as both the incident's image_url and the input to
+// incidentAnalysisAPI.analyze().
+
+export const incidentImagesAPI = {
+  async upload(file) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'You must be signed in to upload a photo.' };
+
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `${user.id}/${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('incident-images')
+      .upload(path, file, { contentType: file.type });
+
+    if (uploadError) return { success: false, error: uploadError.message };
+
+    const { data } = supabase.storage.from('incident-images').getPublicUrl(path);
+    return { success: true, url: data.publicUrl };
+  },
 };
 
 // ══════════════════════════════════════════
@@ -563,5 +632,150 @@ export const notificationsAPI = {
 
     if (error) return { success: false, error: error.message };
     return { success: true, data: now };
+  },
+};
+
+// ══════════════════════════════════════════
+// WELLBEING API
+// ══════════════════════════════════════════
+
+export const wellbeingAPI = {
+  async getShares(limit = 20, includeHidden = false) {
+    const headers = await getAuthHeaders();
+
+    const params = new URLSearchParams();
+
+    params.set('limit', limit);
+
+    if (includeHidden) {
+      params.set('include_hidden', 'true');
+    }
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares?${params.toString()}`,
+      {
+        method: 'GET',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//create a wellbeing share
+  async createShare(content) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares`,
+      {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content,
+        }),
+      }
+    );
+
+    return response.json();
+  },
+
+//support a share
+  async supportShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/support`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//report a wellbeing share
+  async flagShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/flag`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//unreport a share (admin)
+  async unflagShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/unflag`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//hide a share (admin)
+  async hideShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/hide`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+
+//unhide a share (admin)
+  async unhideShare(shareId) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${EDGE_FUNCTION_URL}/wellbeing-shares/${shareId}/unhide`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+
+    return response.json();
+  },
+};
+
+// ══════════════════════════════════════════
+// TRANSLATIONS API
+// ══════════════════════════════════════════
+// On-demand translation of stored content (FAQ answers, incident
+// descriptions, alert messages, etc.), cached server-side per
+// (source_type, source_id, language) so the same content is only ever
+// translated once via OpenAI.
+
+export const translationsAPI = {
+  async translate({ sourceType, sourceId, text, language }) {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(`${EDGE_FUNCTION_URL}/translate`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ source_type: sourceType, source_id: sourceId, text, language }),
+    });
+    return response.json();
   },
 };
