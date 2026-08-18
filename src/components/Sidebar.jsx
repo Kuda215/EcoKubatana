@@ -4,16 +4,15 @@ import { useAuth } from '../contexts/AuthContext';
 import './Sidebar.css';
 
 const navItems = [
-  { path: '/',              key: 'dashboard',  icon: '🏠' },
-  { path: '/safety-hub',    key: 'safetyHub',  icon: '🗺️' },
-  { path: '/incidents',     key: 'incidents',  icon: '⚠️' },
-  { path: '/alerts',        key: 'alerts',     icon: '🔔' },
-  { path: '/community',     key: 'community',  icon: '👥' },
-  { path: '/knowledge',     key: 'knowledge',  icon: '🤖' },
-  { path: '/take-action',   key: 'takeAction', icon: '🌱' },
-  { path: '/wellbeing',     key: 'wellbeing',  icon: '💚' },
-  { path: '/report',        key: 'report',     icon: '📋' },
-  { path: '/settings',      key: 'settings',   icon: '⚙️' },
+  { path: '/',                   key: 'dashboard',           icon: '🏠' },
+  { path: '/CommunitySolutions', key: 'communitySolutions',  icon: '👀' },
+  { path: '/safety-hub',         key: 'safetyHub',            icon: '🗺️' },
+  { path: '/incidents',          key: 'incidents',             icon: '⚠️' },
+  { path: '/alerts',             key: 'alerts',                icon: '🔔' },
+  { path: '/community',          key: 'community',             icon: '👥' },
+  { path: '/knowledge',          key: 'knowledge',             icon: '🤖' },
+  { path: '/wellbeing',          key: 'wellbeing',             icon: '💚' },
+  { path: '/settings',           key: 'settings',              icon: '⚙️' },
 ];
 
 const adminNavItem = { path: '/admin', key: 'admin', icon: '🔧' };

@@ -1,6 +1,7 @@
 {
   "sidebar": {
     "dashboard": "Ikhasi Elikhulu",
+    "communitySolutions": "Zomphakathi Izixazululo",
     "safetyHub": "Indawo Yokuphepha",
     "incidents": "Iziyenzakalo",
     "alerts": "Izixwayiso",
@@ -20,6 +21,7 @@
   },
   "pageTitles": {
     "welcomeBack": "Wamukelekile futhi, {{name}}",
+    "communitySolutions": "Zomphakathi Izixazululo",
     "safetyHub": "Usizo Lokuphepha Oluseduze",
     "incidents": "Iziyenzakalo Zesimo Sezulu",
     "alerts": "Izixwayiso Zesimo Sezulu",

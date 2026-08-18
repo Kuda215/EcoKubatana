@@ -4,7 +4,6 @@ import './PageStyles.css';
 
 const severityColor = { high: '#e63946', medium: '#f4a261', low: '#52b788' };
 
-console.log('Incidents component initialized.');
 export default function Incidents() {
   console.log('Incidents component mounted.');
   const [filter, setFilter] = useState('All');

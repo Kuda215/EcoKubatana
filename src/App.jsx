@@ -252,7 +252,7 @@ function AppContent() {
             <Route path="/alerts"     element={<Alerts />} />
             <Route path="/community"  element={<CommunityBoard />} /> 
             <Route path="/knowledge"  element={<KnowledgeHub />} />
-            <Route path="/CommunitySolutions"element={<CommunitySolutions />} />
+            <Route path="/CommunitySolutions" element={<CommunitySolutions />} />
             <Route path="/wellbeing"  element={<Wellbeing />} />
             {/* <Route path="/report"     element={<ReportInkcident />} /> */}
             <Route path="/settings"   element={<Settings />} />
