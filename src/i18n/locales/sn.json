@@ -1,7 +1,7 @@
 {
   "sidebar": {
     "dashboard": "Dashboard",
-    "communitySolutions": "Mhinduro dzeMunharaunda",
+    "communitySolutions": "Ndoendepi?",
     "safetyHub": "Nzvimbo yeKuchengetedzeka",
     "incidents": "Zviitiko",
     "alerts": "Yambiro",
@@ -21,7 +21,7 @@
   },
   "pageTitles": {
     "welcomeBack": "Tinokugamuchira, {{name}}",
-    "communitySolutions": "Mhinduro dzeMunharaunda",
+    "communitySolutions": "Ndoendepi?",
     "safetyHub": "Rubatsiro neKuchengetedzeka Padyo",
     "incidents": "Zviitiko Zvemamiriro ekunze",
     "alerts": "Yambiro dzeMamiriro ekunze",

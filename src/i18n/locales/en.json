@@ -1,7 +1,7 @@
 {
   "sidebar": {
     "dashboard": "Dashboard",
-    "communitySolutions": "Ndoyendepi?",
+    "communitySolutions": "Where to now?",
     "safetyHub": "Safety Hub",
     "incidents": "Incidents",
     "alerts": "Alerts",
@@ -21,7 +21,7 @@
   },
   "pageTitles": {
     "welcomeBack": "Welcome back, {{name}}",
-    "communitySolutions": "Ndoyendepi?",
+    "communitySolutions": "Where to now?",
     "safetyHub": "Nearest Help & Safety Hub",
     "incidents": "Climate Incidents",
     "alerts": "Weather & Climate Alerts",
