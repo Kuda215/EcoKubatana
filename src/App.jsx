@@ -254,7 +254,7 @@ function AppContent() {
             <Route path="/knowledge"  element={<KnowledgeHub />} />
             <Route path="/CommunitySolutions" element={<CommunitySolutions />} />
             <Route path="/wellbeing"  element={<Wellbeing />} />
-            {/* <Route path="/report"     element={<ReportInkcident />} /> */}
+            <Route path="/report"     element={<ReportIncident />} />
             <Route path="/settings"   element={<Settings />} />
             <Route path="/admin"      element={isAdmin ? <AdminPortal /> : <Navigate to="/" />} />
           </Routes>

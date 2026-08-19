@@ -13,6 +13,8 @@ const navItems = [
   { path: '/knowledge',          key: 'knowledge',             icon: '🤖' },
   { path: '/wellbeing',          key: 'wellbeing',             icon: '💚' },
   { path: '/settings',           key: 'settings',              icon: '⚙️' },
+  // { path: '/report',             key: 'report',              icon: '📝' },
+
 ];
 
 const adminNavItem = { path: '/admin', key: 'admin', icon: '🔧' };
