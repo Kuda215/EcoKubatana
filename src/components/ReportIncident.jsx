@@ -8,6 +8,16 @@ const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslid
 
 const ALERT_TYPE_FOR = { Flood: 'Flood Warning', Wildfire: 'Fire Emergency' };
 const ALERT_LEVEL_FOR = { high: 'Critical', medium: 'Warning', low: 'Info' };
+const WOW_MOVES = {
+  Flood: ['Move people uphill', 'Keep grain off the floor', 'Stay off swollen rivers'],
+  Drought: ['Share water points', 'Mulch what is left', 'Protect breeding stock'],
+  Heatwave: ['Shade the young and old', 'Work at dawn', 'Check on neighbours'],
+  Wildfire: ['Clear a break', 'Ready 995', 'Do not burn trash today'],
+  Pollution: ['Keep children indoors', 'Boil or fetch clean water', 'Photo the source'],
+  Landslide: ['Leave the slope', 'Watch cracks in soil', 'Warn downhill homes'],
+  'Strong Winds': ['Tie down roofs', 'Bring stock in', 'Stay off trees'],
+  Other: ['Tell the ward', 'Keep the photo', 'Ask the street what they saw'],
+};
 
 console.log('ReportIncident component initialized.');
 export default function ReportIncident() {
@@ -172,97 +182,111 @@ export default function ReportIncident() {
         </div>
       )}
 
-      <div className="form-card">
-        <form onSubmit={handleSubmit} className="report-form">
-          <div className="form-group">
-            <label className="form-label">Incident Title *</label>
-            <input name="title" required className="form-input" placeholder="e.g. Flooding near the river bank" value={form.title} onChange={handleChange} />
-          </div>
-
-          <div className="form-row">
+      <div className="report-split">
+        <div className="form-card">
+          <form onSubmit={handleSubmit} className="report-form">
             <div className="form-group">
-              <label className="form-label">Type of Incident *</label>
-              <select name="type" required className="form-input" value={form.type} onChange={handleChange}>
-                <option value="">Select type…</option>
-                {incidentTypes.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+              <label className="form-label">Incident Title *</label>
+              <input name="title" required className="form-input" placeholder="e.g. Flooding near the river bank" value={form.title} onChange={handleChange} />
             </div>
-            <div className="form-group">
-              <label className="form-label">Severity</label>
-              <select name="severity" className="form-input" value={form.severity} onChange={handleChange}>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High / Critical</option>
-              </select>
-            </div>
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Location / Area *</label>
-            <input name="location" required className="form-input" placeholder="e.g. Nkulu Village, Guta District" value={form.location} onChange={handleChange} />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Description *</label>
-            <textarea name="description" required className="form-input" rows="4" placeholder="Describe what happened and current situation..." value={form.description} onChange={handleChange}></textarea>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Photo (optional)</label>
-            <input type="file" accept="image/*" className="form-input" onChange={handleImageChange} disabled={imageUploading || analyzing} />
-            {imageError && <p style={{ color: '#e63946', fontSize: '13px', marginTop: '6px' }}>{imageError}</p>}
-
-            {imageUrl && (
-              <img src={imageUrl} alt="Uploaded incident" style={{ marginTop: '10px', maxWidth: '240px', borderRadius: '8px', display: 'block' }} />
-            )}
-
-            {(imageUploading || analyzing) && (
-              <p style={{ fontSize: '13px', color: 'var(--neutral-500)', marginTop: '8px' }}>
-                {imageUploading ? 'Uploading photo…' : '🤖 Analyzing photo…'}
-              </p>
-            )}
-
-            {aiAnalysis && (
-              <div style={{ marginTop: '12px', padding: '14px', background: '#f1f5f4', borderRadius: '8px', border: '1px solid #d1dbd8' }}>
-                <div style={{ fontWeight: 700, color: '#0a3d2e', marginBottom: '4px' }}>🤖 AI Photo Assessment</div>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#374151' }}>
-                  Likely type: <strong>{aiAnalysis.likelyType}</strong> · Suggested severity: <strong>{aiAnalysis.suggestedSeverity}</strong>
-                  <br />
-                  {aiAnalysis.assessment}
-                </p>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button type="button" className="btn btn--secondary" onClick={applyAiSuggestion}>
-                    Use this type & severity
-                  </button>
-                  {alertProposed ? (
-                    <span style={{ fontSize: '13px', color: '#10b981', fontWeight: 600, alignSelf: 'center' }}>
-                      ✓ Alert proposed - pending admin review
-                    </span>
-                  ) : (
-                    <button type="button" className="btn btn--primary" onClick={handleProposeAlert} disabled={alertProposing}>
-                      {alertProposing ? 'Proposing…' : '🚨 Alert nearby communities?'}
-                    </button>
-                  )}
-                </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Type of Incident *</label>
+                <select name="type" required className="form-input" value={form.type} onChange={handleChange}>
+                  <option value="">Select type…</option>
+                  {incidentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
               </div>
-            )}
+              <div className="form-group">
+                <label className="form-label">Severity</label>
+                <select name="severity" className="form-input" value={form.severity} onChange={handleChange}>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High / Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Location / Area *</label>
+              <input name="location" required className="form-input" placeholder="e.g. Nkulu Village, Guta District" value={form.location} onChange={handleChange} />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Description *</label>
+              <textarea name="description" required className="form-input" rows="4" placeholder="Describe what happened and current situation..." value={form.description} onChange={handleChange}></textarea>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Your Name (optional)</label>
+                <input name="reporter_name" className="form-input" placeholder={user?.name || "Anonymous if left blank"} value={form.reporter_name} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Contact (optional)</label>
+                <input name="reporter_contact" className="form-input" placeholder="Phone or WhatsApp number" value={form.reporter_contact} onChange={handleChange} />
+              </div>
+            </div>
+
+            <button type="submit" disabled={submitting} className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
+              {submitting ? 'Submitting...' : 'Submit Incident Report'}
+            </button>
+          </form>
+        </div>
+
+        <aside className="report-ai">
+          <p className="report-ai__kicker">Live photo read</p>
+          <h2 className="report-ai__headline">
+            {aiAnalysis ? 'What the street just showed us' : 'Drop a photo. Watch it think.'}
+          </h2>
+          <input type="file" accept="image/*" className="report-ai__file" onChange={handleImageChange} disabled={imageUploading || analyzing} />
+          {imageError && <p style={{ color: '#fca5a5', fontSize: 13 }}>{imageError}</p>}
+
+          <div className="report-ai__photo">
+            {imageUrl ? <img src={imageUrl} alt="Uploaded incident" /> : <p style={{ padding: 40, opacity: 0.7 }}>No photo yet — the read appears here, huge.</p>}
+            {(imageUploading || analyzing) && <div className="report-ai__scan" />}
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Your Name (optional)</label>
-              <input name="reporter_name" className="form-input" placeholder={user?.name || "Anonymous if left blank"} value={form.reporter_name} onChange={handleChange} />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Contact (optional)</label>
-              <input name="reporter_contact" className="form-input" placeholder="Phone or WhatsApp number" value={form.reporter_contact} onChange={handleChange} />
-            </div>
-          </div>
-
-          <button type="submit" disabled={submitting} className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
-            {submitting ? 'Submitting...' : 'Submit Incident Report'}
-          </button>
-        </form>
+          {aiAnalysis ? (
+            <>
+              <div className="report-ai__type">{aiAnalysis.likelyType}</div>
+              <p style={{ margin: 0, opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                {aiAnalysis.suggestedSeverity} severity
+              </p>
+              <div className="report-ai__sev" aria-hidden>
+                {['low', 'medium', 'high'].map((level, i) => (
+                  <span
+                    key={level}
+                    className={['low', 'medium', 'high'].indexOf(aiAnalysis.suggestedSeverity) >= i ? 'is-on' : ''}
+                  />
+                ))}
+              </div>
+              <p className="report-ai__quote">{aiAnalysis.assessment}</p>
+              <div className="report-ai__chips">
+                {(WOW_MOVES[aiAnalysis.likelyType] || WOW_MOVES.Other).map((m) => (
+                  <span key={m}>{m}</span>
+                ))}
+              </div>
+              <button type="button" className="btn btn--secondary" onClick={applyAiSuggestion}>
+                Use this type & severity
+              </button>
+              {alertProposed ? (
+                <p style={{ fontWeight: 700 }}>Alert proposed — pending review</p>
+              ) : (
+                <button type="button" className="btn btn--primary" onClick={handleProposeAlert} disabled={alertProposing}>
+                  {alertProposing ? 'Proposing…' : 'Alert nearby communities'}
+                </button>
+              )}
+            </>
+          ) : (
+            <p style={{ fontSize: 18, lineHeight: 1.4, opacity: 0.85 }}>
+              {analyzing || imageUploading
+                ? 'Scanning colour, water, smoke, and land scars…'
+                : 'This panel is the showpiece: a giant type call, a severity pulse, and three things a neighbour can do tonight.'}
+            </p>
+          )}
+        </aside>
       </div>
     </div>
   );
