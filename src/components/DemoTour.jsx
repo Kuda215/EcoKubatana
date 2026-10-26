@@ -5,13 +5,12 @@ import { downloadExcelCsv } from '../lib/dataSources';
 import { AFRICA_HUBS } from '../lib/africaHubs';
 
 const STEPS = [
-  { id: 'farmer', title: 'You are a farmer in Beira', body: 'Livelihood set to Farmer. Location Beira, Mozambique - Cyclone Idai memory. Priorities: crops, livestock, water.', path: '/' },
-  { id: 'flag', title: 'Flood flag on the map', body: 'Open Historic / Forecast / Flags. Beira is a high historic cyclone/flood marker. Colour-blind patterns still read as high risk.', path: '/' },
-  { id: 'excel', title: 'Specialist Excel sheet', body: 'Beira flood/cyclone row downloads as Excel so a planner is not stuck on a map.', path: '/', excel: true },
-  { id: 'alerts', title: 'Alert steps + reply 1', body: 'Playbook, sign steps, and WhatsApp-style 1 = safe / 2 = help.', path: '/alerts' },
-  { id: 'wherenow', title: 'Where to now? voice', body: 'Hands-free steps: the phone speaks, then listens for next, back, repeat, or hub. Built for a farmer in Beira.', path: '/CommunitySolutions' },
-  { id: 'hub', title: 'Africa safety map', body: 'Hospitals, police, fire and clinics from OpenStreetMap around every hub city. Country emergency numbers included.', path: '/safety-hub' },
-  { id: 'ussd', title: 'Feature phone *123#', body: 'Same choices on a USSD screen for people with no smartphone data.', path: '/ussd' },
+  { id: 'farmer', title: 'You are a farmer in Chimanimani', body: 'Livelihood Farmer. Location Chimanimani, Zimbabwe. Priorities: family, livestock, seed, water. Idai memory, drought this season.', path: '/' },
+  { id: 'home', title: 'Home: map + safety spots', body: 'Harare hub, police 995, hospitals on the right. Do not play a video. Point at the map and the nearest clinic.', path: '/' },
+  { id: 'report', title: 'Someone on the street reports', body: 'Incident reporting is how a ward tells the rest of EcoKubatana. One photo, one place.', path: '/report' },
+  { id: 'community', title: 'Community collaborates', body: 'Board plus support and wellbeing. Ubuntu: the street answers the street.', path: '/community' },
+  { id: 'knowledge', title: 'Knowledge Hub (do not press play)', body: 'Zimbabwe drought, Idai and pfumvudza videos live here for after the pitch. Judges who want a clip can open one later.', path: '/knowledge' },
+  { id: 'alerts', title: 'Alert: reply 1 if safe', body: 'Spoken steps, then 1 = safe / 2 = help. On a phone this is Where to now? No stage video.', path: '/alerts' },
 ];
 
 export default function DemoTour({ open, onClose }) {
@@ -25,7 +24,7 @@ export default function DemoTour({ open, onClose }) {
     setI(0);
     updateUser({
       livelihood: 'farmer',
-      location: 'Beira, Mozambique',
+      location: 'Chimanimani, Zimbabwe',
       emergency_priorities: ['Food crops', 'Livestock', 'Clean water', 'Family safety'],
       onboarding_complete: true,
     }).catch(() => {});

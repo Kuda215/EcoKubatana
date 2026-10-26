@@ -8,9 +8,9 @@
   /* background: linear-gradient(180deg, var(--primary-dark) 0%, #0a2d22 100%); */
   background: linear-gradient(
   180deg,
-  #044130 0%,
-  #0b7a5b 40%,
-  #0f3d2e 100%
+  #072c30 0%,
+  #0a3d42 45%,
+  #041c1f 100%
 );
   color: white;
   display: flex;
@@ -28,7 +28,7 @@
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(0, 217, 163, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212, 160, 23, 0.16) 0%, transparent 70%);
   animation: float 20s ease-in-out infinite;
   pointer-events: none;
 }
@@ -66,7 +66,7 @@
   display: block;
   font-size: 18px;
   font-weight: 800;
-  color: #00d98a;
+  color: #c5e4e6;
 }
 
 .sidebar__tagline {
@@ -118,9 +118,9 @@
 }
 
 .sidebar__link--active {
-  background: rgba(0, 217, 138, 0.22);
+  background: rgba(255, 255, 255, 0.12);
   color: white;
-  border-left-color: #00d98a;
+  border-left-color: #c5e4e6;
   font-weight: 700;
 }
 

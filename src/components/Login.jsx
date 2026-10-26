@@ -112,7 +112,7 @@ export default function Login() {
         {mode === 'signin' && (
           <div className="login-form-container">
             <button className="back-button" onClick={() => { setMode('choose'); setError(''); }}>← Back</button>
-            <div className="selected-role-badge" style={{ background: '#0a3d2e' }}>
+            <div className="selected-role-badge" style={{ background: 'var(--primary-dark)' }}>
               <span className="selected-role-icon">🔑</span>
               <span className="selected-role-label">Sign in to your account</span>
             </div>
@@ -232,7 +232,7 @@ export default function Login() {
         {mode === 'register' && step === 3 && (
           <div className="login-form-container">
             <button className="back-button" onClick={() => { setStep(2); setError(''); }}>← Back to what you do</button>
-            <div className="selected-role-badge" style={{ background: '#0a3d2e' }}>
+            <div className="selected-role-badge" style={{ background: 'var(--primary-dark)' }}>
               <span className="selected-role-icon">{ROLE_OPTIONS.find(r => r.value === role)?.icon}</span>
               <span className="selected-role-label">Joining as {ROLE_OPTIONS.find(r => r.value === role)?.label}</span>
             </div>

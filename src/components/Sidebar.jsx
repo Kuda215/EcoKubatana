@@ -5,19 +5,13 @@ import { useFeatures } from '../contexts/FeatureContext';
 import './Sidebar.css';
 
 const navItems = [
-  { path: '/',                   key: 'dashboard',           icon: '🏠' },
-  { path: '/CommunitySolutions', key: 'communitySolutions',  icon: '👀' },
-  { path: '/safety-hub',         key: 'safetyHub',            icon: '🗺️' },
-  { path: '/incidents',          key: 'incidents',             icon: '⚠️' },
-  { path: '/alerts',             key: 'alerts',                icon: '🔔' },
-  { path: '/community',          key: 'community',             icon: '👥' },
-  { path: '/knowledge',          key: 'knowledge',             icon: '🤖' },
-  { path: '/wellbeing',          key: 'wellbeing',             icon: '💚' },
-  { path: '/stokvel',            key: 'stokvel',               icon: '🧺' },
-  { path: '/ussd',               key: 'ussd',                  icon: '📟' },
-  { path: '/settings',           key: 'settings',              icon: '⚙️' },
-  // { path: '/report',             key: 'report',              icon: '📝' },
-
+  { path: '/',          key: 'home',       icon: '🏠' },
+  { path: '/coming',    key: 'coming',     icon: '🔮' },
+  { path: '/incidents', key: 'incidents',  icon: '⚠️' },
+  { path: '/alerts',    key: 'alerts',     icon: '🔔' },
+  { path: '/community', key: 'community',  icon: '👥' },
+  { path: '/knowledge', key: 'knowledge',  icon: '🤖' },
+  { path: '/settings',  key: 'settings',   icon: '⚙️' },
 ];
 
 const adminNavItem = { path: '/admin', key: 'admin', icon: '🔧' };

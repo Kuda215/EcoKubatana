@@ -60,7 +60,7 @@ serve(async (req) => {
     
     // GET /incidents - List all incidents
     if (req.method === 'GET' && pathParts.length === 1) {
-      const { type, status, severity } = Object.fromEntries(url.searchParams);
+      const { type, status, severity, mine } = Object.fromEntries(url.searchParams);
       
       let query = supabase
         .from('incidents')
@@ -78,8 +78,9 @@ serve(async (req) => {
         query = query.eq('severity', severity);
       }
 
-      // Non-admins can only see public incidents
-      if (userRole !== 'admin') {
+      if (mine === '1' && userId) {
+        query = query.eq('reporter_id', userId);
+      } else if (userRole !== 'admin') {
         query = query.in('status', ['active', 'verified', 'resolved', 'investigating']);
       }
 

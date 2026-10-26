@@ -1,34 +1,60 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { incidentsAPI } from '../lib/api';
+import { useLocationPlace } from '../contexts/LocationContext';
+import { useAuth } from '../contexts/AuthContext';
+import { loadMyReports, mergeMine } from '../lib/myReports';
 import './PageStyles.css';
 
-const severityColor = { high: '#e63946', medium: '#f4a261', low: '#52b788' };
+const ICONS = {
+  Flood: '🌊',
+  Drought: '🏜️',
+  Heatwave: '🌡️',
+  'Strong Winds': '💨',
+  Wildfire: '🔥',
+  Fire: '🔥',
+  Pollution: '🏭',
+  Landslide: '⛰️',
+};
+
+function when(row) {
+  const d = row.reported_at || row.created_at || row.date;
+  if (!d) return '';
+  try {
+    return new Date(d).toLocaleString();
+  } catch {
+    return String(d);
+  }
+}
 
 export default function Incidents() {
-  console.log('Incidents component mounted.');
-  const [filter, setFilter] = useState('All');
+  const { place } = useLocationPlace();
+  const { user } = useAuth();
+  const [tab, setTab] = useState('overview');
   const [incidents, setIncidents] = useState([]);
+  const [mine, setMine] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  const types = ['All', 'Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Wildfire', 'Pollution'];
 
   useEffect(() => {
     loadIncidents();
-  }, []);
+  }, [user?.id]);
 
   const loadIncidents = async () => {
-    console.log('Loading incidents...');
     try {
       setLoading(true);
-      const result = await incidentsAPI.list();
-
-      console.log('Incidents loaded:', result);
-      if (result.success) {
-        setIncidents(result.data);
-      } else {
-        setError(result.error);
-      }
+      const [all, own] = await Promise.all([
+        incidentsAPI.list(),
+        incidentsAPI.list({ mine: '1' }),
+      ]);
+      if (all.success) setIncidents(all.data || []);
+      else setError(all.error);
+      const serverMine = own.success ? (own.data || []) : [];
+      const local = loadMyReports(user?.id);
+      const fromAll = (all.data || []).filter((i) =>
+        i.reporter_id === user?.id || (user?.name && i.reporter_name === user.name)
+      );
+      setMine(mergeMine(serverMine.length ? serverMine : fromAll, local));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,77 +62,99 @@ export default function Incidents() {
     }
   };
 
-  const filtered = filter === 'All' ? incidents : incidents.filter(i => i.type === filter);
+  const scoped = useMemo(() => {
+    const needle = (place?.name || '').toLowerCase();
+    if (!needle) return incidents;
+    const local = incidents.filter((i) => String(i.location || '').toLowerCase().includes(needle));
+    return local.length ? local : incidents;
+  }, [incidents, place]);
 
-  if (loading) {
-    return (
-      <div className="page">
-        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌍</div>
-          <p style={{ color: '#6b7280', fontSize: '16px' }}>Loading incidents...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="page">
-        <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-          <h3 style={{ color: '#e63946', marginBottom: '8px' }}>Error Loading Incidents</h3>
-          <p style={{ color: '#6b7280', marginBottom: '20px' }}>{error}</p>
-          <button className="btn btn--primary" onClick={loadIncidents}>Try Again</button>
-        </div>
-      </div>
-    );
-  }
+  const counts = useMemo(() => {
+    const map = {};
+    scoped.forEach((i) => {
+      const type = i.type || 'Other';
+      map[type] = (map[type] || 0) + 1;
+    });
+    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+  }, [scoped]);
 
   return (
-    <div className="page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-        <div className="filter-tabs" style={{ marginBottom: 0 }}>
-          {types.map(t => (
-            <button key={t} className={`filter-tab ${filter === t ? 'filter-tab--active' : ''}`} onClick={() => setFilter(t)}>{t}</button>
-          ))}
+    <div className="page incidents-page">
+      <div className="page__header incidents-head">
+        <div>
+          <h1 className="page__title">Incidents</h1>
+          <p className="page__sub">
+            Snapshot for <strong>{place?.name || 'your area'}</strong>
+          </p>
         </div>
-        <a href="/report" className="btn btn--primary">+ Report New Incident</a>
+        <Link to="/report" className="btn btn--primary incidents-head__report">+ Report an incident</Link>
       </div>
 
-      {filtered.length === 0 && (
-        <div className="card" style={{ padding: '40px', textAlign: 'center' }}>
-          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🌤️</div>
-          <h3 style={{ marginBottom: '8px' }}>No Incidents</h3>
-          <p style={{ color: '#6b7280' }}>
-            {filter === 'All' ? 'No incidents reported yet.' : `No ${filter} incidents found.`}
-          </p>
+      <div className="filter-tabs">
+        <button type="button" className={`filter-tab ${tab === 'overview' ? 'filter-tab--active' : ''}`} onClick={() => setTab('overview')}>
+          Overview
+        </button>
+        <button type="button" className={`filter-tab ${tab === 'mine' ? 'filter-tab--active' : ''}`} onClick={() => setTab('mine')}>
+          My reports ({mine.length})
+        </button>
+      </div>
+
+      {loading && <p style={{ color: 'var(--text-muted)' }}>Loading…</p>}
+      {error && (
+        <div className="card" style={{ padding: 16 }}>
+          <p>{error}</p>
+          <button className="btn btn--primary" onClick={loadIncidents}>Try again</button>
         </div>
       )}
 
-      {/* Incident Cards */}
-      <div className="incident-grid">
-        {filtered.map(inc => (
-          <div key={inc.id} className="incident-card">
-            <div className="incident-card__top">
-              <span className="incident-type" style={{ background: severityColor[inc.severity] + '22', color: severityColor[inc.severity] }}>{inc.type}</span>
-              <span className={`incident-status incident-status--${inc.status.toLowerCase()}`}>{inc.status}</span>
+      {!loading && tab === 'overview' && (
+        <div className="incident-overview">
+          {counts.length === 0 && (
+            <div className="incident-stat">
+              <span className="incident-stat__n">0</span>
+              <span className="incident-stat__l">Reports yet</span>
             </div>
-            <h3 className="incident-card__title">{inc.title}</h3>
-            <div className="incident-card__meta">
-              <span>📍 {inc.location}</span>
-              <span>📅 {inc.date}</span>
+          )}
+          {counts.map(([type, n]) => (
+            <div key={type} className="incident-stat">
+              <span className="incident-stat__icon">{ICONS[type] || '⚠️'}</span>
+              <span className="incident-stat__n">{n}</span>
+              <span className="incident-stat__l">{type} incident{n === 1 ? '' : 's'} reported</span>
             </div>
-            <p className="incident-card__desc">{inc.desc}</p>
-            <div className="incident-card__severity">
-              <div className="severity-bar">
-                <div className="severity-fill" style={{ width: inc.severity === 'high' ? '90%' : inc.severity === 'medium' ? '55%' : '25%', background: severityColor[inc.severity] }} />
-              </div>
-              <span style={{ color: severityColor[inc.severity], fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' }}>{inc.severity} severity</span>
-            </div>
-            <button className="btn btn--ghost" style={{ marginTop: '10px', width: '100%', textAlign: 'center' }}>View Full Report</button>
+          ))}
+        </div>
+      )}
+
+      {!loading && tab === 'mine' && (
+        mine.length === 0 ? (
+          <div className="card" style={{ padding: 32, textAlign: 'center' }}>
+            <h3>No reports from you yet</h3>
+            <p style={{ color: 'var(--text-secondary)', margin: '8px 0 16px' }}>
+              When you log a flood, drought, or fire, it will sit here so you can follow it.
+            </p>
+            <Link to="/report" className="btn btn--primary">Report an incident</Link>
           </div>
-        ))}
-      </div>
+        ) : (
+          <div className="incident-grid">
+            {mine.map((inc) => (
+              <div key={inc.id} className="incident-card">
+                <div className="incident-card__top">
+                  <span className="incident-type">{inc.type}</span>
+                  <span className={`incident-status incident-status--${String(inc.status || 'pending').toLowerCase()}`}>
+                    {inc.status || 'pending'}
+                  </span>
+                </div>
+                <h3 className="incident-card__title">{inc.title}</h3>
+                <div className="incident-card__meta">
+                  <span>📍 {inc.location}</span>
+                  <span>📅 {when(inc)}</span>
+                </div>
+                <p className="incident-card__desc">{inc.description || inc.desc}</p>
+              </div>
+            ))}
+          </div>
+        )
+      )}
     </div>
   );
 }

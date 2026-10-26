@@ -20,7 +20,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #0a3d2e 0%, #10b981 50%, #00d98a 100%);
+  background: #072c30;
   z-index: 0;
 }
 
@@ -350,7 +350,7 @@
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #00d98a 0%, #10b981 100%);
+  background: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
   color: white;
   border: none;
   padding: 14px 28px;

@@ -5,13 +5,16 @@ import { useAuth } from '../contexts/AuthContext';
 import { incidentsAPI, communityAPI, alertsAPI } from '../lib/api';
 import { useClimateData, geocodeAndForecast, riskColor } from '../lib/climateData';
 import AfricaClimateMap from './AfricaClimateMap';
+import SafetySpotsPanel from './SafetySpotsPanel';
 import SourceInfo from './SourceInfo';
 import { estimateLosses, formatMoney, hubForUser } from '../lib/dataSources';
+import { useLocationPlace } from '../contexts/LocationContext';
 
 const WX_ICON = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 61: '🌧️', 63: '🌧️', 65: '🌧️', 80: '🌦️', 95: '⛈️' };
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { place } = useLocationPlace();
   const { hotspots, events, loading: climateLoading, syncedAt } = useClimateData();
   const [selected, setSelected] = useState(null);
   const [mapMode, setMapMode] = useState('historic');
@@ -24,8 +27,8 @@ export default function Dashboard() {
     incidentsAPI.list().then((r) => { if (r.success) setIncidents(r.data || []); }).catch(() => {});
     communityAPI.getStats().then((r) => { if (r.success) setMemberCount(r.data?.totalMembers || 0); }).catch(() => {});
     alertsAPI.list().then((r) => { if (r.success) setAlertCount((r.data || []).length); }).catch(() => {});
-    geocodeAndForecast(user?.location || 'Harare').then(setWeather).catch(() => {});
-  }, [user?.location]);
+    geocodeAndForecast(place?.name || user?.location || 'Harare').then(setWeather).catch(() => {});
+  }, [user?.location, place?.name]);
 
   const typeCounts = incidents.reduce((acc, i) => {
     acc[i.type] = (acc[i.type] || 0) + 1;
@@ -66,45 +69,50 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="africa-map-panel">
-        <div className="map-mode-tabs" style={{ alignItems: 'center' }}>
-          {[
-            ['historic', 'Historic'],
-            ['forecast', 'Forecast'],
-            ['flags', 'Flags'],
-          ].map(([id, label]) => (
-            <button key={id} className={`filter-tab ${mapMode === id ? 'filter-tab--active' : ''}`} onClick={() => setMapMode(id)}>{label}</button>
-          ))}
-          <SourceInfo sources={mapMode === 'historic' ? ['emdat', 'reliefweb', 'osm'] : mapMode === 'forecast' ? ['openmeteo', 'glofas', 'osm'] : ['eonet', 'glofas', 'osm']} />
-        </div>
-        <AfricaClimateMap
-          hotspots={hotspots}
-          events={events}
-          mode={mapMode}
-          selectedId={selected?.id}
-          onSelect={setSelected}
-          height={340}
-        />
-        {selected && (
-          <div className="map-selected-card">
-            <button className="map-selected-close" onClick={() => setSelected(null)}>✕</button>
-            <span className="map-risk-pill" style={{ background: riskColor(mapMode === 'forecast' ? selected.forecast_score : selected.historic_score, selected.flag_status) }}>
-              {mapMode === 'forecast' ? selected.forecast_hazard : selected.historic_hazard} · {selected.flag_status}
-            </span>
-            <h4>📍 {selected.name}, {selected.country}</h4>
-            <p>{selected.summary}</p>
-            {(job.includes('farm') || job.includes('livestock')) && <p><strong>For your work:</strong> {selected.farmer_action}</p>}
-            <p><strong>Money at risk (city):</strong> {formatMoney(estimateLosses(selected, user?.livelihood).potential_loss_usd)}</p>
-            <p style={{ fontSize: 11, color: 'var(--neutral-500)' }}>Sources: {(selected.sources || []).join(' · ')} <SourceInfo sources={['openmeteo', 'eonet', 'reliefweb', 'worldbank', 'osm']} /></p>
+      <div className="home-split">
+        <div className="africa-map-panel home-split__map">
+          <div className="map-mode-tabs" style={{ alignItems: 'center' }}>
+            {[
+              ['historic', 'Historic'],
+              ['forecast', 'Forecast'],
+              ['flags', 'Flags'],
+            ].map(([id, label]) => (
+              <button key={id} className={`filter-tab ${mapMode === id ? 'filter-tab--active' : ''}`} onClick={() => setMapMode(id)}>{label}</button>
+            ))}
+            <SourceInfo sources={['eonet', 'reliefweb', 'openmeteo', 'glofas', 'osm']} />
           </div>
-        )}
-        <div className="map-legend-bar">
-          <span>🟢 Watch / quieter</span>
-          <span>🟡 Historic or building risk</span>
-          <span>🟠 Alert</span>
-          <span>🔴 Emergency flag</span>
-          {syncedAt && <span>Updated {new Date(syncedAt).toLocaleTimeString()}</span>}
+          <AfricaClimateMap
+            hotspots={hotspots}
+            events={events}
+            mode={mapMode}
+            selectedId={selected?.id}
+            onSelect={setSelected}
+            height={560}
+            focus={place}
+          />
+          {selected && (
+            <div className="map-selected-card">
+              <button className="map-selected-close" onClick={() => setSelected(null)}>✕</button>
+              <span className="map-risk-pill" style={{ background: riskColor(mapMode === 'forecast' ? selected.forecast_score : selected.historic_score, selected.flag_status) }}>
+                {mapMode === 'forecast' ? selected.forecast_hazard : selected.historic_hazard} · {selected.flag_status}
+              </span>
+              <h4>📍 {selected.name}, {selected.country}</h4>
+              <p>{selected.summary}</p>
+              {(job.includes('farm') || job.includes('livestock')) && <p><strong>For your work:</strong> {selected.farmer_action}</p>}
+              <p><strong>Money at risk (city):</strong> {formatMoney(estimateLosses(selected, user?.livelihood).potential_loss_usd)}</p>
+              <p style={{ fontSize: 11, color: 'var(--neutral-500)' }}>Sources: {(selected.sources || []).join(' · ')} <SourceInfo sources={['openmeteo', 'eonet', 'reliefweb', 'worldbank', 'osm']} /></p>
+            </div>
+          )}
+          <div className="map-legend-bar">
+            <span>Hubs + live events worldwide</span>
+            <span>🟢 Watch</span>
+            <span>🟡 Building</span>
+            <span>🟠 Alert</span>
+            <span>🔴 Event pin</span>
+            {syncedAt && <span>Updated {new Date(syncedAt).toLocaleTimeString()}</span>}
+          </div>
         </div>
+        <SafetySpotsPanel />
       </div>
 
       {localMoney && (

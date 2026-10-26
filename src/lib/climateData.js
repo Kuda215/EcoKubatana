@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
-import { AFRICA_HUBS, AFRICA_ISO3 } from './africaHubs';
+import { AFRICA_HUBS } from './africaHubs';
 import { estimateLosses } from './dataSources';
 
 const CACHE_KEY = 'ecokubatana_climate_cache_v1';
@@ -12,10 +12,6 @@ function sum(arr = []) {
 function max(arr = []) {
   return arr.reduce((a, b) => Math.max(a, Number(b) || 0), 0);
 }
-function inAfrica(lat, lng) {
-  return lat != null && lng != null && lat >= -35 && lat <= 38 && lng >= -18 && lng <= 52;
-}
-
 function flagFromScore(score) {
   if (score >= 75) return 'emergency';
   if (score >= 55) return 'alert';
@@ -23,7 +19,7 @@ function flagFromScore(score) {
   return 'quiet';
 }
 
-function scoreForecast(daily = {}, floodDaily = {}) {
+export function scoreForecast(daily = {}, floodDaily = {}) {
   const precip7 = sum(daily.precipitation_sum);
   const maxTemp = max(daily.temperature_2m_max);
   const maxProb = max(daily.precipitation_probability_max);
@@ -109,7 +105,7 @@ export async function loadClimateBundle() {
     fetchJson(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,precipitation_sum,precipitation_probability_max&forecast_days=7&timezone=auto`),
     fetchJson(`https://archive-api.open-meteo.com/v1/archive?latitude=${lats}&longitude=${lngs}&start_date=${iso(start)}&end_date=${iso(end)}&daily=precipitation_sum,temperature_2m_max`),
     fetchJson(`https://flood-api.open-meteo.com/v1/flood?latitude=${lats}&longitude=${lngs}&daily=river_discharge,river_discharge_mean&forecast_days=7`),
-    fetchJson('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=80'),
+    fetchJson('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=120'),
     fetchJson('https://api.reliefweb.int/v1/disasters?appname=ecokubatana&preset=latest&limit=40&profile=lite'),
     fetchJson(`https://api.worldbank.org/v2/country/${[...new Set(AFRICA_HUBS.map((h) => h.iso3))].join(';')}/indicator/SP.POP.TOTL?format=json&mrv=1&per_page=60`),
   ]);
@@ -137,7 +133,7 @@ export async function loadClimateBundle() {
       const coords = geo?.coordinates;
       const lng = Array.isArray(coords) ? coords[0] : null;
       const lat = Array.isArray(coords) ? coords[1] : null;
-      if (!inAfrica(lat, lng)) return;
+      if (lat == null || lng == null) return;
       const category = ev.categories?.[0]?.title || 'Hazard';
       eonetEvents.push({
         id: `eonet-${ev.id}`,
@@ -159,8 +155,6 @@ export async function loadClimateBundle() {
     (reliefRes.value.data || []).forEach((item) => {
       const fields = item.fields || {};
       const iso = fields.primary_country?.iso3 || fields.country?.[0]?.iso3;
-      if (iso && !AFRICA_ISO3.has(iso.toUpperCase())) return;
-      if (!iso && !String(fields.name || '').match(/Africa|Kenya|Nigeria|Mozambique|Zimbabwe|Sudan|Somalia|Ethiopia|Sahel/i)) return;
       reliefEvents.push({
         id: `rw-${item.id}`,
         title: fields.name || 'Disaster',

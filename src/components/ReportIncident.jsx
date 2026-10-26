@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { incidentsAPI, incidentImagesAPI, incidentAnalysisAPI, alertsAPI } from '../lib/api';
+import { saveMyReport } from '../lib/myReports';
 import './PageStyles.css';
 
 const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
@@ -109,6 +110,16 @@ export default function ReportIncident() {
       });
 
       if (result.success) {
+        saveMyReport(user?.id, result.data || {
+          title: form.title,
+          type: form.type,
+          location: form.location,
+          description: form.description,
+          severity: form.severity,
+          status: 'pending',
+          reporter_id: user?.id,
+          reported_at: new Date().toISOString(),
+        });
         setSubmitted(true);
         setForm({ title: '', type: '', location: '', description: '', severity: 'medium', reporter_name: '', reporter_contact: '' });
         setImageUrl(null);

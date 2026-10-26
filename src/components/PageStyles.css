@@ -67,10 +67,38 @@
 }
 
 .filter-tab--active { 
-  background: linear-gradient(135deg, #00d98a 0%, #10b981 100%);
+  background: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
   color: white; 
-  border-color: #00d98a;
+  border-color: #072c30;
   font-weight: 700;
+}
+
+.incident-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+.incident-stat {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px 16px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+}
+.incident-stat__icon { font-size: 36px; display: block; }
+.incident-stat__n {
+  display: block;
+  font-size: 48px;
+  font-weight: 900;
+  color: var(--primary-dark);
+  line-height: 1.1;
+}
+.incident-stat__l {
+  display: block;
+  margin-top: 8px;
+  font-weight: 700;
+  color: var(--text-secondary);
 }
 
 /* Incident Grid */
@@ -1226,6 +1254,7 @@
 }
 
 /* Wellbeing */
+.wellbeing-embed { display: flex; flex-direction: column; gap: 24px; margin-top: 24px; }
 .wellbeing-grid { 
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { communityAPI } from '../lib/api';
+import Wellbeing from './Wellbeing';
 import './PageStyles.css';
 
 const CATEGORIES = ['Event', 'Solution', 'Campaign', 'Tip', 'Alert', 'Discussion'];
@@ -220,7 +221,7 @@ export default function CommunityBoard() {
       <div className="page__header">
         <div>
           <h1 className="page__title">🌍 Community Board</h1>
-          <p className="page__sub">Share, connect, and build a resilient community together</p>
+          <p className="page__sub">Share, support, and wellbeing in one place</p>
         </div>
         <div className="cb-live-badge">
           <span className="cb-live-dot" />
@@ -429,6 +430,7 @@ export default function CommunityBoard() {
           </div>
         </aside>
       </div>
+      <Wellbeing />
     </div>
   );
 }

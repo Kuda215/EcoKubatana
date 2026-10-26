@@ -70,5 +70,6 @@ export const FEATURE_CATALOG = [
   { key: 'historic_intel', label: 'Historic disaster intelligence', description: 'Past disasters from ReliefWeb / EM-DAT-style records.', is_premium: true, default_enabled: false, tab_path: '/historic-intel', icon: '📜', sort_order: 20 },
   { key: 'hazard_flags', label: 'Hazard flagging', description: 'Live wildfire, flood and drought flags from NASA EONET and weather models.', is_premium: true, default_enabled: false, tab_path: '/hazard-flags', icon: '🚩', sort_order: 30 },
   { key: 'population_risk', label: 'Population at risk', description: 'Who lives in exposed areas (World Bank / WorldPop-style).', is_premium: true, default_enabled: false, tab_path: '/population-risk', icon: '👥', sort_order: 40 },
-  { key: 'osm_community', label: 'Community map layer', description: 'OpenStreetMap community context on the dashboard map.', is_premium: false, default_enabled: true, tab_path: null, icon: '🗺️', sort_order: 50 },
+  { key: 'osm_community', label: 'Community map layer', description: 'OpenStreetMap community context on the home map.', is_premium: false, default_enabled: true, tab_path: null, icon: '🗺️', sort_order: 50 },
+  { key: 'ussd', label: '*123# phone', description: 'Feature-phone USSD simulator. Hidden from the menu until you turn it on here.', is_premium: false, default_enabled: false, tab_path: '/ussd', icon: '📟', sort_order: 60 },
 ];

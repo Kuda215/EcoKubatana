@@ -1,22 +1,22 @@
 :root {
-  /* Vibrant African-Inspired Color Palette */
-  --primary-green: #00d98a;
-  --primary-dark: #0a3d2e;
-  --primary-light: #e8fff8;
+  /* Deep teal from the brand panel */
+  --primary-green: #1a5c63;
+  --primary-dark: #072c30;
+  --primary-light: #e6f2f3;
   
-  --accent-blue: #0ea5e9;
-  --accent-orange: #fb923c;
-  --accent-yellow: #fbbf24;
-  --accent-purple: #a855f7;
-  --accent-red: #f43f5e;
-  --accent-teal: #14b8a6;
-  --accent-pink: #ec4899;
-  --accent-lime: #84cc16;
+  --accent-blue: #0d4a50;
+  --accent-orange: #c45c26;
+  --accent-yellow: #d4a017;
+  --accent-purple: #1a3a40;
+  --accent-red: #b42318;
+  --accent-teal: #1a5c63;
+  --accent-pink: #c45c6a;
+  --accent-lime: #4a8a84;
   
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
+  --success: #1a5c63;
+  --warning: #d4a017;
+  --danger: #b42318;
+  --info: #1a5c63;
   
   --neutral-50: #f8fafb;
   --neutral-100: #f0f4f7;
@@ -30,11 +30,11 @@
   --neutral-900: #0d1117;
   
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #00d9a3 0%, #00a8e8 100%);
-  --gradient-warm: linear-gradient(135deg, #ff6b35 0%, #ffd23f 100%);
-  --gradient-cool: linear-gradient(135deg, #118ab2 0%, #06d6a0 100%);
-  --gradient-sunset: linear-gradient(135deg, #8338ec 0%, #ef476f 100%);
-  --gradient-sky: linear-gradient(180deg, #00a8e8 0%, #00d9a3 100%);
+  --gradient-primary: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
+  --gradient-warm: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
+  --gradient-cool: linear-gradient(135deg, #072c30 0%, #0d4a50 100%);
+  --gradient-sunset: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
+  --gradient-sky: linear-gradient(180deg, #072c30 0%, #1a5c63 100%);
   
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -70,7 +70,7 @@
   --text-secondary: var(--neutral-600);
   --text-muted:     var(--neutral-400);
   --topbar-bg:      #ffffff;
-  --sidebar-bg:     #0a3d2e;
+  --sidebar-bg:     #072c30;
   --input-bg:       #ffffff;
   --input-border:   var(--neutral-200);
   --card-shadow:    var(--shadow-md);
@@ -100,7 +100,7 @@
   --text-secondary: #8f9fcb;
   --text-muted:     #4a5578;
   --topbar-bg:      #1e2537;
-  --sidebar-bg:     #0d1a14;
+  --sidebar-bg:     #041c1f;
   --input-bg:       #1e2537;
   --input-border:   #2d3650;
   --card-shadow:    0 4px 16px rgba(0, 0, 0, 0.4);
