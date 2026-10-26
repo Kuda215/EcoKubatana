@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { EMERGENCY_PRIORITIES } from '../lib/africaHubs';
+import LivelihoodPicker from './LivelihoodPicker';
+import TagInput from './TagInput';
 import './Login.css';
 
 const ROLE_OPTIONS = [
@@ -11,8 +14,10 @@ const ROLE_OPTIONS = [
 export default function Login() {
   const { login, register } = useAuth();
   const [mode, setMode] = useState('choose'); // 'choose' | 'register' | 'signin'
-  const [step, setStep] = useState(1);        // for register: 1 = role, 2 = form
+  const [step, setStep] = useState(1);        // register: 1 role, 2 livelihood, 3 form
   const [role, setRole] = useState('');
+  const [livelihood, setLivelihood] = useState('');
+  const [priorities, setPriorities] = useState([]);
   const [signinRole, setSigninRole] = useState('member');
   const [signinData, setSigninData] = useState({ identifier: '', password: '' });
   const [formData, setFormData] = useState({
@@ -50,7 +55,9 @@ export default function Login() {
       name: formData.name,
       role,
       location: formData.location,
-      phone: formData.phone
+      phone: formData.phone,
+      livelihood: livelihood.trim(),
+      emergency_priorities: priorities,
     });
 
     setLoading(false);
@@ -192,8 +199,39 @@ export default function Login() {
 
         {/* New user: details form */}
         {mode === 'register' && step === 2 && (
+          <div className="role-selection">
+            <div className="role-selection-header">
+              <button className="back-button" onClick={() => setStep(1)}>← Back</button>
+              <h2 className="section-title">What do you do?</h2>
+              <p className="section-subtitle">Pick from the list, or Other and type it. Example: Farmer - we will put crops, livestock and water first in an emergency.</p>
+            </div>
+            <LivelihoodPicker
+              value={livelihood}
+              onChange={setLivelihood}
+              onSuggestPriorities={setPriorities}
+            />
+            {livelihood?.trim() && (
+              <>
+                <div style={{ marginTop: 16 }}>
+                  <TagInput
+                    label="If an emergency hits, protect first"
+                    values={priorities}
+                    onChange={setPriorities}
+                    suggestions={EMERGENCY_PRIORITIES.map((p) => p.label)}
+                    placeholder="e.g. my goats; school fees; irrigation pump"
+                  />
+                </div>
+                <button className="btn-submit" style={{ marginTop: 20 }} disabled={!livelihood.trim()} onClick={() => setStep(3)}>
+                  Continue →
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {mode === 'register' && step === 3 && (
           <div className="login-form-container">
-            <button className="back-button" onClick={() => { setStep(1); setError(''); }}>← Back to role selection</button>
+            <button className="back-button" onClick={() => { setStep(2); setError(''); }}>← Back to what you do</button>
             <div className="selected-role-badge" style={{ background: '#0a3d2e' }}>
               <span className="selected-role-icon">{ROLE_OPTIONS.find(r => r.value === role)?.icon}</span>
               <span className="selected-role-label">Joining as {ROLE_OPTIONS.find(r => r.value === role)?.label}</span>

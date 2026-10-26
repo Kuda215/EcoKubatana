@@ -1,0 +1,50 @@
+{
+  "sidebar": {
+    "dashboard": "Allon bayanai",
+    "communitySolutions": "Ina za mu je yanzu?",
+    "safetyHub": "Cibiyar tsaro",
+    "incidents": "Lamu'a",
+    "alerts": "Faɗakarwa",
+    "community": "Allon al'umma",
+    "knowledge": "Cibiyar ilimin AI",
+    "takeAction": "Ɗauki mataki",
+    "wellbeing": "Tallafi da koshin lafiya",
+    "report": "Bayar da rahoto",
+    "settings": "Saituna",
+    "admin": "Tashar gudanarwa",
+    "forecast_lab": "Binciken hasashe",
+    "historic_intel": "Tarihin bala'i",
+    "hazard_flags": "Tutar haɗari",
+    "population_risk": "Jama'a a haɗari",
+    "tagline": "Al'ummomi masu ƙarfi",
+    "motto": "Ubuntu · Haɗin kai · Juriya"
+  },
+  "topbar": {
+    "voiceReport": "Rahoto da murya",
+    "requestHelp": "Nemi taimako"
+  },
+  "pageTitles": {
+    "welcomeBack": "Barka da dawowa, {{name}}",
+    "communitySolutions": "Ina za mu je yanzu?",
+    "safetyHub": "Taimako mafi kusa",
+    "incidents": "Lamu'an yanayi",
+    "alerts": "Faɗakarwar yanayi",
+    "community": "Allon al'umma",
+    "knowledge": "Cibiyar ilimin AI",
+    "takeAction": "Ɗauki mataki",
+    "wellbeing": "Tallafi da koshin lafiya",
+    "report": "Bayar da rahoto",
+    "settings": "Saituna",
+    "admin": "Tashar gudanarwa",
+    "forecastLab": "Binciken hasashe",
+    "historicIntel": "Tarihin bala'i",
+    "hazardFlags": "Tutar haɗari",
+    "populationRisk": "Jama'a a haɗari"
+  },
+  "settings": {
+    "language": "Harshe",
+    "languageDesc": "Zaɓi harshen da kake so",
+    "languageLabel": "Harshe",
+    "save": "Ajiye canje-canje"
+  }
+}

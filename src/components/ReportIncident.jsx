@@ -145,7 +145,7 @@ export default function ReportIncident() {
       <div className="page__header">
         <div>
           <h1 className="page__title">📋 Report an Incident</h1>
-          <p className="page__sub">Help your community stay safe — report what you see around you.</p>
+          <p className="page__sub">Help your community stay safe - report what you see around you.</p>
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export default function ReportIncident() {
                   </button>
                   {alertProposed ? (
                     <span style={{ fontSize: '13px', color: '#10b981', fontWeight: 600, alignSelf: 'center' }}>
-                      ✓ Alert proposed — pending admin review
+                      ✓ Alert proposed - pending admin review
                     </span>
                   ) : (
                     <button type="button" className="btn btn--primary" onClick={handleProposeAlert} disabled={alertProposing}>

@@ -1,0 +1,50 @@
+{
+  "sidebar": {
+    "dashboard": "Painel",
+    "communitySolutions": "Para onde agora?",
+    "safetyHub": "Centro de segurança",
+    "incidents": "Incidentes",
+    "alerts": "Alertas",
+    "community": "Quadro comunitário",
+    "knowledge": "Centro de conhecimento IA",
+    "takeAction": "Agir",
+    "wellbeing": "Apoio e bem-estar",
+    "report": "Reportar incidente",
+    "settings": "Definições",
+    "admin": "Portal de administração",
+    "forecast_lab": "Análise de previsão",
+    "historic_intel": "Histórico de desastres",
+    "hazard_flags": "Bandeiras de perigo",
+    "population_risk": "População em risco",
+    "tagline": "Comunidades mais fortes",
+    "motto": "Ubuntu · Colaboração · Resiliência"
+  },
+  "topbar": {
+    "voiceReport": "Relato por voz",
+    "requestHelp": "Pedir ajuda"
+  },
+  "pageTitles": {
+    "welcomeBack": "Bem-vindo de volta, {{name}}",
+    "communitySolutions": "Para onde agora?",
+    "safetyHub": "Ajuda e segurança próximas",
+    "incidents": "Incidentes climáticos",
+    "alerts": "Alertas de clima",
+    "community": "Quadro comunitário",
+    "knowledge": "Centro de conhecimento IA",
+    "takeAction": "Agir",
+    "wellbeing": "Apoio e bem-estar",
+    "report": "Reportar incidente",
+    "settings": "Definições",
+    "admin": "Portal de administração",
+    "forecastLab": "Análise de previsão",
+    "historicIntel": "Histórico de desastres",
+    "hazardFlags": "Bandeiras de perigo",
+    "populationRisk": "População em risco"
+  },
+  "settings": {
+    "language": "Idioma",
+    "languageDesc": "Escolha o seu idioma",
+    "languageLabel": "Idioma",
+    "save": "Guardar alterações"
+  }
+}

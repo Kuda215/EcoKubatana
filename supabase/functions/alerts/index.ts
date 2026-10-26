@@ -127,7 +127,7 @@ async function dispatchAlertMessages(supabase: any, alert: any) {
       }
     };
 
-    const messageText = `EcoKubatana Alert [${alert.level}] ${alert.area || 'All Areas'}: ${alert.message}`;
+    const messageText = `EcoKubatana Alert [${alert.level}] ${alert.area || 'All Areas'}: ${alert.message}\n\nReply 1 if you are SAFE.\nReply 2 if you NEED HELP.`;
 
     const smsSettled = await Promise.allSettled(
       recipients.map((r: any) => sendTwilioMessage('sms', normalizePhone(r.phone), messageText))
@@ -182,6 +182,34 @@ serve(async (req) => {
 
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
+
+    // POST /alerts/inbound - Twilio SMS/WhatsApp "1" or "2"
+    if (req.method === 'POST' && pathParts.includes('inbound')) {
+      const raw = await req.text();
+      const params = new URLSearchParams(raw);
+      const bodyText = (params.get('Body') || '').trim();
+      const from = (params.get('From') || '').replace(/^whatsapp:/, '');
+      const digits = bodyText.replace(/\D/g, '');
+      const status = digits.startsWith('2') || /^2\b/.test(bodyText) ? 'need_help' : digits.startsWith('1') ? 'safe' : null;
+      if (!status) {
+        return new Response('<Response><Message>Reply 1 if you are safe. Reply 2 if you need help.</Message></Response>', {
+          headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
+        });
+      }
+      const phone = normalizePhone(from);
+      const { data: sub } = await supabase.from('alert_subscriptions').select('user_id, phone').eq('phone', phone).maybeSingle();
+      await supabase.from('safety_checkins').insert({
+        user_id: sub?.user_id || null,
+        status,
+        channel: (params.get('From') || '').includes('whatsapp') ? 'whatsapp' : 'sms',
+        phone,
+        note: bodyText,
+      });
+      const reply = status === 'safe' ? 'Logged. You are marked SAFE. Stay with neighbours.' : 'Logged. HELP flagged. Call 10111 if life-threatening.';
+      return new Response(`<Response><Message>${reply}</Message></Response>`, {
+        headers: { ...corsHeaders, 'Content-Type': 'text/xml' },
+      });
+    }
 
     // GET /alerts - List alerts. Default: published only (public feed).
     // ?status=pending - admin-only review queue.

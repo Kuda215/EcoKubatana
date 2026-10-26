@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
+import { FeatureProvider } from './contexts/FeatureContext'
+import { AccessProvider } from './contexts/AccessContext'
 import Sidebar        from './components/Sidebar'
 import Dashboard      from './components/Dashboard'
 import SafetyHub      from './components/SafetyHub'
@@ -18,6 +20,15 @@ import Login          from './components/Login'
 import AdminPortal    from './components/AdminPortal'
 import VoiceReport    from './components/VoiceReport'
 import CommunitySolutions    from './components/CommunitySolutions'
+import ForecastLab    from './components/ForecastLab'
+import HistoricIntel  from './components/HistoricIntel'
+import HazardFlags    from './components/HazardFlags'
+import PopulationRisk from './components/PopulationRisk'
+import FeatureGate    from './components/FeatureGate'
+import UssdConsole    from './components/UssdConsole'
+import Stokvels       from './components/Stokvels'
+import DemoTour       from './components/DemoTour'
+import OfflineBanner  from './components/OfflineBanner'
 
 import { helpRequestsAPI, alertsAPI, notificationsAPI } from './lib/api'
 import './App.css'
@@ -36,6 +47,7 @@ function timeAgo(date) {
 // Page title mapping - maps each route to its pageTitles.* translation key
 const pageTitleKeys = {
   '/safety-hub': 'safetyHub',
+  '/CommunitySolutions': 'communitySolutions',
   '/incidents': 'incidents',
   '/alerts': 'alerts',
   '/community': 'community',
@@ -45,6 +57,12 @@ const pageTitleKeys = {
   '/report': 'report',
   '/settings': 'settings',
   '/admin': 'admin',
+  '/forecast-lab': 'forecastLab',
+  '/historic-intel': 'historicIntel',
+  '/hazard-flags': 'hazardFlags',
+  '/population-risk': 'populationRisk',
+  '/ussd': 'ussd',
+  '/stokvel': 'stokvel',
 }
 
 function AppContent() {
@@ -58,6 +76,7 @@ function AppContent() {
   const [bellOpen, setBellOpen] = useState(false)
   const [recentAlerts, setRecentAlerts] = useState([])
   const [lastSeenAlertsAt, setLastSeenAlertsAt] = useState('1970-01-01T00:00:00Z')
+  const [demoOpen, setDemoOpen] = useState(false)
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -141,6 +160,8 @@ function AppContent() {
 
   return (
     <>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      <OfflineBanner />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="app-main">
@@ -155,6 +176,9 @@ function AppContent() {
           </div>
           <div className="topbar__title">{currentTitle}</div>
           <div className="topbar__right">
+            <button className="topbar__help-btn" onClick={() => setDemoOpen(true)} title="90-second judge path">
+              ⏱️ Demo
+            </button>
             <button className="topbar__help-btn" style={{ background: '#0a3d2e' }} onClick={() => setVoiceReportOpen(true)}>
               🎙️ {t('topbar.voiceReport')}
             </button>
@@ -244,7 +268,7 @@ function AppContent() {
           </div>
         </header>
 
-        <main className="app-content">
+        <main className="app-content" id="main-content">
           <Routes>
             <Route path="/"           element={<Dashboard />} />
             <Route path="/safety-hub" element={<SafetyHub />} />
@@ -256,6 +280,12 @@ function AppContent() {
             <Route path="/wellbeing"  element={<Wellbeing />} />
             <Route path="/report"     element={<ReportIncident />} />
             <Route path="/settings"   element={<Settings />} />
+            <Route path="/forecast-lab" element={<FeatureGate featureKey="forecast_lab"><ForecastLab /></FeatureGate>} />
+            <Route path="/historic-intel" element={<FeatureGate featureKey="historic_intel"><HistoricIntel /></FeatureGate>} />
+            <Route path="/hazard-flags" element={<FeatureGate featureKey="hazard_flags"><HazardFlags /></FeatureGate>} />
+            <Route path="/population-risk" element={<FeatureGate featureKey="population_risk"><PopulationRisk /></FeatureGate>} />
+            <Route path="/ussd"       element={<UssdConsole />} />
+            <Route path="/stokvel"    element={<Stokvels />} />
             <Route path="/admin"      element={isAdmin ? <AdminPortal /> : <Navigate to="/" />} />
           </Routes>
         </main>
@@ -359,6 +389,7 @@ function AppContent() {
         )}
 
         <VoiceReport isOpen={voiceReportOpen} onClose={() => setVoiceReportOpen(false)} />
+        <DemoTour open={demoOpen} onClose={() => setDemoOpen(false)} />
       </div>
     </>
   )
@@ -367,13 +398,17 @@ function AppContent() {
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <div className="app-shell">
-            <AppContent />
-          </div>
-        </BrowserRouter>
-      </AuthProvider>
+      <AccessProvider>
+        <AuthProvider>
+          <FeatureProvider>
+            <BrowserRouter>
+              <div className="app-shell">
+                <AppContent />
+              </div>
+            </BrowserRouter>
+          </FeatureProvider>
+        </AuthProvider>
+      </AccessProvider>
     </ThemeProvider>
   )
 }

@@ -60,7 +60,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Semantic tokens — light mode defaults */
+  /* Semantic tokens - light mode defaults */
   --bg-base:        var(--neutral-100);
   --bg-surface:     #ffffff;
   --bg-elevated:    #ffffff;

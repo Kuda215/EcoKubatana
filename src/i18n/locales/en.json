@@ -12,6 +12,12 @@
     "report": "Report Incident",
     "settings": "Settings",
     "admin": "Admin Portal",
+    "forecast_lab": "Forecast analysis",
+    "historic_intel": "Historic intelligence",
+    "hazard_flags": "Hazard flags",
+    "population_risk": "Population at risk",
+    "stokvel": "Stokvel / savings",
+    "ussd": "*123# phone",
     "tagline": "Stronger Communities",
     "motto": "Ubuntu · Collaboration · Resilience"
   },
@@ -31,11 +37,18 @@
     "wellbeing": "Support & Wellbeing",
     "report": "Report Incident",
     "settings": "Settings",
-    "admin": "Admin Portal"
+    "admin": "Admin Portal",
+    "forecastLab": "Forecast analysis",
+    "historicIntel": "Historic disaster intelligence",
+    "hazardFlags": "Hazard flagging",
+    "populationRisk": "Population at risk",
+    "stokvel": "Village savings at risk",
+    "ussd": "Feature phone *123#"
   },
   "settings": {
     "language": "Language",
-    "languageDesc": "Select your preferred language",
-    "languageLabel": "Language Selection"
+    "languageDesc": "Choose a language used across Africa",
+    "languageLabel": "Language Selection",
+    "save": "Save changes"
   }
 }

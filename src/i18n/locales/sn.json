@@ -12,6 +12,10 @@
     "report": "Shuma Chiitiko",
     "settings": "Zvirongwa",
     "admin": "Gonhi reVatungamiriri",
+    "forecast_lab": "Ongororo yeramangwana",
+    "historic_intel": "Nhoroondo yenhamburiko",
+    "hazard_flags": "Mireza yengozi",
+    "population_risk": "Vanhu vari pangozi",
     "tagline": "Nharaunda Dzakasimba",
     "motto": "Ubuntu · Kushandira Pamwe · Kusimba"
   },
@@ -31,11 +35,16 @@
     "wellbeing": "Rutsigiro neUpenyu Hwakanaka",
     "report": "Shuma Chiitiko",
     "settings": "Zvirongwa",
-    "admin": "Gonhi reVatungamiriri"
+    "admin": "Gonhi reVatungamiriri",
+    "forecastLab": "Ongororo yeramangwana",
+    "historicIntel": "Nhoroondo yenhamburiko",
+    "hazardFlags": "Mireza yengozi",
+    "populationRisk": "Vanhu vari pangozi"
   },
   "settings": {
     "language": "Mutauro",
     "languageDesc": "Sarudza mutauro waunoda",
-    "languageLabel": "Kusarudza Mutauro"
+    "languageLabel": "Kusarudza Mutauro",
+    "save": "Chengetedza"
   }
 }

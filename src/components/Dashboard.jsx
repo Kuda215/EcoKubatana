@@ -1,290 +1,122 @@
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { incidentsAPI, communityAPI, alertsAPI } from '../lib/api';
+import { useClimateData, geocodeAndForecast, riskColor } from '../lib/climateData';
+import AfricaClimateMap from './AfricaClimateMap';
+import SourceInfo from './SourceInfo';
+import { estimateLosses, formatMoney, hubForUser } from '../lib/dataSources';
 
-const stats = [
-  { label: 'Peer Incidents',       value: '12', sub: 'This Year',       icon: '⚠️',  trend: '+20% from last year' },
-  { label: 'Community Members',    value: '2,345', sub: 'Across all areas', icon: '👥', trend: '+15% this month' },
-  { label: 'Active Alerts',        value: '8',  sub: 'Across all areas', icon: '🔔',  trend: 'View Alerts →' },
-  { label: 'Solutions Shared',     value: '23', sub: 'By community',    icon: '🌱',  trend: 'Explore Solutions →' },
-];
-
-const recentUpdates = [
-  { user: 'Thandiwe', action: 'New rainwater harvesting training this Saturday at the Community Hall', area: 'Harare Group', time: '2 hours ago', type: 'event' },
-  { user: 'Dumisani M.', action: 'Shared a solution: fenced garden beds to prevent soil erosion', area: 'Zava Village', time: '4 hours ago', type: 'solution' },
-  { user: 'Community', action: 'Community clean-up campaign happening next week!', area: 'All Areas', time: '1 day ago', type: 'campaign' },
-];
-
-const helpfulResources = [
-  { icon: '🚨', label: 'Emergency Contacts', desc: 'Quick contacts to keep you safe' },
-  { icon: '📋', label: 'Preparedness Guide', desc: 'How to prepare your household' },
-  { icon: '📣', label: 'Report an Incident', desc: 'Tell us what\'s happening near you' },
-];
-
-const weatherDays = [
-  { day: 'Today', icon: '⛅', temp: '18°C' },
-  { day: 'Wed',   icon: '🌧️', temp: '14°C' },
-  { day: 'Thu',   icon: '🌤️', temp: '21°C' },
-  { day: 'Fri',   icon: '☀️', temp: '24°C' },
-  { day: 'Sat',   icon: '⛅', temp: '19°C' },
-];
-
+const WX_ICON = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 61: '🌧️', 63: '🌧️', 65: '🌧️', 80: '🌦️', 95: '⛈️' };
 
 export default function Dashboard() {
-const [selectedZone, setSelectedZone] = useState(null);
+  const { user } = useAuth();
+  const { hotspots, events, loading: climateLoading, syncedAt } = useClimateData();
+  const [selected, setSelected] = useState(null);
+  const [mapMode, setMapMode] = useState('historic');
+  const [incidents, setIncidents] = useState([]);
+  const [memberCount, setMemberCount] = useState(0);
+  const [alertCount, setAlertCount] = useState(0);
+  const [weather, setWeather] = useState(null);
+
+  useEffect(() => {
+    incidentsAPI.list().then((r) => { if (r.success) setIncidents(r.data || []); }).catch(() => {});
+    communityAPI.getStats().then((r) => { if (r.success) setMemberCount(r.data?.totalMembers || 0); }).catch(() => {});
+    alertsAPI.list().then((r) => { if (r.success) setAlertCount((r.data || []).length); }).catch(() => {});
+    geocodeAndForecast(user?.location || 'Harare').then(setWeather).catch(() => {});
+  }, [user?.location]);
+
+  const typeCounts = incidents.reduce((acc, i) => {
+    acc[i.type] = (acc[i.type] || 0) + 1;
+    return acc;
+  }, {});
+  const typeEntries = Object.entries(typeCounts);
+  const totalInc = incidents.length || typeEntries.reduce((a, [, n]) => a + n, 0);
+  const colors = { Flood: '#f43f5e', Drought: '#fb923c', Heatwave: '#fbbf24', 'Strong Winds': '#0ea5e9', Wildfire: '#e63946', Landslide: '#78716c', Pollution: '#64748b', Other: '#94a3b8' };
+  const flagged = hotspots.filter((h) => h.flag_status === 'alert' || h.flag_status === 'emergency').length;
+  const areaCounts = Object.entries(
+    incidents.reduce((acc, i) => { acc[i.location || 'Unknown'] = (acc[i.location || 'Unknown'] || 0) + 1; return acc; }, {})
+  ).sort((a, b) => b[1] - a[1]).slice(0, 4);
+
+  const stats = [
+    { label: 'Peer Incidents', value: String(totalInc || 0), sub: 'From the community feed', icon: '⚠️', trend: 'Live from reports' },
+    { label: 'Community Members', value: (memberCount || 0).toLocaleString(), sub: 'Across Africa hubs', icon: '👥', trend: 'Profiles in EcoKubatana' },
+    { label: 'Active Alerts', value: String(alertCount), sub: `${flagged} map flags`, icon: '🔔', trend: 'View Alerts →' },
+    { label: 'Hazard hubs', value: String(hotspots.length), sub: 'Historic + forecast layers', icon: '🌍', trend: climateLoading ? 'Refreshing…' : 'Live APIs' },
+  ];
+
+  const localHub = hubForUser(hotspots, user?.location);
+  const localMoney = localHub ? estimateLosses(localHub, user?.livelihood) : null;
+  const job = String(user?.livelihood || '').toLowerCase();
+
+  const days = weather?.wx?.daily?.time?.map((t, i) => ({
+    day: i === 0 ? 'Today' : new Date(t).toLocaleDateString(undefined, { weekday: 'short' }),
+    icon: WX_ICON[weather.wx.daily.weather_code?.[i]] || (weather.wx.daily.precipitation_sum?.[i] > 1 ? '🌧️' : '⛅'),
+    temp: `${Math.round(weather.wx.daily.temperature_2m_max[i])}°C`,
+  })) || [];
 
   return (
     <div className="dashboard">
-      {/* Climate Incident Highlight */}
-      <div
-      style={{
-        position: "relative",
-        height: "300px",
-        borderRadius: "12px",
-        overflow: "hidden",
-        border: "2px solid #e5e7eb",
-      }}
-    >
-      <iframe
-        title="Climate Risk Map - Ferndale Randburg"
-        width="100%"
-        height="300"
-        frameBorder="0"
-        scrolling="no"
-        marginHeight="0"
-        marginWidth="0"
-        src="https://maps.google.com/maps?q=Ferndale%20Randburg&t=k&z=14&output=embed"
-        style={{
-          width: "100%",
-          height: "100%",
-          border: "none",
-        }}
-      ></iframe>
-
-      {/* HIGH RISK */}
-      <div
-        style={{
-          position: "absolute",
-          top: "28%",
-          left: "58%",
-          zIndex: 1000,
-          width: "880px",
-          height: "280px",
-          borderRadius: "50%",
-          background: "rgba(239, 68, 68, 0.25)",
-          border: "4px solid rgba(233, 19, 19, 0.7)",
-          boxShadow: "0 0 50px rgba(239, 68, 68, 0.6)",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = "scale(1.1)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = "scale(1)";
-        }}
-        onClick={() =>
-          setSelectedZone({
-            level: "High Risk",
-            color: "#ffa600",
-            location: "Ferndale CBD",
-            reports: 24,
-            recommendation: "Avoid flooded roads and monitor community alerts.",
-          })
-        }
-      >
-        <div
-          style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", color: "#fff", fontWeight: "bold",
-            background: "rgba(0,0,0,0.7)", padding: "8px 12px",  borderRadius: "8px",
-          }}
-        >          
+      {!user?.livelihood && (
+        <div className="dashboard__highlight">
+          <div className="highlight__badge">Finish setup</div>
+          <p>Tell us what you do (for example Farmer) and what to protect first in an emergency. It personalises alerts.</p>
+          <Link to="/settings" className="card__link">Complete your profile →</Link>
         </div>
-      </div>
+      )}
 
-      {selectedZone && (
-      <div
-        style={{
-          position: "absolute",
-          right: "10px",
-          top: "10px",
-          width: "220px",
-          background: "rgba(255,255,255,0.95)",
-          backdropFilter: "blur(8px)",
-          borderRadius: "10px",
-          padding: "10px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          zIndex: 2000,
-          fontSize: "12px",
-          lineHeight: "1.4",
-        }}
-      >
-        <button
-          onClick={() => setSelectedZone(null)}
-          style={{
-            float: "right",
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            fontSize: "14px",
-            padding: 0,
-          }}
-        >
-          ✕
-        </button>
-
-        <div
-          style={{
-            display: "inline-block",
-            padding: "2px 6px",
-            borderRadius: "999px",
-            background: selectedZone.color,
-            color: "white",
-            fontSize: "10px",
-            fontWeight: 600,
-            marginBottom: "6px",
-          }}
-        >
-          {selectedZone.level}
+      <div className="africa-map-panel">
+        <div className="map-mode-tabs" style={{ alignItems: 'center' }}>
+          {[
+            ['historic', 'Historic'],
+            ['forecast', 'Forecast'],
+            ['flags', 'Flags'],
+          ].map(([id, label]) => (
+            <button key={id} className={`filter-tab ${mapMode === id ? 'filter-tab--active' : ''}`} onClick={() => setMapMode(id)}>{label}</button>
+          ))}
+          <SourceInfo sources={mapMode === 'historic' ? ['emdat', 'reliefweb', 'osm'] : mapMode === 'forecast' ? ['openmeteo', 'glofas', 'osm'] : ['eonet', 'glofas', 'osm']} />
         </div>
-
-        <h4
-          style={{
-            margin: "4px 0",
-            fontSize: "13px",
-          }}
-        >
-          📍 {selectedZone.location}
-        </h4>
-
-        <p style={{ margin: "4px 0" }}>
-          <strong>Reports:</strong> {selectedZone.reports}
-        </p>
-
-        <p style={{ margin: "4px 0" }}>
-          <strong>Action:</strong> {selectedZone.recommendation}
-        </p>
-
-        <div
-          style={{
-            marginTop: "6px",
-            padding: "6px",
-            background: "#f8fafc",
-            borderRadius: "6px",
-            fontSize: "11px",
-          }}
-        >
-          🤖 Elevated flood risk detected.
-        </div>
-      </div>
-    )}
-
-
-      {/* MODERATE RISK */}
-      <div
-          style={{
-            position: "absolute",
-            top: "-100%",
-            left: "0%",
-            zIndex: 1000,
-            width: "0",
-            height: "0",
-            borderRadius: "50%",
-            background: "rgba(245, 158, 11, 0.25)",
-            border: "4px solid rgba(245, 158, 11, 0.7)",
-            boxShadow: "0 0 50px rgba(245, 158, 11, 0.6)",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-          }}
-          onClick={() =>
-            setSelectedZone({
-              level: "Moderate Risk",
-              color: "#f59e0b",
-              location: "Randburg Sports Grounds",
-              reports: 12,
-              recommendation:
-                "Heavy rainfall expected. Exercise caution and monitor community alerts.",
-            })
-          }
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              color: "#fff",
-              fontWeight: "bold",
-              background: "rgba(0,0,0,0.7)",
-              padding: "8px 12px",
-              borderRadius: "8px",
-              fontSize: "14px",
-            }}
-          >
-            MODERATE RISK
+        <AfricaClimateMap
+          hotspots={hotspots}
+          events={events}
+          mode={mapMode}
+          selectedId={selected?.id}
+          onSelect={setSelected}
+          height={340}
+        />
+        {selected && (
+          <div className="map-selected-card">
+            <button className="map-selected-close" onClick={() => setSelected(null)}>✕</button>
+            <span className="map-risk-pill" style={{ background: riskColor(mapMode === 'forecast' ? selected.forecast_score : selected.historic_score, selected.flag_status) }}>
+              {mapMode === 'forecast' ? selected.forecast_hazard : selected.historic_hazard} · {selected.flag_status}
+            </span>
+            <h4>📍 {selected.name}, {selected.country}</h4>
+            <p>{selected.summary}</p>
+            {(job.includes('farm') || job.includes('livestock')) && <p><strong>For your work:</strong> {selected.farmer_action}</p>}
+            <p><strong>Money at risk (city):</strong> {formatMoney(estimateLosses(selected, user?.livelihood).potential_loss_usd)}</p>
+            <p style={{ fontSize: 11, color: 'var(--neutral-500)' }}>Sources: {(selected.sources || []).join(' · ')} <SourceInfo sources={['openmeteo', 'eonet', 'reliefweb', 'worldbank', 'osm']} /></p>
           </div>
+        )}
+        <div className="map-legend-bar">
+          <span>🟢 Watch / quieter</span>
+          <span>🟡 Historic or building risk</span>
+          <span>🟠 Alert</span>
+          <span>🔴 Emergency flag</span>
+          {syncedAt && <span>Updated {new Date(syncedAt).toLocaleTimeString()}</span>}
         </div>
-
-      {/* SAFE AREA */}
-      <div
-        title="Safe Area"
-        style={{
-          position: "absolute",
-          top: "-20%",
-          left: "-2%",
-          zIndex: 1000,
-          fontSize: "40px",
-          cursor: "pointer",
-          background: "rgba(197, 154, 34, 0.15)",
-          border: "3px solid #ffa600",
-          borderRadius: "50%",
-          width: "220px",
-          height: "270px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        onClick={() =>
-          setSelectedZone({
-            level: "Safe Area",
-            color: "#c58422",
-            location: "Ferndale Residential",
-            reports: 0,
-            recommendation:
-              "No active climate incidents reported. Continue monitoring conditions.",
-          })
-        }
-      >
-        
       </div>
 
-      {/* LEGEND */}
-      <div
-        style={{
-          position: "absolute",
-          right: "15px",
-          bottom: "15px",
-          background: "white",
-          padding: "12px",
-          borderRadius: "10px",
-          boxShadow: "0 4px 12px rgba(0,0,0,.2)",
-          zIndex: 1000,
-          fontSize: "14px",
-        }}
-      >
-        <div>🔴 High Risk (Flooding)</div>
-        <div>🟡 Moderate Risk (Heavy Rain)</div>
-        <div>🟢 Safe Area</div>
-      </div>
-    </div>
-    
-      
-      {/* Stats Cards */}
+      {localMoney && (
+        <div className="dashboard__highlight">
+          <div className="highlight__badge">Potential loss near you <SourceInfo sources={['worldbank']} /></div>
+          <p>
+            Around <strong>{localHub.name}</strong>, a scored {localMoney.hazard_for_money} event could put about <strong>{formatMoney(localMoney.potential_loss_usd)}</strong> of local economic value at risk.
+            For your household{user?.livelihood ? ` (${String(user.livelihood).replace(/_/g, ' ')})` : ''}, a planning range is <strong>{formatMoney(localMoney.household_loss_usd)}</strong> - crops, stock, travel, repairs. Not an insurance quote.
+          </p>
+        </div>
+      )}
+
       <div className="dashboard__stats">
         {stats.map((s) => (
           <div key={s.label} className="stat-card">
@@ -299,163 +131,78 @@ const [selectedZone, setSelectedZone] = useState(null);
         ))}
       </div>
 
-      {/* Middle Row */}
       <div className="dashboard__mid">
-        {/* Incidents Summary */}
         <div className="card">
-          <h3 className="card__title">Incidents by Type (This Year)</h3>
+          <h3 className="card__title">Incidents by Type</h3>
           <div className="chart-placeholder">
-            <div className="donut-chart-container">
-              <svg className="donut-chart" viewBox="0 0 100 100">
-                {/* Background circle */}
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="#f0f4f7"
-                  strokeWidth="12"
-                />
-                {/* Floods - 39% */}
-                <circle
-                  className="donut-segment-circle"
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="#f43f5e"
-                  strokeWidth="12"
-                  strokeDasharray="0 251"
-                  transform="rotate(-90 50 50)"
-                  style={{ '--segment-length': '98' }}
-                />
-                {/* Droughts - 26% */}
-                <circle
-                  className="donut-segment-circle"
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="#fb923c"
-                  strokeWidth="12"
-                  strokeDasharray="0 251"
-                  strokeDashoffset="-98"
-                  transform="rotate(-90 50 50)"
-                  style={{ '--segment-length': '65' }}
-                />
-                {/* Winds - 22% */}
-                <circle
-                  className="donut-segment-circle"
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="#0ea5e9"
-                  strokeWidth="12"
-                  strokeDasharray="0 251"
-                  strokeDashoffset="-163"
-                  transform="rotate(-90 50 50)"
-                  style={{ '--segment-length': '55' }}
-                />
-                {/* Heatwaves - 13% */}
-                <circle
-                  className="donut-segment-circle"
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="#fbbf24"
-                  strokeWidth="12"
-                  strokeDasharray="0 251"
-                  strokeDashoffset="-218"
-                  transform="rotate(-90 50 50)"
-                  style={{ '--segment-length': '33' }}
-                />
-              </svg>
-              <div className="donut-center">
-                <div className="donut-total">74</div>
-                <div className="donut-label">Total</div>
+            {totalInc === 0 ? (
+              <p style={{ color: 'var(--neutral-500)' }}>No verified incidents yet - the map still uses historic + forecast APIs. <SourceInfo sources={['openmeteo', 'eonet']} /></p>
+            ) : (
+              <div className="donut-legend">
+                {typeEntries.map(([type, n]) => (
+                  <div key={type} className="legend-item">
+                    <span className="legend-dot" style={{ background: colors[type] || '#94a3b8' }} />
+                    {type} {Math.round((n / totalInc) * 100)}% ({n})
+                  </div>
+                ))}
               </div>
-            </div>
-            <div className="donut-legend">
-              <div className="legend-item"><span className="legend-dot" style={{background: '#f43f5e'}}></span> Floods 39%</div>
-              <div className="legend-item"><span className="legend-dot" style={{background: '#fb923c'}}></span> Droughts 26%</div>
-              <div className="legend-item"><span className="legend-dot" style={{background: '#0ea5e9'}}></span> Winds 22%</div>
-              <div className="legend-item"><span className="legend-dot" style={{background: '#fbbf24'}}></span> Heatwaves 13%</div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Incidents Over Time */}
         <div className="card">
-          <h3 className="card__title">Incidents Over Time</h3>
-          <div className="chart-placeholder chart-placeholder--bar">
-            <div className="bar-mock">
-              {[4,6,5,9,7,10,12].map((h, i) => (
-                <div key={i} className="bar" style={{ height: `${h * 6}px` }} />
-              ))}
-            </div>
-            <div className="bar-labels">
-              {['Jan','Feb','Mar','Apr','May','Jun','Jul'].map(m => <span key={m}>{m}</span>)}
-            </div>
+          <h3 className="card__title">Africa hubs by historic score</h3>
+          <div className="area-list">
+            {[...hotspots].sort((a, b) => (b.historic_score || 0) - (a.historic_score || 0)).slice(0, 5).map((h) => (
+              <div key={h.id} className="area-row">
+                <span className="area-dot" style={{ background: riskColor(h.historic_score) }} />
+                <span className="area-name">{h.name}</span>
+                <span className="area-count">{h.historic_hazard} · {h.historic_score}</span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Incidents by Area */}
         <div className="card">
           <h3 className="card__title">Incidents by Area</h3>
           <div className="area-list">
-            {[
-              { area: 'Nkulu Village', count: 5, color: '#e63946' },
-              { area: 'Guta District', count: 3, color: '#f4a261' },
-              { area: 'Zava Village', count: 2, color: '#2a9d8f' },
-              { area: 'Chakoma', count: 2, color: '#457b9d' },
-            ].map(a => (
-              <div key={a.area} className="area-row">
-                <span className="area-dot" style={{ background: a.color }} />
-                <span className="area-name">{a.area}</span>
-                <span className="area-count">{a.count} incidents</span>
+            {areaCounts.length === 0 && <p style={{ color: 'var(--neutral-500)' }}>Waiting for community reports.</p>}
+            {areaCounts.map(([area, count], i) => (
+              <div key={area} className="area-row">
+                <span className="area-dot" style={{ background: ['#e63946', '#f4a261', '#2a9d8f', '#457b9d'][i] }} />
+                <span className="area-name">{area}</span>
+                <span className="area-count">{count} incidents</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Bottom Row */}
       <div className="dashboard__bottom">
-        {/* Recent Community Updates */}
         <div className="card card--wide">
           <div className="card__header">
-            <h3 className="card__title">Recent Community Updates</h3>
-            <Link to="/community" className="card__link">View All Updates →</Link>
+            <h3 className="card__title">Why the map looks like this</h3>
+            <Link to="/historic-intel" className="card__link">Historic intel →</Link>
           </div>
-          {recentUpdates.map((u, i) => (
-            <div key={i} className="update-item">
-              <div className="update-avatar">{u.user[0]}</div>
-              <div className="update-content">
-                <p className="update-action">{u.action}</p>
-                <span className="update-meta">{u.user} · {u.area} · {u.time}</span>
-              </div>
-              <span className={`update-tag update-tag--${u.type}`}>{u.type}</span>
-            </div>
-          ))}
+          <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+            We combine satellite-linked events (NASA EONET / Earthdata), predictive models (Open-Meteo + Copernicus GloFAS river flow), historic disaster records (ReliefWeb / EM-DAT-style), population context (World Bank / WorldPop-style urban estimates), and OpenStreetMap as the basemap - focused on Africa.
+            <SourceInfo sources={['eonet', 'openmeteo', 'glofas', 'reliefweb', 'emdat', 'worldbank', 'worldpop', 'osm']} />
+          </p>
         </div>
 
-        {/* Weather Outlook */}
         <div className="card">
           <div className="card__header">
             <h3 className="card__title">Weather Outlook</h3>
-            <Link to="/resources" className="card__link">View Full Forecast →</Link>
           </div>
           <div className="weather-current">
-            <span className="weather-icon">⛅</span>
+            <span className="weather-icon">{WX_ICON[weather?.wx?.current?.weather_code] || '⛅'}</span>
             <div>
-              <div className="weather-temp">18°C</div>
-              <div className="weather-desc">Partly Cloudy · Harku District</div>
+              <div className="weather-temp">{weather?.wx?.current?.temperature_2m != null ? `${Math.round(weather.wx.current.temperature_2m)}°C` : '-'}</div>
+              <div className="weather-desc">{weather?.loc?.name || user?.location || 'Your area'} · Open-Meteo <SourceInfo sources={['openmeteo']} /></div>
             </div>
           </div>
           <div className="weather-forecast">
-            {weatherDays.map(d => (
+            {days.slice(0, 5).map((d) => (
               <div key={d.day} className="weather-day">
                 <span>{d.day}</span>
                 <span>{d.icon}</span>
@@ -465,13 +212,16 @@ const [selectedZone, setSelectedZone] = useState(null);
           </div>
         </div>
 
-        {/* Helpful Resources */}
         <div className="card">
           <div className="card__header">
             <h3 className="card__title">Helpful Resources</h3>
-            <Link to="/resources" className="card__link">View All Resources →</Link>
+            <Link to="/alerts" className="card__link">Alert steps →</Link>
           </div>
-          {helpfulResources.map((r) => (
+          {[
+            { icon: '🚨', label: 'Emergency Contacts', desc: 'Police, fire, medical - then EcoKubatana' },
+            { icon: '🌾', label: 'Role playbook', desc: user?.livelihood ? `Steps for a ${user.livelihood.replace('_', ' ')}` : 'Set your livelihood in settings' },
+            { icon: '📣', label: 'Report an Incident', desc: 'Tell us what is happening near you' },
+          ].map((r) => (
             <div key={r.label} className="resource-row">
               <span className="resource-icon">{r.icon}</span>
               <div>

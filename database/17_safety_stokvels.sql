@@ -1,0 +1,3 @@
+-- Applied remotely: safety_checkins + stokvels / members / assets
+-- Twilio WhatsApp/SMS inbound: POST /functions/v1/alerts/inbound
+-- Body 1 = safe, Body 2 = need_help

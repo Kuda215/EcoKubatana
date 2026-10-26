@@ -1,0 +1,50 @@
+{
+  "sidebar": {
+    "dashboard": "Ojú-iṣẹ́",
+    "communitySolutions": "Nibo ni a lọ báyìí?",
+    "safetyHub": "Ibùdó ààbò",
+    "incidents": "Àwọn ìṣẹ̀lẹ̀",
+    "alerts": "Ìkìlọ̀",
+    "community": "Pátákó àwùjọ",
+    "knowledge": "Ilé ìmọ̀ AI",
+    "takeAction": "Ṣe ìgbésẹ̀",
+    "wellbeing": "Àtìlẹ́yìn àti ìlera",
+    "report": "Ròyìn ìṣẹ̀lẹ̀",
+    "settings": "Àwọn ètò",
+    "admin": "Èbúté alábòójútó",
+    "forecast_lab": "Ìtúpalẹ̀ àsọtẹ́lẹ̀",
+    "historic_intel": "Ìtàn àjálù",
+    "hazard_flags": "Àsíá ewu",
+    "population_risk": "Àwọn ènìyàn tó wà nínú ewu",
+    "tagline": "Àwùjọ tó lágbára",
+    "motto": "Ubuntu · Ìfọwọ́sowọ́pọ̀ · Ìdúróṣinṣin"
+  },
+  "topbar": {
+    "voiceReport": "Ròyìn pẹ̀lú ohùn",
+    "requestHelp": "Beere ìrànlọ́wọ́"
+  },
+  "pageTitles": {
+    "welcomeBack": "Káàbọ̀ padà, {{name}}",
+    "communitySolutions": "Nibo ni a lọ báyìí?",
+    "safetyHub": "Ìrànlọ́wọ́ tó sún mọ́ ọ",
+    "incidents": "Àwọn ìṣẹ̀lẹ̀ ojú-ọjọ́",
+    "alerts": "Ìkìlọ̀ ojú-ọjọ́",
+    "community": "Pátákó àwùjọ",
+    "knowledge": "Ilé ìmọ̀ AI",
+    "takeAction": "Ṣe ìgbésẹ̀",
+    "wellbeing": "Àtìlẹ́yìn àti ìlera",
+    "report": "Ròyìn ìṣẹ̀lẹ̀",
+    "settings": "Àwọn ètò",
+    "admin": "Èbúté alábòójútó",
+    "forecastLab": "Ìtúpalẹ̀ àsọtẹ́lẹ̀",
+    "historicIntel": "Ìtàn àjálù",
+    "hazardFlags": "Àsíá ewu",
+    "populationRisk": "Àwọn ènìyàn tó wà nínú ewu"
+  },
+  "settings": {
+    "language": "Èdè",
+    "languageDesc": "Yan èdè tí o fẹ́",
+    "languageLabel": "Èdè",
+    "save": "Fi pamọ́"
+  }
+}

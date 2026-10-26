@@ -388,7 +388,7 @@ export default function AdminPortal() {
                   </svg>
                 </div>
                 <h2 className="admin-popup-title">Verified!</h2>
-                <p className="admin-popup-sub">{popup.data?.type} — {popup.data?.location}</p>
+                <p className="admin-popup-sub">{popup.data?.type} - {popup.data?.location}</p>
               </>
             )}
             {popup.type === 'reject' && (
@@ -401,7 +401,7 @@ export default function AdminPortal() {
                   </svg>
                 </div>
                 <h2 className="admin-popup-title">Rejected</h2>
-                <p className="admin-popup-sub">{popup.data?.type} — {popup.data?.location}</p>
+                <p className="admin-popup-sub">{popup.data?.type} - {popup.data?.location}</p>
               </>
             )}
             {popup.type === 'view' && (
@@ -665,7 +665,7 @@ export default function AdminPortal() {
           <div className="admin-table-header">
             <h3>Pending Alerts</h3>
             <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-              Anyone can propose an alert from the Alerts page — publishing here sends it live and triggers SMS/WhatsApp.
+              Anyone can propose an alert from the Alerts page - publishing here sends it live and triggers SMS/WhatsApp.
             </p>
           </div>
           {pendingAlerts.length === 0 && (
@@ -732,7 +732,7 @@ export default function AdminPortal() {
           </form>
 
           {faqs.length === 0 && (
-            <div className="cb-empty">No FAQs yet — add one above. 🌿</div>
+            <div className="cb-empty">No FAQs yet - add one above. 🌿</div>
           )}
           {faqs.map(faq => (
             <div key={faq.id} className="card" style={{ marginBottom: '12px' }}>
@@ -812,7 +812,7 @@ export default function AdminPortal() {
           </form>
 
           {videos.length === 0 && (
-            <div className="cb-empty">No videos yet — add one above. 🌿</div>
+            <div className="cb-empty">No videos yet - add one above. 🌿</div>
           )}
           {videos.map(video => (
             <div key={video.id} className="card" style={{ marginBottom: '12px' }}>

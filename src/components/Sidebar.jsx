@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { useFeatures } from '../contexts/FeatureContext';
 import './Sidebar.css';
 
 const navItems = [
@@ -12,6 +13,8 @@ const navItems = [
   { path: '/community',          key: 'community',             icon: '👥' },
   { path: '/knowledge',          key: 'knowledge',             icon: '🤖' },
   { path: '/wellbeing',          key: 'wellbeing',             icon: '💚' },
+  { path: '/stokvel',            key: 'stokvel',               icon: '🧺' },
+  { path: '/ussd',               key: 'ussd',                  icon: '📟' },
   { path: '/settings',           key: 'settings',              icon: '⚙️' },
   // { path: '/report',             key: 'report',              icon: '📝' },
 
@@ -21,6 +24,7 @@ const adminNavItem = { path: '/admin', key: 'admin', icon: '🔧' };
 
 export default function Sidebar({ isOpen, onClose }) {
   const { isAdmin } = useAuth();
+  const { technicalNav } = useFeatures();
   const { t } = useTranslation();
 
   return (
@@ -50,6 +54,23 @@ export default function Sidebar({ isOpen, onClose }) {
               <span className="sidebar__label">{t(`sidebar.${key}`)}</span>
             </NavLink>
           ))}
+
+          {technicalNav.length > 0 && (
+            <>
+              <div className="sidebar__divider"></div>
+              {technicalNav.map((f) => (
+                <NavLink
+                  key={f.key}
+                  to={f.tab_path}
+                  className={({ isActive }) => `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`}
+                  onClick={onClose}
+                >
+                  <span className="sidebar__icon">{f.icon}</span>
+                  <span className="sidebar__label">{t(`sidebar.${f.key}`, { defaultValue: f.label })}</span>
+                </NavLink>
+              ))}
+            </>
+          )}
 
           {/* Admin Portal - Only visible to admins */}
           {isAdmin && (

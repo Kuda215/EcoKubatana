@@ -88,7 +88,11 @@ export const AuthProvider = ({ children }) => {
             name: userData.name,
             role: userData.role,
             location: userData.location,
-            phone: userData.phone
+            phone: userData.phone,
+            livelihood: userData.livelihood || null,
+            emergency_priorities: userData.emergency_priorities || [],
+            onboarding_complete: Boolean(userData.livelihood),
+            preferred_language: userData.preferred_language || localStorage.getItem('ecokubatana_language') || 'en',
           })
           .eq('id', authData.user.id);
 

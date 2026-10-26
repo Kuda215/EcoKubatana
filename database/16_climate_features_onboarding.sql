@@ -1,0 +1,7 @@
+-- Applied remotely via Supabase migrations (project djhgufqvjhgzzbnhzsnk).
+-- This file is the local record of:
+--   profiles.livelihood, emergency_priorities, onboarding_complete, preferred_language
+--   volunteer allowed on profiles.role
+--   feature_catalog + user_features (defaults: community tools on, technical tabs off)
+--   climate_hotspots (26 Africa hubs) + climate_events + emergency_playbooks
+-- Live forecast/flags still refresh from Open-Meteo, GloFAS flood API, NASA EONET, ReliefWeb, World Bank.

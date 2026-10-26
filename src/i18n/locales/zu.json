@@ -1,0 +1,50 @@
+{
+  "sidebar": {
+    "dashboard": "Ideshibhodi",
+    "communitySolutions": "Siyephi manje?",
+    "safetyHub": "Indawo Yokuphepha",
+    "incidents": "Izehlakalo",
+    "alerts": "Izexwayiso",
+    "community": "Ibhodi Lomphakathi",
+    "knowledge": "Isikhungo Solwazi lwe-AI",
+    "takeAction": "Thatha Isinyathelo",
+    "wellbeing": "Ukusekelwa Nempilo",
+    "report": "Bika Isigameko",
+    "settings": "Izilungiselelo",
+    "admin": "Iphothali Yokuphatha",
+    "forecast_lab": "Ukuhlaziya isimo sezulu esizayo",
+    "historic_intel": "Umlando wezinhlekelele",
+    "hazard_flags": "Amafulegi engozi",
+    "population_risk": "Abantu abasengozini",
+    "tagline": "Imiphakathi Eqinile",
+    "motto": "Ubuntu · Ukusebenzisana · Ukuqina"
+  },
+  "topbar": {
+    "voiceReport": "Bika ngezwi",
+    "requestHelp": "Cela usizo"
+  },
+  "pageTitles": {
+    "welcomeBack": "Siyakwamukela, {{name}}",
+    "communitySolutions": "Siyephi manje?",
+    "safetyHub": "Usizo oluseduze",
+    "incidents": "Izehlakalo zesimo sezulu",
+    "alerts": "Izexwayiso zesimo sezulu",
+    "community": "Ibhodi Lomphakathi",
+    "knowledge": "Isikhungo Solwazi lwe-AI",
+    "takeAction": "Thatha Isinyathelo",
+    "wellbeing": "Ukusekelwa Nempilo",
+    "report": "Bika Isigameko",
+    "settings": "Izilungiselelo",
+    "admin": "Iphothali Yokuphatha",
+    "forecastLab": "Ukuhlaziya isimo sezulu esizayo",
+    "historicIntel": "Umlando wezinhlekelele",
+    "hazardFlags": "Amafulegi engozi",
+    "populationRisk": "Abantu abasengozini"
+  },
+  "settings": {
+    "language": "Ulimi",
+    "languageDesc": "Khetha ulimi oluthandayo",
+    "languageLabel": "Ulimi",
+    "save": "Londoloza izinguquko"
+  }
+}

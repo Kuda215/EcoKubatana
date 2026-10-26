@@ -1,175 +1,150 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES } from '../i18n';
+import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '../i18n';
+import { useAuth } from '../contexts/AuthContext';
+import { useFeatures } from '../contexts/FeatureContext';
+import { useAccess } from '../contexts/AccessContext';
+import { EMERGENCY_PRIORITIES } from '../lib/africaHubs';
+import LivelihoodPicker from './LivelihoodPicker';
+import TagInput from './TagInput';
 import './PageStyles.css';
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
+  const { user, updateUser } = useAuth();
+  const { catalog, isEnabled, setDraft, save, saving, saveMsg } = useFeatures();
   const [fontSize, setFontSize] = useState('medium');
+  const [livelihood, setLivelihood] = useState(user?.livelihood || '');
+  const [priorities, setPriorities] = useState(() =>
+    (user?.emergency_priorities || []).map((p) => EMERGENCY_PRIORITIES.find((x) => x.value === p)?.label || p)
+  );
+  const [profileMsg, setProfileMsg] = useState('');
+  const { flags, setFlag } = useAccess();
 
   const handleLanguageChange = (lang) => {
     i18n.changeLanguage(lang);
     localStorage.setItem('ecokubatana_language', lang);
+    updateUser({ preferred_language: lang }).catch(() => {});
   };
 
   const handleFontChange = (size) => {
     setFontSize(size);
-    // Apply font size to body
     const sizes = { small: '14px', medium: '16px', large: '18px' };
     document.documentElement.style.fontSize = sizes[size];
+  };
+
+  const saveProfile = async () => {
+    const result = await updateUser({
+      livelihood: (livelihood || '').trim(),
+      emergency_priorities: priorities,
+      onboarding_complete: true,
+    });
+    setProfileMsg(result.success ? 'Profile saved.' : (result.error || 'Could not save.'));
+  };
+
+  const handleSaveAll = async () => {
+    await saveProfile();
+    await save();
   };
 
   return (
     <div className="page">
       <div className="settings-grid">
-        {/* Font Size Settings */}
+        <div className="card" style={{ gridColumn: '1 / -1' }}>
+          <h3 className="card__title">✨ Extra tools (toggles)</h3>
+          <p style={{ color: 'var(--neutral-500)', marginBottom: 16 }}>
+            Default accounts keep today&apos;s community tools. Paid extras unlock forecast analysis and technical tabs. Defaults live in Supabase <code>feature_catalog</code>.
+          </p>
+          <div className="setting-toggles">
+            {catalog.map((f) => (
+              <label key={f.key} className="setting-toggle">
+                <input type="checkbox" checked={isEnabled(f.key)} onChange={(e) => setDraft(f.key, e.target.checked)} />
+                <span>
+                  <strong>{f.icon} {f.label}</strong>
+                  {f.is_premium && <span className="premium-badge">Paid extra</span>}
+                  <br />
+                  <span style={{ color: 'var(--neutral-500)', fontSize: 13 }}>{f.description}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="card">
+          <h3 className="card__title">🌾 What you do</h3>
+          <p style={{ color: 'var(--neutral-500)', marginBottom: 16 }}>
+            In an emergency we lead with this. Farmer is the example: crops, livestock, water. Or type your own work under Other.
+          </p>
+          <LivelihoodPicker value={livelihood} onChange={setLivelihood} onSuggestPriorities={setPriorities} />
+          <div style={{ marginTop: 16 }}>
+            <TagInput
+              label="If an emergency hits, protect first"
+              values={Array.isArray(priorities) ? priorities : []}
+              onChange={setPriorities}
+              suggestions={EMERGENCY_PRIORITIES.map((p) => p.label)}
+              placeholder="e.g. my goats; school fees; irrigation pump"
+            />
+          </div>
+        </div>
+
         <div className="card">
           <h3 className="card__title">🔤 Font Size</h3>
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Adjust the text size for better readability
-          </p>
           <div className="setting-options">
-            <button
-              className={`setting-option ${fontSize === 'small' ? 'setting-option--active' : ''}`}
-              onClick={() => handleFontChange('small')}
-            >
-              <span className="setting-option__label">Small</span>
-              <span className="setting-option__desc">Compact text</span>
-            </button>
-            <button
-              className={`setting-option ${fontSize === 'medium' ? 'setting-option--active' : ''}`}
-              onClick={() => handleFontChange('medium')}
-            >
-              <span className="setting-option__label">Medium</span>
-              <span className="setting-option__desc">Default size</span>
-            </button>
-            <button
-              className={`setting-option ${fontSize === 'large' ? 'setting-option--active' : ''}`}
-              onClick={() => handleFontChange('large')}
-            >
-              <span className="setting-option__label">Large</span>
-              <span className="setting-option__desc">Easier to read</span>
-            </button>
+            {['small', 'medium', 'large'].map((size) => (
+              <button key={size} className={`setting-option ${fontSize === size ? 'setting-option--active' : ''}`} onClick={() => handleFontChange(size)}>
+                <span className="setting-option__label">{size[0].toUpperCase() + size.slice(1)}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Language Settings */}
         <div className="card">
           <h3 className="card__title">🌍 {t('settings.language')}</h3>
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            {t('settings.languageDesc')}
-          </p>
-          <div className="form-group">
-            <label className="form-label">{t('settings.languageLabel')}</label>
-            <select
-              className="form-input"
-              value={SUPPORTED_LANGUAGES.includes(i18n.language) ? i18n.language : 'en'}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-            >
-              <option value="en">English</option>
-              <option value="sn">Shona</option>
-              <option value="nd">Ndebele</option>
-              <option value="sw" disabled>Swahili (coming soon)</option>
-              <option value="fr" disabled>French (coming soon)</option>
-              <option value="pt" disabled>Portuguese (coming soon)</option>
-            </select>
-          </div>
-          <p style={{ fontSize: '13px', color: 'var(--neutral-400)', marginTop: '12px' }}>
-            ⏳ More languages coming soon
-          </p>
+          <p style={{ color: 'var(--neutral-500)', marginBottom: 16 }}>{t('settings.languageDesc')}</p>
+          <select
+            className="form-input"
+            value={SUPPORTED_LANGUAGES.includes(i18n.language) ? i18n.language : 'en'}
+            onChange={(e) => handleLanguageChange(e.target.value)}
+          >
+            {SUPPORTED_LANGUAGES.map((code) => (
+              <option key={code} value={code}>{LANGUAGE_LABELS[code]}</option>
+            ))}
+          </select>
         </div>
 
-        {/* Accessibility Settings */}
         <div className="card">
-          <h3 className="card__title">♿ Accessibility</h3>
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Make EcoKubatana easier to use
-          </p>
+          <h3 className="card__title">♿ Access</h3>
+          <p style={{ color: 'var(--neutral-500)', marginBottom: 16 }}>Switch-control friendly: every control is a large target. Voice Report is in the top bar.</p>
           <div className="setting-toggles">
-            <label className="setting-toggle">
-              <input type="checkbox" />
-              <span>High contrast mode</span>
-            </label>
-            <label className="setting-toggle">
-              <input type="checkbox" />
-              <span>Reduce animations</span>
-            </label>
-            <label className="setting-toggle">
-              <input type="checkbox" defaultChecked />
-              <span>Screen reader support</span>
-            </label>
+            {[
+              ['highContrast', 'High contrast'],
+              ['reduceMotion', 'Reduce motion'],
+              ['dyslexiaFont', 'Dyslexia-friendly font'],
+              ['colorBlind', 'Colour-blind map (letters + patterns)'],
+              ['bigTargets', 'Bigger tap targets'],
+              ['smsOnly', 'SMS-only (hide maps, text lists)'],
+            ].map(([key, label]) => (
+              <label key={key} className="setting-toggle">
+                <input type="checkbox" checked={!!flags[key]} onChange={(e) => setFlag(key, e.target.checked)} />
+                <span>{label}</span>
+              </label>
+            ))}
           </div>
         </div>
 
-        {/* Notification Settings */}
-        <div className="card">
-          <h3 className="card__title">🔔 Notifications</h3>
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Control how you receive updates
-          </p>
-          <div className="setting-toggles">
-            <label className="setting-toggle">
-              <input type="checkbox" defaultChecked />
-              <span>Climate alerts</span>
-            </label>
-            <label className="setting-toggle">
-              <input type="checkbox" defaultChecked />
-              <span>Community updates</span>
-            </label>
-            <label className="setting-toggle">
-              <input type="checkbox" />
-              <span>Weekly summary email</span>
-            </label>
-            <label className="setting-toggle">
-              <input type="checkbox" />
-              <span>SMS notifications</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Profile Settings */}
         <div className="card">
           <h3 className="card__title">👤 Profile</h3>
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Your account information
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div>
-              <strong style={{ color: 'var(--neutral-700)' }}>Name:</strong>
-              <span style={{ marginLeft: '8px', color: 'var(--neutral-600)' }}>Thandiwe</span>
-            </div>
-            <div>
-              <strong style={{ color: 'var(--neutral-700)' }}>Location:</strong>
-              <span style={{ marginLeft: '8px', color: 'var(--neutral-600)' }}>Harare, Zimbabwe</span>
-            </div>
-            <div>
-              <strong style={{ color: 'var(--neutral-700)' }}>Member since:</strong>
-              <span style={{ marginLeft: '8px', color: 'var(--neutral-600)' }}>January 2026</span>
-            </div>
-            <button className="btn btn--ghost" style={{ marginTop: '8px' }}>
-              Edit Profile
-            </button>
-          </div>
-        </div>
-
-        {/* Data & Privacy */}
-        <div className="card">
-          <h3 className="card__title">🔒 Data & Privacy</h3>
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Control your data and privacy
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <button className="btn btn--ghost">Download my data</button>
-            <button className="btn btn--ghost">Privacy policy</button>
-            <button className="btn btn--danger">Delete account</button>
-          </div>
+          <p><strong>Name:</strong> {user?.name || '-'}</p>
+          <p><strong>Location:</strong> {user?.location || '-'}</p>
+          <p><strong>Role:</strong> {user?.role || 'member'}</p>
         </div>
       </div>
 
-      {/* Save Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
-        <button className="btn btn--ghost">Cancel</button>
-        <button className="btn btn--primary">Save Changes</button>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+        {(saveMsg || profileMsg) && <span style={{ fontSize: 13, color: '#047857' }}>{saveMsg || profileMsg}</span>}
+        <button className="btn btn--primary" onClick={handleSaveAll} disabled={saving}>
+          {saving ? 'Saving…' : t('settings.save', { defaultValue: 'Save changes' })}
+        </button>
       </div>
     </div>
   );

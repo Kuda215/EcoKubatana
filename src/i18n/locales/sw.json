@@ -1,0 +1,50 @@
+{
+  "sidebar": {
+    "dashboard": "Dashibodi",
+    "communitySolutions": "Tuende wapi sasa?",
+    "safetyHub": "Kituo cha usalama",
+    "incidents": "Matukio",
+    "alerts": "Tahadhari",
+    "community": "Ubao wa jamii",
+    "knowledge": "Kituo cha maarifa ya AI",
+    "takeAction": "Chukua hatua",
+    "wellbeing": "Msaada na ustawi",
+    "report": "Ripoti tukio",
+    "settings": "Mipangilio",
+    "admin": "Langoni la usimamizi",
+    "forecast_lab": "Uchambuzi wa utabiri",
+    "historic_intel": "Historia ya majanga",
+    "hazard_flags": "Bendera za hatari",
+    "population_risk": "Idadi iliyo hatarini",
+    "tagline": "Jamii imara",
+    "motto": "Ubuntu · Ushirikiano · Ustahimilivu"
+  },
+  "topbar": {
+    "voiceReport": "Ripoti kwa sauti",
+    "requestHelp": "Omba msaada"
+  },
+  "pageTitles": {
+    "welcomeBack": "Karibu tena, {{name}}",
+    "communitySolutions": "Tuende wapi sasa?",
+    "safetyHub": "Msaada wa karibu",
+    "incidents": "Matukio ya tabianchi",
+    "alerts": "Tahadhari za tabianchi",
+    "community": "Ubao wa jamii",
+    "knowledge": "Kituo cha maarifa ya AI",
+    "takeAction": "Chukua hatua",
+    "wellbeing": "Msaada na ustawi",
+    "report": "Ripoti tukio",
+    "settings": "Mipangilio",
+    "admin": "Langoni la usimamizi",
+    "forecastLab": "Uchambuzi wa utabiri",
+    "historicIntel": "Historia ya majanga",
+    "hazardFlags": "Bendera za hatari",
+    "populationRisk": "Idadi iliyo hatarini"
+  },
+  "settings": {
+    "language": "Lugha",
+    "languageDesc": "Chagua lugha unayopendelea",
+    "languageLabel": "Lugha",
+    "save": "Hifadhi mabadiliko"
+  }
+}

@@ -12,6 +12,10 @@
     "report": "Bika Isigameko",
     "settings": "Izilungiselelo",
     "admin": "Isango Labaphathi",
+    "forecast_lab": "Ukuhlaziywa kwesikhathi esizayo",
+    "historic_intel": "Umlando wezinhlekelele",
+    "hazard_flags": "Izimpawu zengozi",
+    "population_risk": "Abantu abasengozini",
     "tagline": "Imiphakathi Eqinileyo",
     "motto": "Ubuntu · Ukusebenzisana · Ukuqina"
   },
@@ -31,11 +35,16 @@
     "wellbeing": "Ukusekelwa Lempilakahle",
     "report": "Bika Isigameko",
     "settings": "Izilungiselelo",
-    "admin": "Isango Labaphathi"
+    "admin": "Isango Labaphathi",
+    "forecastLab": "Ukuhlaziywa kwesikhathi esizayo",
+    "historicIntel": "Umlando wezinhlekelele",
+    "hazardFlags": "Izimpawu zengozi",
+    "populationRisk": "Abantu abasengozini"
   },
   "settings": {
     "language": "Ulimi",
     "languageDesc": "Khetha ulimi olulithandayo",
-    "languageLabel": "Ukukhethwa Kolimi"
+    "languageLabel": "Ukukhethwa Kolimi",
+    "save": "Gcina izinguquko"
   }
 }

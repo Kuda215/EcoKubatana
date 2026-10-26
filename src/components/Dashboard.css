@@ -754,3 +754,63 @@
   font-weight: 500;
   line-height: 1.4;
 }
+
+.africa-map-panel {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+.map-mode-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 12px 12px 0;
+}
+.africa-map-shell { position: relative; }
+.africa-map-canvas {
+  width: 100%;
+  z-index: 1;
+  background: #dbe8d8;
+}
+.africa-map-note {
+  margin: 0;
+  padding: 6px 12px 10px;
+  font-size: 11px;
+  color: var(--neutral-500);
+}
+.map-selected-card {
+  position: absolute;
+  right: 12px;
+  top: 52px;
+  width: 240px;
+  background: rgba(255,255,255,0.96);
+  border-radius: 10px;
+  padding: 12px;
+  z-index: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  font-size: 13px;
+}
+.map-selected-close {
+  float: right;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.map-risk-pill {
+  display: inline-block;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+.map-legend-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 12px 12px;
+  font-size: 12px;
+  color: var(--neutral-600);
+}

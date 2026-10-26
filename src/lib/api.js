@@ -767,6 +767,58 @@ export const wellbeingAPI = {
 // (source_type, source_id, language) so the same content is only ever
 // translated once via OpenAI.
 
+export const safetyAPI = {
+  async checkIn({ alertId = null, status, channel = 'app', note = '' }) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Sign in first.' };
+    const { data, error } = await supabase
+      .from('safety_checkins')
+      .insert({ user_id: user.id, alert_id: alertId, status, channel, note })
+      .select()
+      .single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  },
+  async list(alertId) {
+    let q = supabase.from('safety_checkins').select('*').order('created_at', { ascending: false }).limit(80);
+    if (alertId) q = q.eq('alert_id', alertId);
+    const { data, error } = await q;
+    if (error) {
+      const fallback = await supabase.from('safety_checkins').select('*').order('created_at', { ascending: false }).limit(80);
+      if (fallback.error) return { success: false, error: error.message, data: [] };
+      return { success: true, data: fallback.data || [] };
+    }
+    return { success: true, data };
+  },
+};
+
+export const stokvelAPI = {
+  async list() {
+    const { data, error } = await supabase.from('stokvels').select('*, stokvel_members(*), stokvel_assets(*)').order('created_at', { ascending: false });
+    if (error) return { success: false, error: error.message, data: [] };
+    return { success: true, data };
+  },
+  async create({ name, location, notes }) {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data, error } = await supabase.from('stokvels').insert({ name, location, notes, created_by: user?.id }).select().single();
+    if (error) return { success: false, error: error.message };
+    if (user) {
+      await supabase.from('stokvel_members').insert({ stokvel_id: data.id, user_id: user.id, display_name: user.user_metadata?.name || 'Member' });
+    }
+    return { success: true, data };
+  },
+  async addMember(stokvelId, displayName) {
+    const { data, error } = await supabase.from('stokvel_members').insert({ stokvel_id: stokvelId, display_name: displayName }).select().single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  },
+  async addAsset(stokvelId, { label, category, value_usd }) {
+    const { data, error } = await supabase.from('stokvel_assets').insert({ stokvel_id: stokvelId, label, category, value_usd }).select().single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  },
+};
+
 export const translationsAPI = {
   async translate({ sourceType, sourceId, text, language }) {
     const headers = await getAuthHeaders();
