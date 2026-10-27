@@ -182,6 +182,28 @@ export const PLACE_META = {
   Other: { icon: '📍', color: '#64748b' },
 };
 
+// The incident each kind of spot protects you from; assembly points serve whatever is forecast
+const HAZARD_FOR_TYPE = { 'High ground': 'Flood', Water: 'Drought', 'Open ground': 'Wildfire' };
+
+export function hazardForPlace(type, forecastHazard) {
+  return HAZARD_FOR_TYPE[type] || (forecastHazard && forecastHazard !== 'Stable' ? forecastHazard : 'Any emergency');
+}
+
+// Round-robin by type so one kind of spot (e.g. parks) can't fill the whole list
+export function mixByType(places) {
+  const groups = new Map();
+  places.forEach((p) => {
+    if (!groups.has(p.type)) groups.set(p.type, []);
+    groups.get(p.type).push(p);
+  });
+  const queues = [...groups.values()];
+  const out = [];
+  while (queues.some((q) => q.length)) {
+    queues.forEach((q) => { if (q.length) out.push(q.shift()); });
+  }
+  return out;
+}
+
 export function typesForHazard(hazard) {
   const h = String(hazard || 'Stable');
   if (h === 'Flood' || h === 'Cyclone') return ['High ground', 'Assembly', 'Open ground'];

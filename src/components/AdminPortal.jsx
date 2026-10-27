@@ -768,7 +768,7 @@ export default function AdminPortal() {
           <div className="admin-table-header">
             <h3>Manage FAQs</h3>
             <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-              Shown on the AI Knowledge Hub page's FAQ list.
+              Shown on the Knowledge Hub page's FAQ list.
             </p>
           </div>
 
@@ -831,7 +831,7 @@ export default function AdminPortal() {
           <div className="admin-table-header">
             <h3>Manage Videos</h3>
             <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-              Shown on the AI Knowledge Hub page's Video Learning tab. Paste any standard YouTube URL.
+              Shown on the Knowledge Hub page's Video Learning tab. Paste any standard YouTube URL.
             </p>
           </div>
 

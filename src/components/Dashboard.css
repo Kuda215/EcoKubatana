@@ -855,7 +855,7 @@
 .hub-tag--high-ground { background: #072c30; color: #e6f2f3; }
 .hub-tag--open-ground { background: #1a5c63; color: #fff; }
 .hub-tag--assembly { background: #d4a017; color: #072c30; }
-.hub-tag--stable { background: #e6f2f3; color: #1a5c63; }
+.hub-tag--stable, .hub-tag--any-emergency { background: #e6f2f3; color: #1a5c63; }
 .home-split__side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .incentives-card { padding: 16px; }
 .incentives-lead, .incentives-list, .incentives-points { font-size: 13px; color: var(--text-secondary); }

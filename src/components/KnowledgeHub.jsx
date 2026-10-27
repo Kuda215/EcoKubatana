@@ -8,14 +8,59 @@ import './PageStyles.css';
 
 const PAGE_SIZE = 12;
 
+const RESOURCE_CATS = ['All', 'Prepare', 'Flood', 'Drought', 'Heat', 'Fire', 'Storm', 'Health', 'Community'];
+
 const resources = [
-  { icon: '📋', cat: 'GUIDES', title: 'Household pack for drought and flood', desc: 'IDs, 3 litres of water each, seed above flood line, torch. Civil Protection first.' },
-  { icon: '🌧️', cat: 'WATER', title: 'Rainwater and greywater (Harare to rural wards)', desc: 'Roof catch, first-flush, boil after heavy rain. Useful when municipal supply is erratic.' },
-  { icon: '🌱', cat: 'AGRICULTURE', title: 'Pfumvudza / small grains', desc: 'Mulch basins, sorghum and millet when the maize season fails. Destock early in drought.' },
-  { icon: '🌀', cat: 'CYCLONE', title: 'Eastern Highlands after Idai', desc: 'Chimanimani and Chipinge: higher ground, do not walk flood water, livestock inland.' },
-  { icon: '📞', cat: 'EMERGENCY', title: 'Zimbabwe numbers', desc: 'Police 995. Medical 994. Fire 993. Or 112. Then mark safe in EcoKubatana.' },
-  { icon: '📡', cat: 'MSD', title: 'Listen to Meteorological Services', desc: 'Treat MSD / Civil Protection as official. EcoKubatana carries the same alert into the street.' },
+  { icon: '📋', cat: 'Prepare', title: 'Household go-bag for drought and flood', desc: 'What to pack before the warning comes, so you can leave in five minutes.',
+    steps: ['IDs, birth certificates and title deeds in a sealed plastic bag', '3 litres of water per person per day, for 3 days', 'Torch, spare batteries and a charged phone power bank', 'Medicines for a week, plus a small first-aid kit', 'Seed and grain stored above the flood line', 'Written list of family phone numbers in case your phone dies'] },
+  { icon: '👨‍👩‍👧', cat: 'Prepare', title: 'Make a family emergency plan', desc: 'Agree tonight where you meet and who collects the children.',
+    steps: ['Pick one meeting place near home and one outside the area', 'Decide who fetches children from school and who checks on elders', 'Agree a relative outside the area everyone texts "safe" to', 'Practise the route to higher ground once with the whole family', 'Keep the plan on paper by the door'] },
+  { icon: '🌊', cat: 'Flood', title: 'When the river rises', desc: 'Moving water is the biggest killer in a flood. Leave early.',
+    steps: ['Move people, then livestock, then belongings to higher ground', 'Never walk or drive through moving water - 15 cm can knock you down', 'Switch off electricity at the main switch if it is safe', 'Stay off bridges and low crossings until officials reopen them', 'Boil or treat all drinking water after the flood'] },
+  { icon: '🧹', cat: 'Flood', title: 'Coming home after a flood', desc: 'The danger is not over when the water goes down.',
+    steps: ['Wait for Civil Protection to say the area is safe', 'Look for cracks in walls and sagging roofs before going in', 'Wear shoes and gloves - mud hides glass, nails and snakes', 'Throw away food that touched flood water', 'Photograph damage for aid and insurance claims'] },
+  { icon: '🌱', cat: 'Drought', title: 'Pfumvudza / small grains', desc: 'Mulch basins, sorghum and millet when the maize season fails.',
+    steps: ['Dig planting basins and keep crop residue as mulch to hold moisture', 'Plant drought-tolerant sorghum, millet and cowpeas alongside maize', 'Plant with the first effective rains, not before', 'Weed early so weeds do not steal water', 'Destock early in drought - sell before animals lose condition'] },
+  { icon: '🌧️', cat: 'Drought', title: 'Rainwater and greywater', desc: 'Roof catch and reuse when municipal supply is erratic.',
+    steps: ['Fit a gutter and a covered tank to the roof', 'Let the first rain wash the roof before collecting (first flush)', 'Boil or use purification tablets before drinking stored water', 'Reuse washing water on gardens and trees, not food leaves', 'Share water points with neighbours who have none'] },
+  { icon: '🌡️', cat: 'Heat', title: 'Staying safe in a heatwave', desc: 'Children, elders and outdoor workers are most at risk.',
+    steps: ['Drink water often, even when not thirsty', 'Work and travel early morning or late afternoon', 'Keep children and elders in shade between 11:00 and 15:00', 'Know the signs of heatstroke: confusion, hot dry skin, fainting', 'Cool someone down with wet cloths and get them to a clinic'] },
+  { icon: '🔥', cat: 'Fire', title: 'Veld and bush fire safety', desc: 'Most veld fires start from burning rubbish or clearing land.',
+    steps: ['Do not burn rubbish or fields on hot, windy days', 'Clear a 3 m firebreak around homes and granaries', 'Keep a bucket of water or sand ready when cooking outside', 'If fire approaches, move upwind and to cleared or burnt ground', 'Report fires early - call the fire brigade (993 in Zimbabwe)'] },
+  { icon: '🌀', cat: 'Storm', title: 'Cyclones: lessons from Idai', desc: 'Chimanimani and Chipinge showed what works.',
+    steps: ['Leave homes near rivers and steep slopes before landfall', 'Tie down roofs and move livestock inland', 'Do not shelter under trees or near rocky slopes', 'Listen to MSD and Civil Protection on radio', 'After the storm, watch for landslides for several days'] },
+  { icon: '💨', cat: 'Storm', title: 'Strong winds and hail', desc: 'Protect roofs, people and animals.',
+    steps: ['Weigh down roof sheets with sandbags or tie them to beams', 'Bring animals into a shelter and close doors', 'Stay indoors away from windows', 'Unplug electrical appliances during lightning'] },
+  { icon: '🩺', cat: 'Health', title: 'Cholera and clean water after disasters', desc: 'Floods and drought both raise the risk of water-borne disease.',
+    steps: ['Boil water for at least one minute, or use purification tablets', 'Wash hands with soap after the toilet and before eating', 'Mix oral rehydration: 1 litre clean water, 6 level teaspoons sugar, ½ teaspoon salt', 'Get anyone with severe watery diarrhoea to a clinic immediately'] },
+  { icon: '🧠', cat: 'Health', title: 'Coping after a disaster', desc: 'Stress, grief and fear are normal. Talk about it.',
+    steps: ['Keep daily routines for children as much as possible', 'Talk to someone you trust - a neighbour, church or community leader', 'Check on people living alone', 'Use the Wellbeing section in EcoKubatana to ask for support'] },
+  { icon: '🤝', cat: 'Community', title: 'Set up a street warning chain', desc: 'One person hears the alert, ten houses know in minutes.',
+    steps: ['List every household on your street with a phone number', 'Each person agrees to call or visit the next three', 'Mark elders, disabled people and children who need help to move', 'Test the chain once a season'] },
+  { icon: '📡', cat: 'Community', title: 'Trust official warnings', desc: 'MSD and Civil Protection are official. EcoKubatana carries the alert to the street.',
+    steps: ['Follow the Meteorological Services Department (MSD) forecasts', 'Act on Civil Protection Unit evacuation orders without delay', 'Do not share unverified warnings - check before forwarding', 'Report what you see in EcoKubatana so others are warned'] },
 ];
+
+function VideoCard({ video }) {
+  return (
+    <a href={video.url} target="_blank" rel="noopener noreferrer" className="yt-card">
+      <div className="yt-thumb">
+        <img src={video.thumbnail} alt="" loading="lazy" />
+        <span className="yt-play">▶</span>
+        <span className="yt-time">{video.duration}</span>
+        <span className={`yt-tag yt-tag--${video.category.toLowerCase().replace(/\s+/g, '-')}`}>{video.category}</span>
+      </div>
+      <div className="yt-row">
+        <div className="yt-avatar" aria-hidden>{video.author[0]}</div>
+        <div>
+          <h4 className="yt-title">{video.title}</h4>
+          <p className="yt-author">{video.author}</p>
+          <p className="yt-meta">{video.posted} · {video.country}</p>
+        </div>
+      </div>
+    </a>
+  );
+}
 
 export default function KnowledgeHub() {
   const { i18n } = useTranslation();
@@ -34,11 +79,24 @@ export default function KnowledgeHub() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [resourceCat, setResourceCat] = useState('All');
+  const [openGuide, setOpenGuide] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState(null); // 'transcribing' | 'speaking' | null
+  const [voiceError, setVoiceError] = useState(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const audioPlayerRef = useRef(null);
 
-  const categories = ['All', 'Drought', 'Flood', 'Cyclone', 'Heat', 'Wildfire', 'Community', 'Early warning'];
+  // Only offer categories that actually have videos, so no filter leads to an empty page
+  const categories = useMemo(
+    () => ['All', ...new Set(CLIMATE_VIDEOS.map((v) => v.category))],
+    []
+  );
+  const filtering = selectedCategory !== 'All' || !!searchQuery.trim();
   const recommended = useMemo(
-    () => recommendVideosForArea(place, hotspots, 6),
-    [place, hotspots]
+    () => (filtering ? [] : recommendVideosForArea(place, hotspots, 4)),
+    [place, hotspots, filtering]
   );
 
   useEffect(() => {
@@ -84,9 +142,10 @@ export default function KnowledgeHub() {
     return () => { cancelled = true; };
   }, [i18n.language, faqs]);
 
-  const handleAskAI = async () => {
-    if (!aiMessage.trim() || sending) return;
-    const nextMessages = [...chatMessages, { role: 'user', content: aiMessage.trim() }];
+  const handleAskAI = async (spoken) => {
+    const question = (typeof spoken === 'string' ? spoken : aiMessage).trim();
+    if (!question || sending) return null;
+    const nextMessages = [...chatMessages, { role: 'user', content: question }];
     setChatMessages(nextMessages);
     setAiMessage('');
     setSending(true);
@@ -94,15 +153,77 @@ export default function KnowledgeHub() {
       const result = await aiAssistantAPI.chat(nextMessages);
       const reply = result.success ? result.reply : (result.error || 'Something went wrong. Please try again.');
       setChatMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+      return result.success ? reply : null;
     } catch (error) {
       console.error('AI assistant error:', error);
       setChatMessages(prev => [...prev, { role: 'assistant', content: 'Could not reach the AI assistant right now. Please try again.' }]);
+      return null;
     } finally {
       setSending(false);
     }
   };
 
+  // Voice: record a question, transcribe it, ask the assistant, then read the answer aloud
+  const startRecording = async () => {
+    setVoiceError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = recorder;
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        handleVoiceQuestion(new Blob(audioChunksRef.current, { type: recorder.mimeType }), recorder.mimeType);
+      };
+      recorder.start();
+      setRecording(true);
+    } catch (err) {
+      console.error('Microphone access error:', err);
+      setVoiceError("Couldn't access your microphone. Please allow microphone access and try again.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current?.state === 'recording') mediaRecorderRef.current.stop();
+    setRecording(false);
+  };
+
+  const handleVoiceQuestion = async (blob, mimeType) => {
+    setVoiceStatus('transcribing');
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+      const heard = await aiAssistantAPI.transcribe(base64, mimeType);
+      const transcript = heard.success ? heard.transcript?.trim() : '';
+      if (!transcript) {
+        setVoiceError(heard.success ? "Didn't catch that - try again." : (heard.error || "Couldn't understand the recording."));
+        return;
+      }
+      setVoiceStatus(null);
+      const reply = await handleAskAI(transcript);
+      if (!reply) return;
+      setVoiceStatus('speaking');
+      const spoken = await aiAssistantAPI.speak(reply);
+      if (spoken.success && audioPlayerRef.current) {
+        audioPlayerRef.current.src = `data:${spoken.mime_type};base64,${spoken.audio_base64}`;
+        await audioPlayerRef.current.play().catch((err) => console.error('Playback error:', err));
+      }
+    } catch (err) {
+      console.error('Voice question error:', err);
+      setVoiceError('Something went wrong. Please try again.');
+    } finally {
+      setVoiceStatus(null);
+    }
+  };
+
+  const recommendedIds = new Set(recommended.map((v) => v.id));
   const filteredVideos = CLIMATE_VIDEOS.filter((video) => {
+    if (recommendedIds.has(video.id)) return false;
     const matchesCategory = selectedCategory === 'All' || video.category === selectedCategory;
     const q = searchQuery.toLowerCase();
     const matchesSearch = !searchQuery
@@ -131,29 +252,8 @@ export default function KnowledgeHub() {
     <div className="page kh-page">
       <div className="page__header kh-head">
         <div>
-          <h1 className="page__title">AI Knowledge Hub</h1>
+          <h1 className="page__title">Knowledge Hub</h1>
           <p className="page__sub">Watch, ask, and take home a step you can use this week - drought, Idai, pfumvudza, early warning.</p>
-        </div>
-        <div className="kh-search">
-          <input
-            type="text"
-            className="form-input"
-            placeholder="Search a topic…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <div className="kh-cats">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                className={`filter-tab ${selectedCategory === cat ? 'filter-tab--active' : ''}`}
-                onClick={() => setSelectedCategory(cat)}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -182,52 +282,54 @@ export default function KnowledgeHub() {
       {/* Video Learning Tab */}
       {activeTab === 'learning' && (
         <div className="tab-content">
-          {recommended.length > 0 && (
-            <div className="kh-rec">
-              <h3 className="card__title">For {place?.name || 'your area'}</h3>
-              <p className="page__sub">Picked from historic drought/flood near you - African climate films only.</p>
-              <div className="yt-grid">
-                {recommended.map((video) => (
-                  <a key={`rec-${video.id}`} href={video.url} target="_blank" rel="noopener noreferrer" className="yt-card">
-                    <div className="yt-thumb">
-                      <img src={video.thumbnail} alt="" loading="lazy" />
-                      <span className="yt-play">▶</span>
-                      <span className={`yt-tag yt-tag--${video.category.toLowerCase().replace(/\s+/g, '-')}`}>{video.category}</span>
-                    </div>
-                    <h4 className="yt-title">{video.title}</h4>
-                  </a>
-                ))}
-              </div>
+          <div className="kh-toolbar">
+            <input
+              type="text"
+              className="form-input kh-toolbar__search"
+              placeholder="Search a topic, country or title…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="kh-cats">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`filter-tab ${selectedCategory === cat ? 'filter-tab--active' : ''}`}
+                  onClick={() => setSelectedCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
-          )}
-          <div className="yt-grid">
-            {shown.map((video) => (
-              <a
-                key={video.id}
-                href={video.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="yt-card"
-              >
-                <div className="yt-thumb">
-                  <img src={video.thumbnail} alt="" loading="lazy" />
-                  <span className="yt-play">▶</span>
-                  <span className="yt-time">{video.duration}</span>
-                  <span className={`yt-tag yt-tag--${video.category.toLowerCase().replace(/\s+/g, '-')}`}>{video.category}</span>
-                </div>
-                <div className="yt-row">
-                  <div className="yt-avatar" aria-hidden>{video.author[0]}</div>
-                  <div>
-                    <h4 className="yt-title">{video.title}</h4>
-                    <p className="yt-author">{video.author}</p>
-                    <p className="yt-meta">{video.posted} · {video.country}</p>
-                  </div>
-                </div>
-              </a>
-            ))}
           </div>
+
+          {recommended.length > 0 && (
+            <section className="kh-section">
+              <h3 className="kh-section__title">For {place?.name || 'your area'}</h3>
+              <div className="yt-grid">
+                {recommended.map((video) => <VideoCard key={`rec-${video.id}`} video={video} />)}
+              </div>
+            </section>
+          )}
+
+          <section className="kh-section">
+            {recommended.length > 0 && <h3 className="kh-section__title">More African climate videos</h3>}
+            {filteredVideos.length === 0 ? (
+              <div className="kh-empty">
+                No videos match{searchQuery.trim() ? ` "${searchQuery.trim()}"` : ''}{selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}.
+                <button type="button" className="btn btn--ghost" onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}>
+                  Clear filters
+                </button>
+              </div>
+            ) : (
+              <div className="yt-grid">
+                {shown.map((video) => <VideoCard key={video.id} video={video} />)}
+              </div>
+            )}
+          </section>
           <div ref={moreRef} className="kh-more">
-            {shown.length < filteredVideos.length ? `Loading ${shown.length} of ${filteredVideos.length}…` : `${filteredVideos.length} African climate videos`}
+            {shown.length < filteredVideos.length && `Loading ${shown.length} of ${filteredVideos.length}…`}
           </div>
         </div>
       )}
@@ -258,16 +360,35 @@ export default function KnowledgeHub() {
             <div className="ai-chat-box">
               <textarea
                 className="form-textarea"
-                placeholder="Ask a climate question - drought, flood, heat, crops, water…"
+                placeholder="Ask a climate question - drought, flood, heat, crops, water… or tap the mic and speak"
                 value={aiMessage}
                 onChange={(e) => setAiMessage(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && e.ctrlKey) handleAskAI(); }}
                 rows={3}
               />
-              <button className="btn btn--primary" style={{ marginTop: '12px' }}
-                onClick={handleAskAI} disabled={sending || !aiMessage.trim()}>
-                {sending ? 'Thinking…' : 'Ask AI Assistant'}
-              </button>
+              {voiceError && <p className="kh-voice-error">{voiceError}</p>}
+              <div className="kh-ask-row">
+                <button
+                  type="button"
+                  className={`kh-mic ${recording ? 'kh-mic--on' : ''}`}
+                  onClick={recording ? stopRecording : startRecording}
+                  disabled={sending || !!voiceStatus}
+                  aria-label={recording ? 'Stop recording' : 'Ask by voice'}
+                >
+                  {recording ? '⏹' : '🎙️'}
+                </button>
+                <span className="kh-voice-status">
+                  {recording ? 'Listening… tap to stop'
+                    : voiceStatus === 'transcribing' ? 'Working out what you said…'
+                    : voiceStatus === 'speaking' ? '🔊 Reading the answer aloud…'
+                    : 'Speak your question'}
+                </span>
+                <button className="btn btn--primary kh-ask-btn"
+                  onClick={handleAskAI} disabled={sending || !aiMessage.trim()}>
+                  {sending ? 'Thinking…' : 'Ask AI Assistant'}
+                </button>
+              </div>
+              <audio ref={audioPlayerRef} style={{ display: 'none' }} />
             </div>
           </div>
 
@@ -293,42 +414,61 @@ export default function KnowledgeHub() {
       {/* Resources & Guides Tab */}
       {activeTab === 'resources' && (
         <div className="tab-content">
-          <div className="card" style={{ marginBottom: '24px' }}>
-            <h3 className="card__title">📚 Resource Library</h3>
-            <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-              Download guides, access tools, and find practical resources for climate action
+          <div className="kh-toolbar">
+            <p className="page__sub" style={{ margin: 0 }}>
+              {resources.length} practical guides - tap one to read the steps.
             </p>
+            <div className="kh-cats">
+              {RESOURCE_CATS.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`filter-tab ${resourceCat === cat ? 'filter-tab--active' : ''}`}
+                  onClick={() => setResourceCat(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="resources-grid">
-            {resources.map((resource, idx) => (
-              <div key={idx} className="resource-card">
-                <div className="resource-card__icon">{resource.icon}</div>
-                <div className="resource-card__cat">{resource.cat}</div>
-                <div className="resource-card__title">{resource.title}</div>
-                <div className="resource-card__desc">{resource.desc}</div>
-                <button className="btn btn--ghost" style={{ width: '100%', marginTop: '12px' }}>
-                  Download
-                </button>
-              </div>
-            ))}
+            {resources.filter((r) => resourceCat === 'All' || r.cat === resourceCat).map((resource) => {
+              const isOpen = openGuide === resource.title;
+              return (
+                <div key={resource.title} className={`resource-card ${isOpen ? 'resource-card--open' : ''}`}>
+                  <div className="resource-card__icon">{resource.icon}</div>
+                  <div className="resource-card__cat">{resource.cat}</div>
+                  <div className="resource-card__title">{resource.title}</div>
+                  <div className="resource-card__desc">{resource.desc}</div>
+                  {isOpen && (
+                    <ol className="resource-card__steps">
+                      {resource.steps.map((s) => <li key={s}>{s}</li>)}
+                    </ol>
+                  )}
+                  <button type="button" className="btn btn--ghost" style={{ width: '100%' }}
+                    onClick={() => setOpenGuide(isOpen ? null : resource.title)}>
+                    {isOpen ? 'Hide steps' : 'Read guide'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <div className="card" style={{ marginTop: '24px' }}>
-            <h3 className="card__title">📞 Emergency Contacts</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
-              <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <strong style={{ color: '#072c30' }}>🚨 Emergency Services</strong>
-                <p style={{ margin: '8px 0 0', fontSize: '18px', fontWeight: '700', color: '#e63946' }}>999</p>
-              </div>
-              <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <strong style={{ color: '#072c30' }}>🌧️ Weather Hotline</strong>
-                <p style={{ margin: '8px 0 0', fontSize: '18px', fontWeight: '700', color: '#0077b6' }}>0800-WEATHER</p>
-              </div>
-              <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <strong style={{ color: '#072c30' }}>🏥 Health Emergency</strong>
-                <p style={{ margin: '8px 0 0', fontSize: '18px', fontWeight: '700', color: '#ff8c00' }}>114</p>
-              </div>
+            <h3 className="card__title">📞 Zimbabwe Emergency Contacts</h3>
+            <div className="kh-contacts">
+              {[
+                ['🚓 Police', '995'],
+                ['🚑 Ambulance', '994'],
+                ['🚒 Fire', '993'],
+                ['🆘 Any emergency', '112'],
+              ].map(([label, num]) => (
+                <a key={label} href={`tel:${num}`} className="kh-contact">
+                  <strong>{label}</strong>
+                  <span>{num}</span>
+                </a>
+              ))}
             </div>
           </div>
         </div>

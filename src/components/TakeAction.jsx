@@ -3,7 +3,7 @@ import './PageStyles.css';
 
 const actions = [
   { icon: '📋', title: 'Report an Incident',      desc: 'Quickly report a climate issue near you.',          link: '/report',    btn: 'Report Now',     color: '#072c30' },
-  { icon: '📚', title: 'AI Knowledge Hub',        desc: 'Build your climate resilience skills.',             link: '/knowledge', btn: 'Start Learning', color: '#072c30' },
+  { icon: '📚', title: 'Knowledge Hub',        desc: 'Build your climate resilience skills.',             link: '/knowledge', btn: 'Start Learning', color: '#072c30' },
   { icon: '👥', title: 'Community Board',         desc: 'Connect and discuss with community members.',       link: '/community', btn: 'Join the Chat',  color: '#072c30' },
   { icon: '📍', title: 'Find nearest safety spots', desc: 'Hospitals, police, fire and clinics sit on Home, beside the map.', link: '/', btn: 'Open Home', color: '#072c30' },
   { icon: '❓', title: 'FAQ',                       desc: 'Answers to common questions about the platform.',   link: '#',          btn: 'View FAQ',       color: '#072c30' },

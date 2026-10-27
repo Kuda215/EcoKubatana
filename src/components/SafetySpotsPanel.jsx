@@ -10,7 +10,9 @@ import {
   directoryPlaces,
   numbersForIso,
   PLACE_META,
-  typesForHazard,
+  PLACE_TYPES,
+  hazardForPlace,
+  mixByType,
 } from '../lib/safetyPlaces';
 import SourceInfo from './SourceInfo';
 
@@ -34,7 +36,6 @@ export default function SafetySpotsPanel() {
   const [filter, setFilter] = useState('All');
   const [loading, setLoading] = useState(true);
   const numbers = numbersForIso(isoForPlace(place));
-  const typeOpts = typesForHazard(hazard);
 
   useEffect(() => {
     if (lat == null || lng == null) return;
@@ -52,19 +53,25 @@ export default function SafetySpotsPanel() {
   useEffect(() => {
     if (lat == null || lng == null) return;
     let cancelled = false;
-    setSpots(directoryPlaces({ lat, lng, name, hazard }));
+    // Load every kind of spot (not just the forecast hazard's) so flood, drought and fire are all covered
+    setSpots(directoryPlaces({ lat, lng, name, hazard: 'Stable' }));
     setLoading(true);
     setFilter('All');
-    loadSafetyPlaces({ lat, lng, name, hazard })
+    loadSafetyPlaces({ lat, lng, name, hazard: 'Stable' })
       .then((result) => {
         if (!cancelled && result.places?.length) setSpots(result.places);
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [lat, lng, name, hazard]);
+  }, [lat, lng, name]);
+
+  const typeOpts = useMemo(
+    () => PLACE_TYPES.filter((t) => spots.some((p) => p.type === t)),
+    [spots]
+  );
 
   const filtered = useMemo(
-    () => spots.filter((p) => filter === 'All' || p.type === filter),
+    () => (filter === 'All' ? mixByType(spots) : spots.filter((p) => p.type === filter)),
     [spots, filter]
   );
 
@@ -98,6 +105,7 @@ export default function SafetySpotsPanel() {
       <ul className="home-safety__list">
         {filtered.slice(0, 14).map((p) => {
           const meta = PLACE_META[p.type] || PLACE_META.Other;
+          const spotHazard = hazardForPlace(p.type, hazard);
           return (
             <li key={p.id}>
               <button type="button" onClick={() => openDirections(p)}>
@@ -105,7 +113,7 @@ export default function SafetySpotsPanel() {
                 <span>
                   <strong>{p.name}</strong>
                   <span className="hub-tags">
-                    <span className={`hub-tag hub-tag--${hazard.toLowerCase().replace(/\s+/g, '-')}`}>{hazard}</span>
+                    <span className={`hub-tag hub-tag--${spotHazard.toLowerCase().replace(/\s+/g, '-')}`}>{spotHazard}</span>
                     <span className={`hub-tag hub-tag--${p.type.toLowerCase().replace(/\s+/g, '-')}`}>{p.type}</span>
                     <em>{p.km} km</em>
                   </span>
