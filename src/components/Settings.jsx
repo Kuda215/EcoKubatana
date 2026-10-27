@@ -10,11 +10,14 @@ import { incidentImagesAPI, alertsAPI } from '../lib/api';
 import { sendLiveBlast } from '../lib/liveBlast';
 import LivelihoodPicker from './LivelihoodPicker';
 import TagInput from './TagInput';
+import PlaceSearch from './PlaceSearch';
+import { useLocationPlace } from '../contexts/LocationContext';
 import './PageStyles.css';
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser } = useAuth();
+  const { area } = useLocationPlace();
   const { catalog, isEnabled, setDraft, save, saving, saveMsg } = useFeatures();
   const [tab, setTab] = useState('personal');
   const [fontSize, setFontSize] = useState('medium');
@@ -63,7 +66,7 @@ export default function Settings() {
   const saveProfile = async () => {
     const payload = {
       name: name.trim(),
-      location: location.trim(),
+      location: (area || location).trim(),
       livelihood: (livelihood || '').trim(),
       emergency_priorities: priorities,
       onboarding_complete: true,
@@ -130,8 +133,11 @@ export default function Settings() {
             <h3 className="card__title">Your details</h3>
             <label className="form-label">Name</label>
             <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} />
-            <label className="form-label" style={{ marginTop: 12 }}>Location</label>
-            <input className="form-input" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, country" />
+            <label className="form-label" style={{ marginTop: 12 }}>Home location</label>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 8px' }}>This is your default. Address search is below — pick a town and it follows you across the app.</p>
+            <div className="settings-place">
+              <PlaceSearch compact={false} inputId="settings-place" persist />
+            </div>
             <p style={{ marginTop: 12 }}><strong>Role:</strong> {user?.role || 'member'}</p>
           </div>
 

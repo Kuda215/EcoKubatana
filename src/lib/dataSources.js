@@ -129,3 +129,17 @@ export function hubForUser(hotspots, location) {
     || hotspots.find((h) => h.id === 'harare')
     || hotspots[0];
 }
+
+export function nearestHub(hotspots, lat, lng) {
+  if (lat == null || lng == null || !hotspots?.length) return hotspots?.[0];
+  let best = hotspots[0];
+  let bestD = Infinity;
+  hotspots.forEach((h) => {
+    const d = (h.lat - lat) ** 2 + (h.lng - lng) ** 2;
+    if (d < bestD) {
+      bestD = d;
+      best = h;
+    }
+  });
+  return best;
+}

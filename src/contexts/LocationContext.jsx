@@ -1,13 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from './AuthContext';
-import { searchPlaces } from '../lib/geocode';
+import { searchPlaces, detectGps, reverseGeocode, areaLabel } from '../lib/geocode';
 import { AFRICA_HUBS } from '../lib/africaHubs';
 
-const KEY = 'ecokubatana_place_v1';
 const WATCH_KEY = 'ecokubatana_watch_v1';
 const LocationContext = createContext(null);
 
 function hubPlace(hub) {
+  if (!hub) return null;
   return {
     id: hub.id,
     name: hub.name,
@@ -22,18 +22,16 @@ const DEFAULT_WATCH = [
   hubPlace(AFRICA_HUBS.find((h) => h.id === 'harare')),
   { id: 'chimanimani', name: 'Chimanimani', admin: 'Manicaland, Zimbabwe', country: 'Zimbabwe', lat: -19.8, lng: 32.87 },
   { id: 'mutare', name: 'Mutare', admin: 'Manicaland, Zimbabwe', country: 'Zimbabwe', lat: -18.9707, lng: 32.6709 },
-  hubPlace(AFRICA_HUBS.find((h) => h.id === 'beira')),
-];
+].filter(Boolean);
+
+function sameSpot(a, b) {
+  if (!a || !b) return false;
+  return Math.abs(a.lat - b.lat) < 0.02 && Math.abs(a.lng - b.lng) < 0.02;
+}
 
 export function LocationProvider({ children }) {
-  const { user } = useAuth();
-  const [place, setPlaceState] = useState(() => {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) return JSON.parse(raw);
-    } catch { /* ignore */ }
-    return DEFAULT_WATCH[1];
-  });
+  const { user, updateUser } = useAuth();
+  const [place, setPlaceState] = useState(null);
   const [watchlist, setWatchlist] = useState(() => {
     try {
       const raw = localStorage.getItem(WATCH_KEY);
@@ -41,32 +39,70 @@ export function LocationProvider({ children }) {
     } catch { /* ignore */ }
     return DEFAULT_WATCH;
   });
-
-  useEffect(() => {
-    try { localStorage.setItem(KEY, JSON.stringify(place)); } catch { /* ignore */ }
-  }, [place]);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem(WATCH_KEY, JSON.stringify(watchlist)); } catch { /* ignore */ }
   }, [watchlist]);
 
+  const applyPlace = (p) => {
+    if (!p) return p;
+    setPlaceState(p);
+    return p;
+  };
+
+  const saveHome = (p) => {
+    const label = areaLabel(p);
+    if (!label || !user) return;
+    if (user.location === label) return;
+    updateUser({ location: label }).catch(() => {});
+  };
+
+  const setPlace = (p) => applyPlace(p);
+
+  const setHomePlace = (p) => {
+    applyPlace(p);
+    saveHome(p);
+  };
+
+  const locateMe = async ({ persist = false } = {}) => {
+    setLocating(true);
+    try {
+      const gps = await detectGps();
+      const resolved = await reverseGeocode(gps.lat, gps.lng);
+      applyPlace(resolved);
+      if (persist) saveHome(resolved);
+      return resolved;
+    } finally {
+      setLocating(false);
+    }
+  };
+
   useEffect(() => {
-    if (!user?.location || place?.fromUser) return;
-    const loc = String(user.location);
-    if (place?.name && loc.toLowerCase().includes(String(place.name).toLowerCase())) return;
-    searchPlaces(loc, 1).then((hits) => {
-      if (hits[0]) setPlaceState({ ...hits[0], fromUser: true });
-    }).catch(() => {});
+    if (!user?.location) return;
+    let cancelled = false;
+    searchPlaces(user.location, 1)
+      .then((hits) => {
+        if (cancelled || !hits[0]) return;
+        if (sameSpot(place, hits[0])) return;
+        applyPlace(hits[0]);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [user?.location]);
 
-  const setPlace = (p) => setPlaceState(p);
+  useEffect(() => {
+    if (user?.location) return;
+    if (place) return;
+    applyPlace(DEFAULT_WATCH[0]);
+  }, [user]);
 
   const addWatch = (p) => {
     setWatchlist((prev) => {
       if (prev.some((x) => x.id === p.id || (x.name === p.name && x.country === p.country))) return prev;
       return [p, ...prev].slice(0, 16);
     });
-    setPlaceState(p);
+    applyPlace(p);
   };
 
   const removeWatch = (id) => {
@@ -74,8 +110,18 @@ export function LocationProvider({ children }) {
   };
 
   const value = useMemo(
-    () => ({ place, setPlace, watchlist, addWatch, removeWatch }),
-    [place, watchlist]
+    () => ({
+      place,
+      setPlace,
+      setHomePlace,
+      watchlist,
+      addWatch,
+      removeWatch,
+      locateMe,
+      locating,
+      area: areaLabel(place),
+    }),
+    [place, watchlist, locating]
   );
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;

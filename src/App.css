@@ -852,9 +852,29 @@ body {
   width: 100%;
 }
 .incidents-head__report {
-  margin-left: auto;
   flex-shrink: 0;
   width: auto !important;
+}
+.incidents-head__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.where-now-faint {
+  background: rgba(7, 44, 48, 0.06);
+  border: 1px solid rgba(7, 44, 48, 0.35);
+  color: rgba(7, 44, 48, 0.72);
+  font-size: 13px;
+  font-weight: 650;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.where-now-faint:hover {
+  color: #072c30;
+  border-color: #072c30;
+  background: rgba(7, 44, 48, 0.1);
 }
 
 .live-blast {

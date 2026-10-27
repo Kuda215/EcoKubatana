@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocationPlace } from '../contexts/LocationContext';
 import { EMERGENCY_PRIORITIES } from '../lib/africaHubs';
 import LivelihoodPicker from './LivelihoodPicker';
 import TagInput from './TagInput';
+import PlaceSearch from './PlaceSearch';
 import './Login.css';
 
 const ROLE_OPTIONS = [
@@ -13,6 +15,7 @@ const ROLE_OPTIONS = [
 
 export default function Login() {
   const { login, register } = useAuth();
+  const { area } = useLocationPlace();
   const [mode, setMode] = useState('choose'); // 'choose' | 'register' | 'signin'
   const [step, setStep] = useState(1);        // register: 1 role, 2 livelihood, 3 form
   const [role, setRole] = useState('');
@@ -26,7 +29,7 @@ export default function Login() {
     password: '',
     confirmPassword: '',
     phone: '',
-    location: 'Ferndale, Johannesburg'
+    location: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,12 +52,17 @@ export default function Login() {
       setError('Password must be at least 6 characters');
       return;
     }
+    const home = (formData.location || area || '').trim();
+    if (!home) {
+      setError('Search and pick your location');
+      return;
+    }
 
     setLoading(true);
     const result = await register(formData.email, formData.password, {
       name: formData.name,
       role,
-      location: formData.location,
+      location: home,
       phone: formData.phone,
       livelihood: livelihood.trim(),
       emergency_priorities: priorities,
@@ -263,9 +271,12 @@ export default function Login() {
                   onChange={handleChange} required placeholder="+27 XX XXX XXXX" />
               </div>
               <div className="form-group">
-                <label htmlFor="location" className="form-label">Location *</label>
-                <input type="text" id="location" name="location" className="form-input" value={formData.location}
-                  onChange={handleChange} required placeholder="City, Region" />
+                <label htmlFor="register-place" className="form-label">Location *</label>
+                <PlaceSearch
+                  compact={false}
+                  inputId="register-place"
+                  onPicked={(_hit, label) => setFormData((f) => ({ ...f, location: label }))}
+                />
               </div>
               <button type="submit" className="btn-submit" disabled={loading}>
                 {loading ? 'Creating Account...' : 'Join EcoKubatana →'}

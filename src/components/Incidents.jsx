@@ -87,7 +87,16 @@ export default function Incidents() {
             Snapshot for <strong>{place?.name || 'your area'}</strong>
           </p>
         </div>
-        <Link to="/report" className="btn btn--primary incidents-head__report">+ Report an incident</Link>
+        <div className="incidents-head__actions">
+          <button
+            type="button"
+            className="where-now-faint"
+            onClick={() => window.dispatchEvent(new Event('ecokubatana-where-now'))}
+          >
+            Where to now?
+          </button>
+          <Link to="/report" className="btn btn--primary incidents-head__report">+ Report an incident</Link>
+        </div>
       </div>
 
       <div className="filter-tabs">

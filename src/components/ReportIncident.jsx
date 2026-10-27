@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLocationPlace } from '../contexts/LocationContext';
 import { incidentsAPI, incidentImagesAPI, incidentAnalysisAPI, alertsAPI } from '../lib/api';
 import { saveMyReport } from '../lib/myReports';
 import './PageStyles.css';
@@ -24,7 +25,13 @@ export default function ReportIncident() {
 
   console.log('ReportIncident component mounted.');
   const { user } = useAuth();
+  const { area } = useLocationPlace();
   const [form, setForm] = useState({ title: '', type: '', location: '', description: '', severity: 'medium', reporter_name: '', reporter_contact: '' });
+
+  useEffect(() => {
+    if (!area) return;
+    setForm((f) => ({ ...f, location: area }));
+  }, [area]);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -245,7 +252,14 @@ export default function ReportIncident() {
 
           <div className="report-ai__photo">
             {imageUrl ? <img src={imageUrl} alt="Uploaded incident" /> : <p style={{ padding: 40, opacity: 0.7 }}>No photo yet — the read appears here, huge.</p>}
-            {(imageUploading || analyzing) && <div className="report-ai__scan" />}
+            {(imageUploading || analyzing) && (
+              <div className="report-ai__loader">
+                <div className="report-ai__rings" />
+                <div className="report-ai__scan" />
+                <p>ANALYZING</p>
+                <small>{imageUploading ? 'Uploading the photo…' : 'Reading land, water, smoke, and scars'}</small>
+              </div>
+            )}
           </div>
 
           {aiAnalysis ? (

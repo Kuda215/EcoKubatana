@@ -12,8 +12,9 @@ const videoContent = [
   {
     id: 1,
     title: 'All this area used to be green - Zimbabwe voices from the climate frontline',
-    emoji: '🌾',
-    duration: 'Watch',
+    author: 'The Climate Frontline',
+    duration: '8:42',
+    posted: '2 years ago',
     category: 'Drought',
     url: 'https://www.youtube.com/watch?v=eMOviCHkqh8',
     thumbnail: 'https://img.youtube.com/vi/eMOviCHkqh8/hqdefault.jpg',
@@ -21,8 +22,9 @@ const videoContent = [
   {
     id: 2,
     title: 'Drought resilience in Buhera and Makoni, Zimbabwe',
-    emoji: '☀️',
-    duration: 'Watch',
+    author: 'Practical Action',
+    duration: '6:15',
+    posted: '3 years ago',
     category: 'Drought',
     url: 'https://www.youtube.com/watch?v=mHH4nWGoxdA',
     thumbnail: 'https://img.youtube.com/vi/mHH4nWGoxdA/hqdefault.jpg',
@@ -30,8 +32,9 @@ const videoContent = [
   {
     id: 3,
     title: 'Cyclone Idai: roads destroyed in Zimbabwe (MSF)',
-    emoji: '🌀',
-    duration: 'Watch',
+    author: 'MSF / Doctors Without Borders',
+    duration: '4:08',
+    posted: '5 years ago',
     category: 'Cyclone',
     url: 'https://www.youtube.com/watch?v=t_GjiwGw9kA',
     thumbnail: 'https://img.youtube.com/vi/t_GjiwGw9kA/hqdefault.jpg',
@@ -39,8 +42,9 @@ const videoContent = [
   {
     id: 4,
     title: 'Building climate resilience in Zimbabwe',
-    emoji: '🏘️',
-    duration: 'Watch',
+    author: 'UNDP Zimbabwe',
+    duration: '5:21',
+    posted: '1 year ago',
     category: 'Community',
     url: 'https://www.youtube.com/watch?v=cISoqgq-BG4',
     thumbnail: 'https://img.youtube.com/vi/cISoqgq-BG4/hqdefault.jpg',
@@ -48,8 +52,9 @@ const videoContent = [
   {
     id: 5,
     title: 'Early Warnings for All - Zimbabwe climate action',
-    emoji: '📡',
-    duration: 'Watch',
+    author: 'WMO',
+    duration: '3:47',
+    posted: '11 months ago',
     category: 'Early warning',
     url: 'https://www.youtube.com/watch?v=gglCXUzODyk',
     thumbnail: 'https://img.youtube.com/vi/gglCXUzODyk/hqdefault.jpg',
@@ -159,50 +164,27 @@ export default function KnowledgeHub() {
   });
 
   return (
-    <div className="page">
-      <div className="page__header" style={{ marginBottom: '20px' }}>
+    <div className="page kh-page">
+      <div className="page__header kh-head">
         <div>
-          <h1 className="page__title">🤖 AI Knowledge Hub</h1>
-          <p className="page__sub">Zimbabwe-first climate learning: drought, Idai, pfumvudza, and MSD-style early warning. Videos stay in the hub - we do not play them on stage.</p>
+          <h1 className="page__title">AI Knowledge Hub</h1>
+          <p className="page__sub">Watch, ask, and take home a step you can use this week — drought, Idai, pfumvudza, early warning.</p>
         </div>
-        
-        {/* Search and Filters in Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'flex-end', width: '100%', maxWidth: '500px' }}>
-          <div style={{ position: 'relative', width: '100%' }}>
-            <input 
-              type="text"
-              className="form-input" 
-              placeholder="🔍 Search topics..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{ 
-                width: '100%', 
-                padding: '10px 16px 10px 40px',
-                borderRadius: '8px',
-                fontSize: '14px',
-                border: '2px solid #e5e7eb'
-              }}
-            />
-            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px' }}>🔍</span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-            {categories.map(cat => (
-              <button 
+        <div className="kh-search">
+          <input
+            type="text"
+            className="form-input"
+            placeholder="Search a topic…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="kh-cats">
+            {categories.map((cat) => (
+              <button
                 key={cat}
+                type="button"
+                className={`filter-tab ${selectedCategory === cat ? 'filter-tab--active' : ''}`}
                 onClick={() => setSelectedCategory(cat)}
-                className="filter-tab"
-                style={{
-                  padding: '6px 16px',
-                  borderRadius: '16px',
-                  border: selectedCategory === cat ? '2px solid #667eea' : '2px solid #e5e7eb',
-                  background: selectedCategory === cat ? '#667eea' : 'white',
-                  color: selectedCategory === cat ? 'white' : '#6b7280',
-                  fontWeight: selectedCategory === cat ? 'bold' : 'normal',
-                  cursor: 'pointer',
-                  fontSize: '13px',
-                  transition: 'all 0.2s ease'
-                }}
               >
                 {cat}
               </button>
@@ -236,163 +218,31 @@ export default function KnowledgeHub() {
       {/* Video Learning Tab */}
       {activeTab === 'learning' && (
         <div className="tab-content">
-          <div className="card" style={{ marginBottom: '24px' }}>
-            <h3 className="card__title">🎓 Educational Videos</h3>
-            <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-              Real Zimbabwe and Southern Africa clips. Open one after the demo if a judge asks. Do not autoplay.
-            </p>
-          </div>
-
-          {/* Enhanced Video Grid */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-            gap: '24px',
-            marginBottom: '32px'
-          }}>
-            {filteredVideos.map(video => (
-              <a 
-                key={video.id} 
+          <div className="yt-grid">
+            {filteredVideos.map((video) => (
+              <a
+                key={video.id}
                 href={video.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="video-card-enhanced"
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  display: 'block',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  background: 'white',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  cursor: 'pointer',
-                  border: '2px solid transparent'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-8px)';
-                  e.currentTarget.style.boxShadow = '0 12px 24px rgba(102, 126, 234, 0.3)';
-                  e.currentTarget.style.borderColor = '#667eea';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
-                  e.currentTarget.style.borderColor = 'transparent';
-                }}
+                className="yt-card"
               >
-                {/* Video Thumbnail */}
-                <div style={{ position: 'relative', paddingTop: '56.25%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: `url(${video.thumbnail})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}>
-                    <div style={{
-                      width: '68px',
-                      height: '68px',
-                      borderRadius: '50%',
-                      background: 'rgba(255, 255, 255, 0.95)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-                      transition: 'all 0.3s ease'
-                    }}>
-                      <span style={{ fontSize: '28px', marginLeft: '4px', color: '#667eea' }}>▶</span>
-                    </div>
-                  </div>
-                  
-                  <span style={{
-                    position: 'absolute',
-                    bottom: '12px',
-                    right: '12px',
-                    background: 'rgba(0, 0, 0, 0.85)',
-                    color: 'white',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: 'bold'
-                  }}>
-                    {video.duration}
-                  </span>
-
-                  <span style={{
-                    position: 'absolute',
-                    top: '12px',
-                    left: '12px',
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    color: '#667eea',
-                    padding: '4px 12px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: 'bold'
-                  }}>
-                    {video.category}
-                  </span>
+                <div className="yt-thumb">
+                  <img src={video.thumbnail} alt="" />
+                  <span className="yt-play">▶</span>
+                  <span className="yt-time">{video.duration}</span>
+                  <span className={`yt-tag yt-tag--${video.category.toLowerCase().replace(/\s+/g, '-')}`}>{video.category}</span>
                 </div>
-
-                {/* Video Info */}
-                <div style={{ padding: '20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '28px', flexShrink: 0 }}>{video.emoji}</span>
-                    <h4 style={{ 
-                      margin: 0, 
-                      fontSize: '17px', 
-                      fontWeight: 'bold', 
-                      color: '#1f2937',
-                      lineHeight: '1.4'
-                    }}>
-                      {video.title}
-                    </h4>
-                  </div>
-                  
-                  <div style={{ 
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '13px',
-                    color: '#667eea',
-                    fontWeight: '600',
-                    marginTop: '12px'
-                  }}>
-                    Watch Now
-                    <span style={{ fontSize: '16px' }}>→</span>
+                <div className="yt-row">
+                  <div className="yt-avatar" aria-hidden>{video.author[0]}</div>
+                  <div>
+                    <h4 className="yt-title">{video.title}</h4>
+                    <p className="yt-author">{video.author}</p>
+                    <p className="yt-meta">{video.posted}</p>
                   </div>
                 </div>
               </a>
             ))}
-          </div>
-
-          {/* Stats Banner */}
-          <div className="card" style={{ 
-            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
-            color: 'white', 
-            padding: '24px',
-            textAlign: 'center'
-          }}>
-            <h4 style={{ marginBottom: '12px', fontSize: '20px' }}>📊 Learning Statistics</h4>
-            <div style={{ display: 'flex', justifyContent: 'space-around', flexWrap: 'wrap', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold' }}>{videoContent.length}</div>
-                <div style={{ fontSize: '14px', opacity: 0.9 }}>Total Videos</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold' }}>12.5k</div>
-                <div style={{ fontSize: '14px', opacity: 0.9 }}>Total Views</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold' }}>45+</div>
-                <div style={{ fontSize: '14px', opacity: 0.9 }}>Topics Covered</div>
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -408,16 +258,7 @@ export default function KnowledgeHub() {
             {chatMessages.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '360px', overflowY: 'auto', marginBottom: '16px', padding: '4px' }}>
                 {chatMessages.map((msg, idx) => (
-                  <div key={idx} style={{
-                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '80%',
-                    padding: '10px 14px',
-                    borderRadius: '12px',
-                    background: msg.role === 'user' ? '#0a3d2e' : '#f1f5f4',
-                    color: msg.role === 'user' ? 'white' : '#0a3d2e',
-                    fontSize: '14px',
-                    whiteSpace: 'pre-wrap',
-                  }}>
+                  <div key={idx} className={`kh-bubble kh-bubble--${msg.role}`}>
                     {msg.content}
                   </div>
                 ))}

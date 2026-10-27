@@ -252,8 +252,11 @@ async function postOverpass(url, query, signal) {
   return res.json();
 }
 
-export async function fetchOsmSafetyPlaces(lat, lng, radiusM = 8000) {
-  const query = `[out:json][timeout:10];node["amenity"~"^(hospital|clinic|doctors|police|fire_station|pharmacy)$"](around:${radiusM},${lat},${lng});out 60;`;
+export async function fetchOsmSafetyPlaces(lat, lng, radiusM = 25000) {
+  const query = `[out:json][timeout:12];(
+    node["amenity"~"^(hospital|clinic|doctors|police|fire_station|pharmacy)$"](around:${radiusM},${lat},${lng});
+    way["amenity"~"^(hospital|clinic|doctors|police|fire_station|pharmacy)$"](around:${radiusM},${lat},${lng});
+  );out center 80;`;
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
@@ -306,16 +309,34 @@ export async function fetchOsmSafetyPlaces(lat, lng, radiusM = 8000) {
   });
 }
 
-export function directoryPlaces({ lat, lng, hubId }) {
-  const hub = hubId ? hubById(hubId) : nearestAfricaHub(lat, lng);
-  return fallbackPlacesForHub(hub).map((p) => ({
-    ...p,
-    km: Math.round(haversineKm({ lat, lng }, p) * 10) / 10,
-  })).sort((a, b) => a.km - b.km);
+export function directoryPlaces({ lat, lng, name }) {
+  const label = name || 'Local';
+  const origin = { lat, lng };
+  const named = [
+    { name: `${label} Hospital`, type: 'Hospital', dlat: 0.012, dlng: 0.008 },
+    { name: `${label} Clinic`, type: 'Clinic', dlat: -0.008, dlng: 0.01 },
+    { name: `${label} Police`, type: 'Police', dlat: 0.004, dlng: -0.006 },
+    { name: `${label} Fire Station`, type: 'Fire', dlat: -0.006, dlng: -0.008 },
+  ];
+  return named.map((p, i) => {
+    const plat = lat + p.dlat;
+    const plng = lng + p.dlng;
+    return {
+      id: `fb-${label}-${i}`,
+      name: p.name,
+      type: p.type,
+      lat: plat,
+      lng: plng,
+      address: label,
+      phone: '',
+      km: Math.round(haversineKm(origin, { lat: plat, lng: plng }) * 10) / 10,
+      source: 'Nearby estimate',
+    };
+  }).sort((a, b) => a.km - b.km);
 }
 
-export async function loadSafetyPlaces({ lat, lng, hubId }) {
-  const key = `ek_osm_places_${hubId || `${Number(lat).toFixed(2)}_${Number(lng).toFixed(2)}`}`;
+export async function loadSafetyPlaces({ lat, lng, name }) {
+  const key = `ek_osm_places_v3_${Number(lat).toFixed(3)}_${Number(lng).toFixed(3)}`;
   try {
     const cached = sessionStorage.getItem(key);
     if (cached) {
@@ -326,7 +347,7 @@ export async function loadSafetyPlaces({ lat, lng, hubId }) {
     }
   } catch { /* ignore */ }
 
-  const directory = directoryPlaces({ lat, lng, hubId });
+  const directory = directoryPlaces({ lat, lng, name });
   try {
     const osm = await fetchOsmSafetyPlaces(lat, lng);
     if (osm.length) {

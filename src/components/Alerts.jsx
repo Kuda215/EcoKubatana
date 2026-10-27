@@ -10,6 +10,7 @@ import { saveOfflineAlerts, saveOfflinePlaybook, touchOfflineMeta, loadOfflineAl
 import SafetyCheckIn from './SafetyCheckIn';
 import SignPlaybook from './SignPlaybook';
 import { useTranslation } from 'react-i18next';
+import { useLocationPlace } from '../contexts/LocationContext';
 import './PageStyles.css';
 
 const levelIcon  = { Info: '✅', Warning: '🌡️', Critical: '⚠️', Emergency: '🚨' };
@@ -29,12 +30,18 @@ const emptyProposeForm = { type: ALERT_TYPES[0], level: 'Info', area: '', messag
 
 export default function Alerts() {
   const { user } = useAuth();
+  const { area } = useLocationPlace();
   const { i18n } = useTranslation();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [phone, setPhone] = useState('');
   const [subscribeStatus, setSubscribeStatus] = useState(null);
-  const [proposeForm, setProposeForm] = useState(emptyProposeForm);
+  const [proposeForm, setProposeForm] = useState({ ...emptyProposeForm, area: '' });
+
+  useEffect(() => {
+    if (!area) return;
+    setProposeForm((f) => ({ ...f, area }));
+  }, [area]);
   const [proposeStatus, setProposeStatus] = useState(null);
   const [proposing, setProposing] = useState(false);
   const [playbook, setPlaybook] = useState(null);

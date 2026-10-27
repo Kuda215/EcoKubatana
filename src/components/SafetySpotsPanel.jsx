@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocationPlace } from '../contexts/LocationContext';
 import { AFRICA_HUBS } from '../lib/africaHubs';
-import { hubForUser } from '../lib/dataSources';
+import { nearestHub } from '../lib/dataSources';
 import {
   loadSafetyPlaces,
   directoryPlaces,
@@ -12,43 +12,47 @@ import {
 } from '../lib/safetyPlaces';
 import SourceInfo from './SourceInfo';
 
+function isoForPlace(place) {
+  const country = String(place?.country || place?.admin || '').toLowerCase();
+  const hit = AFRICA_HUBS.find((h) => country.includes(h.country.toLowerCase()) || country.includes(h.iso3.toLowerCase()));
+  if (hit) return hit.iso3;
+  return nearestHub(AFRICA_HUBS, place?.lat, place?.lng)?.iso3 || 'ZWE';
+}
+
 export default function SafetySpotsPanel() {
   const { user } = useAuth();
   const { place } = useLocationPlace();
-  const defaultHub = hubForUser(AFRICA_HUBS, place?.name || user?.location) || AFRICA_HUBS[0];
-  const [hubId, setHubId] = useState(defaultHub.id);
-  const [places, setPlaces] = useState(() => directoryPlaces({ lat: defaultHub.lat, lng: defaultHub.lng, hubId: defaultHub.id }));
+  const lat = place?.lat;
+  const lng = place?.lng;
+  const name = place?.name || user?.location || 'here';
+  const [spots, setSpots] = useState(() =>
+    lat != null ? directoryPlaces({ lat, lng, name }) : []
+  );
   const [filter, setFilter] = useState('All');
   const [loading, setLoading] = useState(true);
-  const hub = AFRICA_HUBS.find((h) => h.id === hubId) || defaultHub;
-  const origin = useMemo(() => ({
-    lat: place?.lat ?? hub.lat,
-    lng: place?.lng ?? hub.lng,
-    hubId: hub.id,
-  }), [place?.lat, place?.lng, hub.id, hub.lat, hub.lng]);
-  const numbers = numbersForIso(hub.iso3);
+  const numbers = numbersForIso(isoForPlace(place));
 
   useEffect(() => {
+    if (lat == null || lng == null) return;
     let cancelled = false;
-    const instant = directoryPlaces(origin);
-    setPlaces(instant);
+    setSpots(directoryPlaces({ lat, lng, name }));
     setLoading(true);
-    loadSafetyPlaces(origin)
+    loadSafetyPlaces({ lat, lng, name })
       .then((result) => {
-        if (!cancelled && result.places?.length) setPlaces(result.places);
+        if (!cancelled && result.places?.length) setSpots(result.places);
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [origin.hubId, origin.lat, origin.lng]);
+  }, [lat, lng, name]);
 
   const filtered = useMemo(
-    () => places.filter((p) => filter === 'All' || p.type === filter),
-    [places, filter]
+    () => spots.filter((p) => filter === 'All' || p.type === filter),
+    [spots, filter]
   );
 
-  const openDirections = (place) => {
+  const openDirections = (spot) => {
     window.open(
-      `https://www.openstreetmap.org/directions?from=${origin.lat}%2C${origin.lng}&to=${place.lat}%2C${place.lng}`,
+      `https://www.openstreetmap.org/directions?from=${lat}%2C${lng}&to=${spot.lat}%2C${spot.lng}`,
       '_blank'
     );
   };
@@ -57,13 +61,8 @@ export default function SafetySpotsPanel() {
     <aside className="home-safety">
       <div className="home-safety__head">
         <h3>Safety spots <SourceInfo sources={['overpass', 'osm']} /></h3>
-        <p>Hospitals, police, fire and clinics near a hub city.</p>
+        <p>Near {name} — hospitals, police, fire and clinics around the top-bar place.</p>
       </div>
-      <select className="form-input" value={hubId} onChange={(e) => setHubId(e.target.value)} aria-label="Safety hub city">
-        {AFRICA_HUBS.map((h) => (
-          <option key={h.id} value={h.id}>{h.name}, {h.country}</option>
-        ))}
-      </select>
       <div className="home-safety__nums">
         <a href={`tel:${numbers.police}`}>Police {numbers.police}</a>
         <a href={`tel:${numbers.medical}`}>Medical {numbers.medical}</a>
@@ -76,7 +75,7 @@ export default function SafetySpotsPanel() {
           </button>
         ))}
       </div>
-      {loading && <p className="home-safety__hint">Refreshing live map places…</p>}
+      {loading && <p className="home-safety__hint">Looking near {name}…</p>}
       <ul className="home-safety__list">
         {filtered.slice(0, 14).map((p) => {
           const meta = PLACE_META[p.type] || PLACE_META.Other;

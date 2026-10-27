@@ -6,6 +6,12 @@ export default function AlertGuidePopup({ alerts = [] }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    const openGuide = () => setOpen(true);
+    window.addEventListener('ecokubatana-where-now', openGuide);
+    return () => window.removeEventListener('ecokubatana-where-now', openGuide);
+  }, []);
+
+  useEffect(() => {
     if (!emergency) return;
     const mobile = window.matchMedia('(max-width: 768px)').matches;
     if (!mobile) return;
@@ -14,10 +20,10 @@ export default function AlertGuidePopup({ alerts = [] }) {
     setOpen(true);
   }, [emergency?.id]);
 
-  if (!open || !emergency) return null;
+  if (!open) return null;
 
   const dismiss = () => {
-    sessionStorage.setItem(`ek_guide_dismiss_${emergency.id}`, '1');
+    if (emergency?.id) sessionStorage.setItem(`ek_guide_dismiss_${emergency.id}`, '1');
     setOpen(false);
   };
 

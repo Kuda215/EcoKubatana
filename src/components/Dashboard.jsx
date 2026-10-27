@@ -49,7 +49,7 @@ export default function Dashboard() {
     { label: 'Hazard hubs', value: String(hotspots.length), sub: 'Historic + forecast layers', icon: '🌍', trend: climateLoading ? 'Refreshing…' : 'Live APIs' },
   ];
 
-  const localHub = hubForUser(hotspots, user?.location);
+  const localHub = hubForUser(hotspots, place?.name || user?.location);
   const localMoney = localHub ? estimateLosses(localHub, user?.livelihood) : null;
   const job = String(user?.livelihood || '').toLowerCase();
 

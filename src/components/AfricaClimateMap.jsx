@@ -77,12 +77,23 @@ export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'h
         dashArray: '2 2',
       }).bindPopup(`<strong>${e.title}</strong><br/>${e.category}<br/>${e.source || ''}`).addTo(layer);
     });
-  }, [hotspots, events, mode, selectedId, onSelect, flags.colorBlind]);
+
+    if (focus?.lat != null && focus?.lng != null) {
+      L.circleMarker([focus.lat, focus.lng], {
+        radius: 11,
+        color: '#072c30',
+        weight: 3,
+        fillColor: '#d4a017',
+        fillOpacity: 0.95,
+      }).bindPopup(`<strong>You · ${focus.name || 'Selected place'}</strong>`).addTo(layer);
+    }
+  }, [hotspots, events, mode, selectedId, onSelect, flags.colorBlind, focus]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map || focus?.lat == null || focus?.lng == null) return;
-    map.flyTo([focus.lat, focus.lng], 8, { duration: 0.8 });
+    map.flyTo([focus.lat, focus.lng], 5, { duration: 0.7 });
+    setTimeout(() => map.invalidateSize(), 200);
   }, [focus?.lat, focus?.lng]);
 
   if (flags.smsOnly) {
