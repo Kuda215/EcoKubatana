@@ -4242,3 +4242,16 @@ a.cb-action-btn { text-decoration: none; }
   .aid-form__row { grid-template-columns: 1fr; }
   .aid-big-btn { flex: 1; }
 }
+
+/* Report form: read-only fields filled from the photo, and severity colours */
+.form-input--static {
+  display: flex;
+  align-items: center;
+  cursor: default;
+  font-weight: 600;
+  background: var(--bg-secondary, #f4f6f5);
+}
+.sev-field { font-weight: 700; }
+.sev-field--low { color: #1e7b34; background: #e8f6ec; border-color: #9fd6ad; }
+.sev-field--medium { color: #8a5a00; background: #fff6e0; border-color: #f0cf7a; }
+.sev-field--high { color: var(--danger); background: #fdecea; border-color: #f2a39b; }

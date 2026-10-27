@@ -7,6 +7,8 @@ import './PageStyles.css';
 
 const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
 
+const SEVERITY_LABEL = { low: 'Low', medium: 'Medium', high: 'High / Critical' };
+
 const NOT_CLIMATE_MSG = "You won't be able to report this incident";
 
 const ALERT_TYPE_FOR = { Flood: 'Flood Warning', Wildfire: 'Fire Emergency' };
@@ -245,18 +247,28 @@ export default function ReportIncident() {
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Type of Incident *</label>
-                <select name="type" required className="form-input" value={form.type} onChange={handleChange} disabled={photoLocked}>
-                  <option value="">{photoLocked ? 'Reading the photo…' : 'Select type…'}</option>
-                  {incidentTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
+                {photoLocked ? (
+                  <div className="form-input form-input--static">{form.type || 'Reading the photo…'}</div>
+                ) : (
+                  <select name="type" required className="form-input" value={form.type} onChange={handleChange}>
+                    <option value="">Select type…</option>
+                    {incidentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                )}
               </div>
               <div className="form-group">
                 <label className="form-label">Severity</label>
-                <select name="severity" className="form-input" value={form.severity} onChange={handleChange} disabled={photoLocked}>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High / Critical</option>
-                </select>
+                {photoLocked ? (
+                  <div className={`form-input form-input--static sev-field sev-field--${form.severity}`}>
+                    {aiAnalysis ? SEVERITY_LABEL[form.severity] : 'Reading the photo…'}
+                  </div>
+                ) : (
+                  <select name="severity" className={`form-input sev-field sev-field--${form.severity}`} value={form.severity} onChange={handleChange}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High / Critical</option>
+                  </select>
+                )}
               </div>
             </div>
             {aiAnalysis && (
