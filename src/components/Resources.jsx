@@ -9,7 +9,7 @@ const resources = [
   { cat: 'Download',     icon: '🗺️',  title: 'Community Risk Map',        desc: 'Interactive map showing high-risk flood and drought zones.' },
 ];
 
-const catColor = { Emergency: '#e63946', Guide: '#2d6a4f', Download: '#457b9d' };
+const catColor = { Emergency: '#e63946', Guide: '#1a5c63', Download: '#457b9d' };
 
 export default function Resources() {
   return (

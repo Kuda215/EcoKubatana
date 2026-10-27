@@ -8,7 +8,6 @@ const navItems = [
   { path: '/',          key: 'home',       icon: '🏠' },
   { path: '/coming',    key: 'coming',     icon: '🔮' },
   { path: '/incidents', key: 'incidents',  icon: '⚠️' },
-  { path: '/alerts',    key: 'alerts',     icon: '🔔' },
   { path: '/community', key: 'community',  icon: '👥' },
   { path: '/knowledge', key: 'knowledge',  icon: '🤖' },
   { path: '/settings',  key: 'settings',   icon: '⚙️' },

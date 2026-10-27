@@ -11,7 +11,7 @@ export function loadMyReports(userId) {
 export function saveMyReport(userId, report) {
   const list = loadMyReports(userId);
   const id = report.id || `local-${Date.now()}`;
-  const next = [{ ...report, id }, ...list.filter((r) => r.id !== id)];
+  const next = [{ ...report, id, reporter_id: report.reporter_id || userId }, ...list.filter((r) => r.id !== id)];
   try { localStorage.setItem(keyFor(userId), JSON.stringify(next.slice(0, 80))); } catch { /* ignore */ }
   return next;
 }

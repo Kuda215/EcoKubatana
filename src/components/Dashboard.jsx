@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { incidentsAPI, communityAPI, alertsAPI } from '../lib/api';
+import { incidentsAPI, communityAPI } from '../lib/api';
+import Incentives from './Incentives';
 import { useClimateData, geocodeAndForecast, riskColor } from '../lib/climateData';
 import AfricaClimateMap from './AfricaClimateMap';
 import SafetySpotsPanel from './SafetySpotsPanel';
@@ -20,13 +21,11 @@ export default function Dashboard() {
   const [mapMode, setMapMode] = useState('historic');
   const [incidents, setIncidents] = useState([]);
   const [memberCount, setMemberCount] = useState(0);
-  const [alertCount, setAlertCount] = useState(0);
   const [weather, setWeather] = useState(null);
 
   useEffect(() => {
     incidentsAPI.list().then((r) => { if (r.success) setIncidents(r.data || []); }).catch(() => {});
     communityAPI.getStats().then((r) => { if (r.success) setMemberCount(r.data?.totalMembers || 0); }).catch(() => {});
-    alertsAPI.list().then((r) => { if (r.success) setAlertCount((r.data || []).length); }).catch(() => {});
     geocodeAndForecast(place?.name || user?.location || 'Harare').then(setWeather).catch(() => {});
   }, [user?.location, place?.name]);
 
@@ -45,7 +44,7 @@ export default function Dashboard() {
   const stats = [
     { label: 'Peer Incidents', value: String(totalInc || 0), sub: 'From the community feed', icon: '⚠️', trend: 'Live from reports' },
     { label: 'Community Members', value: (memberCount || 0).toLocaleString(), sub: 'Across Africa hubs', icon: '👥', trend: 'Profiles in EcoKubatana' },
-    { label: 'Active Alerts', value: String(alertCount), sub: `${flagged} map flags`, icon: '🔔', trend: 'View Alerts →' },
+    { label: 'Map flags', value: String(flagged), sub: 'Watch / alert hubs', icon: '🚩', trend: 'From live APIs' },
     { label: 'Hazard hubs', value: String(hotspots.length), sub: 'Historic + forecast layers', icon: '🌍', trend: climateLoading ? 'Refreshing…' : 'Live APIs' },
   ];
 
@@ -64,7 +63,7 @@ export default function Dashboard() {
       {!user?.livelihood && (
         <div className="dashboard__highlight">
           <div className="highlight__badge">Finish setup</div>
-          <p>Tell us what you do (for example Farmer) and what to protect first in an emergency. It personalises alerts.</p>
+          <p>Tell us what you do (for example Farmer) and what to protect first in an emergency. It personalises advice.</p>
           <Link to="/settings" className="card__link">Complete your profile →</Link>
         </div>
       )}
@@ -112,7 +111,10 @@ export default function Dashboard() {
             {syncedAt && <span>Updated {new Date(syncedAt).toLocaleTimeString()}</span>}
           </div>
         </div>
-        <SafetySpotsPanel />
+        <div className="home-split__side">
+          <SafetySpotsPanel />
+          <Incentives />
+        </div>
       </div>
 
       {localMoney && (
@@ -223,7 +225,7 @@ export default function Dashboard() {
         <div className="card">
           <div className="card__header">
             <h3 className="card__title">Helpful Resources</h3>
-            <Link to="/alerts" className="card__link">Alert steps →</Link>
+            <Link to="/report" className="card__link">Report an incident →</Link>
           </div>
           {[
             { icon: '🚨', label: 'Emergency Contacts', desc: 'Police, fire, medical - then EcoKubatana' },

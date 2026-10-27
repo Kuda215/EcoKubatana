@@ -49,11 +49,10 @@ export default function Incidents() {
       ]);
       if (all.success) setIncidents(all.data || []);
       else setError(all.error);
-      const serverMine = own.success ? (own.data || []) : [];
-      const local = loadMyReports(user?.id);
-      const fromAll = (all.data || []).filter((i) =>
-        i.reporter_id === user?.id || (user?.name && i.reporter_name === user.name)
-      );
+      const uid = user?.id;
+      const serverMine = (own.success ? (own.data || []) : []).filter((i) => i.reporter_id === uid);
+      const fromAll = (all.data || []).filter((i) => i.reporter_id === uid);
+      const local = loadMyReports(uid).filter((i) => !i.reporter_id || i.reporter_id === uid);
       setMine(mergeMine(serverMine.length ? serverMine : fromAll, local));
     } catch (err) {
       setError(err.message);
@@ -88,13 +87,6 @@ export default function Incidents() {
           </p>
         </div>
         <div className="incidents-head__actions">
-          <button
-            type="button"
-            className="where-now-faint"
-            onClick={() => window.dispatchEvent(new Event('ecokubatana-where-now'))}
-          >
-            Where to now?
-          </button>
           <Link to="/report" className="btn btn--primary incidents-head__report">+ Report an incident</Link>
         </div>
       </div>

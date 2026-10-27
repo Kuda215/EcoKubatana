@@ -122,7 +122,7 @@ export default function VoiceReport({ isOpen, onClose }) {
         </div>
         <div className="modal-body">
           <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Press record and describe what happened - the AI assistant will listen, respond, and speak back.
+            Climate only - describe a flood, drought, heat, storm, fire, landslide, or pollution. Other topics are refused.
           </p>
 
           {messages.length > 0 && (
@@ -133,8 +133,8 @@ export default function VoiceReport({ isOpen, onClose }) {
                   maxWidth: '85%',
                   padding: '10px 14px',
                   borderRadius: '12px',
-                  background: msg.role === 'user' ? '#0a3d2e' : '#f1f5f4',
-                  color: msg.role === 'user' ? 'white' : '#0a3d2e',
+                  background: msg.role === 'user' ? '#072c30' : '#f1f5f4',
+                  color: msg.role === 'user' ? 'white' : '#072c30',
                   fontSize: '14px',
                   whiteSpace: 'pre-wrap',
                 }}>
@@ -160,7 +160,7 @@ export default function VoiceReport({ isOpen, onClose }) {
                 borderRadius: '50%',
                 border: 'none',
                 cursor: status ? 'default' : 'pointer',
-                background: recording ? '#e63946' : '#0a3d2e',
+                background: recording ? '#e63946' : '#072c30',
                 color: 'white',
                 fontSize: '28px',
                 display: 'flex',

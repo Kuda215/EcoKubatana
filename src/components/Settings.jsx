@@ -134,7 +134,7 @@ export default function Settings() {
             <label className="form-label">Name</label>
             <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} />
             <label className="form-label" style={{ marginTop: 12 }}>Home location</label>
-            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 8px' }}>This is your default. Address search is below — pick a town and it follows you across the app.</p>
+            <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '0 0 8px' }}>This is your default. Address search is below - pick a town and it follows you across the app.</p>
             <div className="settings-place">
               <PlaceSearch compact={false} inputId="settings-place" persist />
             </div>
@@ -269,7 +269,7 @@ export default function Settings() {
       )}
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24, alignItems: 'center', flexWrap: 'wrap' }}>
-        {(saveMsg || profileMsg) && <span style={{ fontSize: 13, color: '#047857' }}>{saveMsg || profileMsg}</span>}
+        {(saveMsg || profileMsg) && <span style={{ fontSize: 13, color: '#072c30' }}>{saveMsg || profileMsg}</span>}
         <button className="btn btn--primary" onClick={handleSaveAll} disabled={saving}>
           {saving ? 'Saving…' : t('settings.save', { defaultValue: 'Save changes' })}
         </button>

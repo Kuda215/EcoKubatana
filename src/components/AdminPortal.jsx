@@ -111,6 +111,25 @@ export default function AdminPortal() {
     }
   };
 
+  const openReview = async (report) => {
+    triggerPopup('review', { ...report, reporter: report.reporter_name || 'Anonymous', liveLoading: true });
+    try {
+      const result = await incidentsAPI.recommendInArea({
+        type: report.type,
+        location: report.location,
+      });
+      setPopup((prev) => prev?.type === 'review' ? {
+        ...prev,
+        data: { ...prev.data, liveLoading: false, live: result.data },
+      } : prev);
+    } catch {
+      setPopup((prev) => prev?.type === 'review' ? {
+        ...prev,
+        data: { ...prev.data, liveLoading: false, live: { likely: false, reason: 'Could not pull live weather for this area.' } },
+      } : prev);
+    }
+  };
+
   const handleVerify = async (report) => {
     try {
       const result = await incidentsAPI.verify(report.id);
@@ -374,7 +393,7 @@ export default function AdminPortal() {
       {/* ── Animated Popup Overlay ─────────────────────────────── */}
       {popup && (
         <div className={`admin-popup-overlay ${popupVisible ? 'admin-popup-overlay--visible' : 'admin-popup-overlay--exit'}`}
-          onClick={() => { if (popup.type === 'view') { setPopupVisible(false); setTimeout(() => setPopup(null), 300); } }}
+          onClick={() => { if (popup.type === 'view' || popup.type === 'review') { setPopupVisible(false); setTimeout(() => setPopup(null), 300); } }}
         >
           <div className={`admin-popup-box admin-popup-box--${popup.type} ${popupVisible ? 'admin-popup-box--in' : 'admin-popup-box--out'}`}
             onClick={e => e.stopPropagation()}
@@ -404,6 +423,36 @@ export default function AdminPortal() {
                 <p className="admin-popup-sub">{popup.data?.type} - {popup.data?.location}</p>
               </>
             )}
+            {popup.type === 'review' && (
+              <>
+                <div className="admin-popup-view-header">
+                  <h2 className="admin-popup-view-title">Live check</h2>
+                  <button className="admin-popup-close" onClick={() => { setPopupVisible(false); setTimeout(() => setPopup(null), 300); }}>✕</button>
+                </div>
+                <div className="admin-popup-view-body">
+                  <div className="admin-popup-detail-row"><span>Type</span><strong>{popup.data?.type}</strong></div>
+                  <div className="admin-popup-detail-row"><span>Location</span><strong>{popup.data?.location}</strong></div>
+                  <div className="admin-popup-description">
+                    <p className="admin-popup-desc-label">Reporter</p>
+                    <p className="admin-popup-desc-text">{popup.data?.description}</p>
+                  </div>
+                  {popup.data?.liveLoading && <p>Pulling Open-Meteo for this area…</p>}
+                  {popup.data?.live && (
+                    <div className={`area-check ${popup.data.live.likely ? 'area-check--yes' : 'area-check--no'}`}>
+                      <strong>{popup.data.live.likely ? 'Looks valid for this area' : 'Weak match for this area'}</strong>
+                      <p>{popup.data.live.reason}</p>
+                      <p>Live hazard: {popup.data.live.liveHazard} · Historic: {popup.data.live.historicHazard}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="admin-popup-view-actions">
+                  <button className="btn btn--primary" disabled={popup.data?.liveLoading} onClick={() => { handleVerify(popup.data); }}>
+                    Verify and publish
+                  </button>
+                  <button className="btn btn--danger" onClick={() => { handleReject(popup.data); setPopup(null); }}>Reject</button>
+                </div>
+              </>
+            )}
             {popup.type === 'view' && (
               <>
                 <div className="admin-popup-view-header">
@@ -423,12 +472,7 @@ export default function AdminPortal() {
                     <p className="admin-popup-desc-text">{popup.data?.description}</p>
                   </div>
                 </div>
-                {popup.data?.status === 'pending' && (
-                  <div className="admin-popup-view-actions">
-                    <button className="btn btn--primary" onClick={() => { handleVerify(popup.data); setPopup(null); }}>✓ Verify</button>
-                    <button className="btn btn--danger" onClick={() => { handleReject(popup.data); setPopup(null); }}>✕ Reject</button>
-                  </div>
-                )}
+                <p className="admin-popup-sub">View only - use Review to check live data, then verify and publish.</p>
               </>
             )}
           </div>
@@ -444,7 +488,7 @@ export default function AdminPortal() {
 
       {/* Tabs */}
       <div className="filter-tabs">
-        {['overview', 'reports', 'help-requests', 'members', 'alerts', 'faqs', 'videos'].map(tab => (
+        {['overview', 'reports', 'help-requests', 'members', 'faqs', 'videos'].map(tab => (
           <button key={tab}
             className={`filter-tab ${activeTab === tab ? 'filter-tab--active' : ''}`}
             onClick={() => setActiveTab(tab)}
@@ -453,7 +497,6 @@ export default function AdminPortal() {
             {tab === 'reports' && `Reports ${stats.pendingReports > 0 ? `(${stats.pendingReports})` : ''}`}
             {tab === 'help-requests' && `Help Requests ${stats.helpRequests > 0 ? `(${stats.helpRequests})` : ''}`}
             {tab === 'members' && 'Members'}
-            {tab === 'alerts' && `Pending Alerts ${stats.pendingAlerts > 0 ? `(${stats.pendingAlerts})` : ''}`}
             {tab === 'faqs' && 'FAQs'}
             {tab === 'videos' && 'Videos'}
           </button>
@@ -466,11 +509,9 @@ export default function AdminPortal() {
           <div className="admin-stats-grid">
             {[
               { icon: '👥', value: stats.totalMembers.toLocaleString(), label: 'Total Members',        bg: 'linear-gradient(135deg,#dbeafe,#bfdbfe)' },
-              { icon: '🤝', value: stats.totalVolunteers,               label: 'Volunteers',           bg: 'linear-gradient(135deg,#d1fae5,#a7f3d0)' },
+              { icon: '🤝', value: stats.totalVolunteers,               label: 'Volunteers',           bg: 'linear-gradient(135deg,#e6f2f3,#a7f3d0)' },
               { icon: '⚠️', value: stats.activeIncidents,              label: 'Active Incidents',     bg: 'linear-gradient(135deg,#fde8e8,#ffd1d1)' },
               { icon: '📋', value: stats.pendingReports,               label: 'Pending Reports',      bg: 'linear-gradient(135deg,#fed7aa,#fdba74)' },
-              { icon: '📢', value: stats.alertsSent,                   label: 'Alerts Sent',          bg: 'linear-gradient(135deg,#e8fff8,#d1fae5)' },
-              { icon: '📝', value: stats.pendingAlerts,                label: 'Pending Alerts',       bg: 'linear-gradient(135deg,#fef3c7,#fde68a)' },
               { icon: '🚨', value: stats.helpRequests,                 label: 'Active Help Requests', bg: 'linear-gradient(135deg,#fff8f0,#fde8e8)' },
             ].map((s, i) => (
               <div key={i} className="admin-stat-card">
@@ -483,11 +524,10 @@ export default function AdminPortal() {
             ))}
           </div>
           <div className="admin-quick-actions">
-            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#0a3d2e', marginBottom: '16px' }}>Quick Actions</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#072c30', marginBottom: '16px' }}>Quick Actions</h3>
             <div className="action-grid">
               {[
-                { icon: '📢', title: 'Review Alerts',   desc: 'Approve or reject pending community alerts', tab: 'alerts' },
-                { icon: '📋', title: 'Review Reports',  desc: 'Process pending incident reports',          tab: 'reports' },
+                { icon: '📋', title: 'Review Reports',  desc: 'Check live data, then verify and publish',          tab: 'reports' },
                 { icon: '🚨', title: 'Help Requests',   desc: 'View and respond to emergency requests',    tab: 'help-requests' },
                 { icon: '👥', title: 'Manage Members',  desc: 'View and manage community members',         tab: 'members' },
               ].map(a => (
@@ -542,8 +582,8 @@ export default function AdminPortal() {
                       👁 View
                     </button>
                     {report.status !== 'verified' && report.status !== 'rejected' && (
-                      <button className="btn-table-action btn-table-action--primary" onClick={() => handleVerify(report)}>
-                        ✓ Verify
+                      <button className="btn-table-action btn-table-action--primary" onClick={() => openReview(report)}>
+                        ✓ Review
                       </button>
                     )}
                     {report.status !== 'rejected' && report.status !== 'verified' && (
@@ -755,7 +795,7 @@ export default function AdminPortal() {
                 </>
               ) : (
                 <>
-                  <div style={{ fontWeight: 700, color: '#0a3d2e' }}>Q: {faq.question}</div>
+                  <div style={{ fontWeight: 700, color: '#072c30' }}>Q: {faq.question}</div>
                   <p style={{ margin: '8px 0', color: '#6b7280' }}>A: {faq.answer}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn-table-action" onClick={() => startEditFaq(faq)}>✏ Edit</button>
@@ -852,7 +892,7 @@ export default function AdminPortal() {
                 </>
               ) : (
                 <>
-                  <div style={{ fontWeight: 700, color: '#0a3d2e' }}>{video.emoji} {video.title}</div>
+                  <div style={{ fontWeight: 700, color: '#072c30' }}>{video.emoji} {video.title}</div>
                   <p style={{ margin: '8px 0', color: '#6b7280' }}>{video.category} · {video.duration} · {video.youtube_url}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn-table-action" onClick={() => startEditVideo(video)}>✏ Edit</button>

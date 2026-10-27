@@ -28,16 +28,19 @@ const corsHeaders = {
 const VALID_TYPES = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
 const VALID_SEVERITIES = ['low', 'medium', 'high'];
 
-const SYSTEM_PROMPT = `You are an image analysis assistant for a community climate incident reporting app used in Zimbabwe and Southern Africa. Look at the uploaded photo and assess what kind of climate/environmental incident it most likely shows.
+const SYSTEM_PROMPT = `You are vision analysis for EcoKubatana. You only assess climate and environment incident photos from Zimbabwe and Southern Africa.
 
-Respond ONLY with a JSON object in exactly this shape:
+A photo is climate-related ONLY if it clearly shows flood water, drought/failed crops, heat stress on land or people in extreme heat, wind damage from a storm, landslide or eroded slope, wildfire/smoke on land, or environmental pollution (dirty water, toxic dump, smoke from burning waste). People selfies, food, indoor rooms, documents, animals with no climate context, screenshots, and unrelated objects are NOT climate-related.
+
+Respond ONLY with JSON:
 {
+  "climate_related": true or false,
   "likely_type": one of "Flood", "Drought", "Heatwave", "Strong Winds", "Landslide", "Wildfire", "Pollution", "Other",
-  "assessment": a short, plain-language sentence (max 2 sentences) describing what you see and why you think it's this type - never invent a statistic or percentage,
+  "assessment": max 2 plain sentences. If climate_related is false, say the photo is not a climate incident and do not guess a hazard.
   "suggested_severity": one of "low", "medium", "high"
 }
 
-If the photo doesn't clearly show a climate/environmental incident, use "Other" and say so plainly in the assessment.`;
+If climate_related is false, set likely_type to "Other" and suggested_severity to "low". Never invent a statistic.`;
 
 function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -94,7 +97,7 @@ serve(async (req) => {
           {
             role: 'user',
             content: [
-              { type: 'text', text: 'Analyze this incident photo.' },
+              { type: 'text', text: 'Is this a climate or environment incident photo? If not, climate_related must be false.' },
               { type: 'image_url', image_url: { url: image_url } },
             ],
           },
@@ -118,15 +121,20 @@ serve(async (req) => {
       parsed = {};
     }
 
-    const likelyType = VALID_TYPES.includes(parsed.likely_type) ? parsed.likely_type : 'Other';
-    const suggestedSeverity = VALID_SEVERITIES.includes(parsed.suggested_severity) ? parsed.suggested_severity : 'medium';
+    const climateRelated = parsed.climate_related === true;
+    const likelyType = climateRelated && VALID_TYPES.includes(parsed.likely_type) ? parsed.likely_type : 'Other';
+    const suggestedSeverity = climateRelated && VALID_SEVERITIES.includes(parsed.suggested_severity)
+      ? parsed.suggested_severity
+      : 'low';
     const assessment = typeof parsed.assessment === 'string' && parsed.assessment.trim()
       ? parsed.assessment.trim()
-      : "Couldn't confidently identify what this photo shows.";
+      : (climateRelated
+        ? "Couldn't confidently identify what this photo shows."
+        : 'This photo is not a climate or environment incident. Upload flood, drought, heat, storm, fire, landslide, or pollution.');
 
     return jsonResponse({
       success: true,
-      data: { likelyType, assessment, suggestedSeverity },
+      data: { climateRelated, likelyType, assessment, suggestedSeverity },
     });
 
   } catch (error) {

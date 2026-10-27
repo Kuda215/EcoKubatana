@@ -40,7 +40,7 @@ export default function SafetyCheckIn({ alertId, channel = 'app' }) {
         <button type="button" className="btn btn--primary" onClick={() => send('safe')} disabled={mine === 'safe'}>1 - I am safe</button>
         <button type="button" className="btn btn--danger" onClick={() => send('need_help')} disabled={mine === 'need_help'}>2 - I need help</button>
       </div>
-      {msg && <p style={{ marginTop: 8, color: '#047857' }}>{msg}</p>}
+      {msg && <p style={{ marginTop: 8, color: '#072c30' }}>{msg}</p>}
       <p style={{ fontSize: 13, marginTop: 12 }}>{safeCount} safe · {helpCount} need help</p>
       {isAdmin && list.length > 0 && (
         <ul className="safety-checkin__list">

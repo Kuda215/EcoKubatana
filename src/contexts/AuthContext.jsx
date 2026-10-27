@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }) => {
         gap: '16px'
       }}>
         <div style={{ fontSize: '48px' }}>🌿</div>
-        <div style={{ fontSize: '18px', fontWeight: '700', color: '#0a3d2e' }}>Loading EcoKubatana...</div>
+        <div style={{ fontSize: '18px', fontWeight: '700', color: '#072c30' }}>Loading EcoKubatana...</div>
       </div>
     );
   }
@@ -206,7 +206,7 @@ export const AuthProvider = ({ children }) => {
         textAlign: 'center'
       }}>
         <div style={{ fontSize: '64px' }}>⚙️</div>
-        <h1 style={{ fontSize: '32px', fontWeight: '900', color: '#0a3d2e', margin: 0 }}>
+        <h1 style={{ fontSize: '32px', fontWeight: '900', color: '#072c30', margin: 0 }}>
           Supabase Configuration Needed
         </h1>
         <div style={{ 
@@ -220,13 +220,13 @@ export const AuthProvider = ({ children }) => {
           <h3 style={{ margin: '0 0 16px 0', color: '#ea580c' }}>Quick Setup:</h3>
           <ol style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}>
             <li><strong>Create .env file</strong> in project root</li>
-            <li><strong>Go to</strong> <a href="https://app.supabase.com" target="_blank" style={{ color: '#10b981' }}>Supabase Dashboard</a></li>
+            <li><strong>Go to</strong> <a href="https://app.supabase.com" target="_blank" style={{ color: '#1a5c63' }}>Supabase Dashboard</a></li>
             <li><strong>Settings</strong> → <strong>API</strong></li>
             <li><strong>Copy</strong> Project URL and anon public key</li>
             <li><strong>Add to .env:</strong>
               <pre style={{ 
                 background: '#1f2937', 
-                color: '#10b981', 
+                color: '#1a5c63', 
                 padding: '12px', 
                 borderRadius: '6px', 
                 fontSize: '12px',

@@ -2,7 +2,7 @@
 .dashboard { 
   display: flex; 
   flex-direction: column; 
-  gap: 24px;
+  gap: 16px;
 }
 
 /* Welcome */
@@ -140,14 +140,14 @@
   align-items: flex-start;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--neutral-200);
-  border-left: 4px solid #00d98a;
+  border-left: 4px solid #1a5c63;
   transition: all 0.3s ease;
 }
 
 .stat-card:hover {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   transform: translateY(-2px);
-  border-left-color: #10b981;
+  border-left-color: #1a5c63;
 }
 
 .stat-card__icon  { 
@@ -157,7 +157,7 @@
 .stat-card__value { 
   font-size: 32px; 
   font-weight: 900; 
-  color: #0a3d2e;
+  color: #072c30;
   line-height: 1.2; 
 }
 
@@ -178,7 +178,7 @@
 
 .stat-card__trend { 
   font-size: 12px; 
-  color: #10b981;
+  color: #1a5c63;
   margin-top: 8px;
   font-weight: 600;
   display: flex;
@@ -361,7 +361,7 @@
 .donut-total {
   font-size: 36px;
   font-weight: 900;
-  color: #0a3d2e;
+  color: #072c30;
   line-height: 1;
 }
 
@@ -521,9 +521,9 @@
 }
 
 .area-row:hover {
-  background: linear-gradient(135deg, #e8fff8 0%, #d1fae5 100%);
+  background: linear-gradient(135deg, #e6f2f3 0%, #e6f2f3 100%);
   transform: translateX(4px);
-  border-left-color: #10b981;
+  border-left-color: #1a5c63;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
@@ -668,7 +668,7 @@
 .weather-temp { 
   font-size: 36px; 
   font-weight: 900; 
-  color: #0a3d2e;
+  color: #072c30;
 }
 
 .weather-desc { 
@@ -835,13 +835,39 @@
   max-height: 720px;
   overflow: auto;
 }
+.home-safety__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .home-safety__head h3 { margin: 0; font-size: 18px; }
-.home-safety__head p { margin: 4px 0 0; font-size: 13px; color: var(--neutral-500); }
+.hub-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; }
+.hub-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e6f2f3;
+  color: #072c30;
+}
+.hub-tag--flood, .hub-tag--cyclone { background: #1a5c63; color: #fff; }
+.hub-tag--drought, .hub-tag--heat { background: #c45c26; color: #fff; }
+.hub-tag--wildfire { background: #b42318; color: #fff; }
+.hub-tag--water { background: #0d4a50; color: #e6f2f3; }
+.hub-tag--high-ground { background: #072c30; color: #e6f2f3; }
+.hub-tag--open-ground { background: #1a5c63; color: #fff; }
+.hub-tag--assembly { background: #d4a017; color: #072c30; }
+.hub-tag--stable { background: #e6f2f3; color: #1a5c63; }
+.home-split__side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.incentives-card { padding: 16px; }
+.incentives-lead, .incentives-list, .incentives-points { font-size: 13px; color: var(--text-secondary); }
+.incentives-list { margin: 8px 0; padding-left: 18px; }
+.area-check { margin-top: 8px; font-size: 13px; line-height: 1.4; padding: 8px 10px; border-radius: 8px; }
+.area-check--yes { background: #e6f2f3; color: #072c30; }
+.area-check--no { background: #fef3c7; color: #072c30; }
 .home-safety__nums { display: flex; flex-wrap: wrap; gap: 8px; }
 .home-safety__nums a {
   font-size: 12px;
   font-weight: 700;
-  color: #047857;
+  color: #072c30;
 }
 .home-safety__filters { display: flex; flex-wrap: wrap; gap: 6px; }
 .home-safety__filters button {
@@ -853,7 +879,7 @@
   font-weight: 700;
   cursor: pointer;
 }
-.home-safety__filters button.is-on { background: #047857; color: #fff; border-color: #047857; }
+.home-safety__filters button.is-on { background: #072c30; color: #fff; border-color: #072c30; }
 .home-safety__list { list-style: none; margin: 0; padding: 0; }
 .home-safety__list button {
   width: 100%;
@@ -869,6 +895,7 @@
 .home-safety__list strong { display: block; font-size: 13px; }
 .home-safety__list em { font-style: normal; font-size: 11px; color: #64748b; }
 .home-safety__hint { font-size: 12px; color: #64748b; }
+.home-safety__where { width: 100%; margin-top: 12px; }
 @media (max-width: 960px) {
   .home-split { grid-template-columns: 1fr; }
 }
@@ -918,14 +945,14 @@
   font-weight: 700;
   cursor: pointer;
 }
-.settings-tabs button.is-on { background: #047857; color: #fff; border-color: #047857; }
+.settings-tabs button.is-on { background: #072c30; color: #fff; border-color: #072c30; }
 .settings-avatar-row { display: flex; align-items: center; gap: 16px; }
 .settings-avatar-preview {
   width: 88px;
   height: 88px;
   border-radius: 50%;
   object-fit: cover;
-  background: #0a3d2e;
+  background: #072c30;
   color: #fff;
   display: flex;
   align-items: center;

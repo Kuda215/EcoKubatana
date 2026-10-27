@@ -20,7 +20,7 @@ const ADVICE = {
     shelter: 'Keep the house shaded. Fix leaking tanks.',
     school: 'Send a bottle of water with each child.',
     clinic: 'Watch for heat and dehydration, especially in children.',
-    roads: 'Dust roads get slick after a rare shower — still go slow.',
+    roads: 'Dust roads get slick after a rare shower - still go slow.',
     income: 'Sell perishable stock early. Hold seed for the next rains.',
   },
   Heat: {
@@ -35,14 +35,14 @@ const ADVICE = {
     income: 'Open the stall at dawn. Rest the hottest hours.',
   },
   Stable: {
-    family_safety: 'A quiet week — still know 995 and your meeting point.',
+    family_safety: 'A quiet week - still know 995 and your meeting point.',
     water: 'Top up stored water while it is easy.',
     food_crops: 'Weed and mulch now so the next rain counts.',
     livestock: 'Check fences and water troughs while the weather is calm.',
     shelter: 'Fix small roof and drain jobs this week.',
     school: 'A normal week for school paths.',
     clinic: 'A good week to restock a small home kit.',
-    roads: 'Roads should hold — still tell someone if you travel far.',
+    roads: 'Roads should hold - still tell someone if you travel far.',
     income: 'A steady week for market. Keep a little cash aside.',
   },
 };

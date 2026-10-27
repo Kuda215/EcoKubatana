@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocationPlace } from '../contexts/LocationContext';
-import { searchPlaces, forecastFor, wikiPhoto, plainTalk } from '../lib/geocode';
+import { searchPlaces, forecastFor, wikiPhotoForPlace, plainTalk } from '../lib/geocode';
 import { scoreForecast } from '../lib/climateData';
 import { recommendationsFor } from '../lib/recommend';
 import './ComingWatch.css';
@@ -42,9 +41,10 @@ export default function ComingWatch() {
       })
       .catch(() => {})
       .finally(() => { if (live) setLoading(false); });
-    wikiPhoto(place.name)
-      .then((url) => { if (live && url) setPhoto(url); })
-      .catch(() => {});
+    setPhoto('');
+    wikiPhotoForPlace(place)
+      .then((url) => { if (live) setPhoto(url || ''); })
+      .catch(() => { if (live) setPhoto(''); });
     return () => { live = false; };
   }, [place?.lat, place?.lng, place?.name]);
 
@@ -64,6 +64,7 @@ export default function ComingWatch() {
   }, [watchlist]);
 
   const pick = (hit) => {
+    setPlace(hit);
     addWatch(hit);
     setQ('');
     setHits([]);
@@ -92,26 +93,21 @@ export default function ComingWatch() {
           <>
             <p className="coming__headline">{talk.line}</p>
             <div className="coming__metrics">
-              <span>Rain {pred.metrics?.precip_7d_mm ?? '—'} mm</span>
-              <span>Hottest {pred.metrics?.max_temp_c ?? '—'}°C</span>
-              <span>Rain chance {pred.metrics?.rain_chance_max ?? '—'}%</span>
+              <span>Rain {pred.metrics?.precip_7d_mm ?? '-'} mm</span>
+              <span>Hottest {pred.metrics?.max_temp_c ?? '-'}°C</span>
+              <span>Rain chance {pred.metrics?.rain_chance_max ?? '-'}%</span>
             </div>
-            <p className="coming__meaning">{talk.meaning}</p>
             {recs.length > 0 && (
-              <div className="coming__recs">
-                <p className="coming__recs-kicker">For what you protect first</p>
-                {recs.map((r) => (
-                  <p key={r.asset}><strong>{r.asset}:</strong> {r.text}</p>
+              <ul className="coming__recs">
+                {recs.slice(0, 4).map((r) => (
+                  <li key={r.asset}><strong>{r.asset}</strong> {r.text}</li>
                 ))}
-                {!(user?.emergency_priorities || []).length && (
-                  <Link to="/settings" className="coming__recs-link">Set your important assets in Settings</Link>
-                )}
-              </div>
+              </ul>
             )}
             <p className="coming__note">
               {updatedAt
-                ? `Updated ${updatedAt.toLocaleTimeString()} · next 7 days · Open-Meteo`
-                : 'Open-Meteo, next 7 days'}
+                ? `${updatedAt.toLocaleTimeString()} · Open-Meteo`
+                : 'Open-Meteo'}
             </p>
           </>
         )}

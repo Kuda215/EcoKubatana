@@ -287,7 +287,7 @@ export function riskColor(score, status, colorBlind = false) {
     if (s === 'emergency' || score >= 75) return '#d55e00';
     if (s === 'alert' || score >= 55) return '#e69f00';
     if (s === 'watch' || score >= 35) return '#0072b2';
-    return '#009e73';
+    return '#1a5c63';
   }
   if (s === 'emergency' || score >= 75) return '#e63946';
   if (s === 'alert' || score >= 55) return '#f4a261';

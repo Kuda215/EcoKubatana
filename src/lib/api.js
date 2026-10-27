@@ -127,6 +127,24 @@ export const incidentsAPI = {
     return response.json();
   },
 
+  async recommendInArea(payload) {
+    try {
+      const headers = await getAuthHeaders();
+      const response = await fetch(`${EDGE_FUNCTION_URL}/incidents/recommend`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload),
+      });
+      if (response.ok) return response.json();
+    } catch { /* fall through to local Open-Meteo */ }
+    const { recommendIncidentInArea } = await import('./validateIncident');
+    return recommendIncidentInArea(payload);
+  },
+
+  async publish(incidentId) {
+    return this.verify(incidentId);
+  },
+
   // Delete incident (admin only)
   async delete(incidentId) {
     const headers = await getAuthHeaders();
@@ -282,6 +300,15 @@ export const communityAPI = {
       .select('post_id, reporter_id, reason');
     if (error) return { success: false, error: error.message, data: [] };
     return { success: true, data };
+  },
+
+  async setPinned(postId, pinned) {
+    const { error } = await supabase
+      .from('community_posts')
+      .update({ pinned })
+      .eq('id', postId);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
   },
 
   // Admin: hide or unhide a post

@@ -1,6 +1,6 @@
 import L from 'leaflet';
 
-/** OpenStreetMap only — free community tiles, no API key, not Carto. */
+/** OpenStreetMap only - free community tiles, no API key, not Carto. */
 export const MAP_TILES = {
   url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   attribution: '&copy; OpenStreetMap contributors',

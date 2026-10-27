@@ -105,12 +105,12 @@
 }
 
 .auth-choice-btn--primary {
-  border-color: #00d98a;
+  border-color: #1a5c63;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
 }
 
 .auth-choice-btn--primary:hover {
-  border-color: #10b981;
+  border-color: #1a5c63;
   box-shadow: 0 8px 24px rgba(0, 217, 138, 0.2);
 }
 
@@ -119,7 +119,7 @@
 }
 
 .auth-choice-btn--secondary:hover {
-  border-color: #00d98a;
+  border-color: #1a5c63;
 }
 
 .auth-choice-icon {
@@ -139,7 +139,7 @@
   display: block;
   font-size: 17px;
   font-weight: 800;
-  color: #0a3d2e;
+  color: #072c30;
   margin-bottom: 4px;
 }
 
@@ -177,7 +177,7 @@
 .login-logo h1 {
   font-size: 32px;
   font-weight: 900;
-  color: #0a3d2e;
+  color: #072c30;
   margin: 0;
 }
 
@@ -196,7 +196,7 @@
 .section-title {
   font-size: 24px;
   font-weight: 900;
-  color: #0a3d2e;
+  color: #072c30;
   text-align: center;
   margin: 0 0 6px 0;
 }
@@ -269,7 +269,7 @@
 .role-card-title {
   font-size: 18px;
   font-weight: 800;
-  color: #0a3d2e;
+  color: #072c30;
   margin: 0 0 8px 0;
 }
 
@@ -289,7 +289,7 @@
 }
 
 .role-card--picked {
-  border-color: #10b981;
+  border-color: #1a5c63;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
 }
 
@@ -318,7 +318,7 @@
 }
 
 .back-button:hover {
-  color: #0a3d2e;
+  color: #072c30;
 }
 
 .selected-role-badge {

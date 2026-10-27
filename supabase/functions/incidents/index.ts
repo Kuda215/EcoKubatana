@@ -150,6 +150,44 @@ serve(async (req) => {
       );
     }
 
+    // POST /incidents/recommend — live Open-Meteo check for type + place
+    if (req.method === 'POST' && pathParts[pathParts.length - 1] === 'recommend') {
+      const body = await req.json();
+      const type = body.type || 'Other';
+      const location = body.location || '';
+      let lat = body.lat;
+      let lng = body.lng;
+      if (lat == null || lng == null) {
+        const geo = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1&language=en&format=json`);
+        const gj = await geo.json();
+        lat = gj.results?.[0]?.latitude;
+        lng = gj.results?.[0]?.longitude;
+      }
+      if (lat == null) {
+        return new Response(JSON.stringify({ success: true, data: { likely: false, reason: 'Could not place this report on the map.', liveHazard: 'Unknown' } }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const wxRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,precipitation_sum,precipitation_probability_max&forecast_days=7&timezone=auto`);
+      const wx = await wxRes.json();
+      const precip = (wx.daily?.precipitation_sum || []).reduce((a: number, b: number) => a + (Number(b) || 0), 0);
+      const maxT = Math.max(0, ...(wx.daily?.temperature_2m_max || [0]).map(Number));
+      let liveHazard = 'Stable';
+      if (precip >= 40) liveHazard = 'Flood';
+      else if (precip <= 5 && maxT >= 32) liveHazard = 'Drought';
+      else if (maxT >= 36) liveHazard = 'Heat';
+      const floodType = type === 'Flood' || type === 'Landslide' || type === 'Strong Winds';
+      const likely = (floodType && liveHazard === 'Flood') || (type === 'Drought' && liveHazard === 'Drought') || (type === 'Heatwave' && (liveHazard === 'Heat' || liveHazard === 'Drought'));
+      return new Response(JSON.stringify({
+        success: true,
+        data: {
+          likely,
+          liveHazard,
+          reason: likely
+            ? `Open-Meteo around this place this week leans ${liveHazard} (${Math.round(precip)} mm rain, ${Math.round(maxT)}°C). This ${type} report fits the area.`
+            : `Open-Meteo around this place this week leans ${liveHazard}. A ${type} report is a weak match — check before publishing.`,
+        },
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // PUT /incidents/:id/verify - Verify incident
     if (req.method === 'PUT' && pathParts.length === 3 && pathParts[2] === 'verify') {
       if (userRole !== 'admin') {

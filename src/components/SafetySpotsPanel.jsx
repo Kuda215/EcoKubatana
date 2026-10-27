@@ -3,12 +3,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLocationPlace } from '../contexts/LocationContext';
 import { AFRICA_HUBS } from '../lib/africaHubs';
 import { nearestHub } from '../lib/dataSources';
+import { forecastFor } from '../lib/geocode';
+import { scoreForecast } from '../lib/climateData';
 import {
   loadSafetyPlaces,
   directoryPlaces,
   numbersForIso,
   PLACE_META,
-  PLACE_TYPES,
+  typesForHazard,
 } from '../lib/safetyPlaces';
 import SourceInfo from './SourceInfo';
 
@@ -25,25 +27,41 @@ export default function SafetySpotsPanel() {
   const lat = place?.lat;
   const lng = place?.lng;
   const name = place?.name || user?.location || 'here';
+  const [hazard, setHazard] = useState('Stable');
   const [spots, setSpots] = useState(() =>
-    lat != null ? directoryPlaces({ lat, lng, name }) : []
+    lat != null ? directoryPlaces({ lat, lng, name, hazard: 'Stable' }) : []
   );
   const [filter, setFilter] = useState('All');
   const [loading, setLoading] = useState(true);
   const numbers = numbersForIso(isoForPlace(place));
+  const typeOpts = typesForHazard(hazard);
 
   useEffect(() => {
     if (lat == null || lng == null) return;
     let cancelled = false;
-    setSpots(directoryPlaces({ lat, lng, name }));
+    forecastFor(lat, lng)
+      .then(({ wx }) => {
+        if (cancelled) return;
+        const scored = scoreForecast(wx?.daily || {}, {});
+        setHazard(scored.forecast_hazard || 'Stable');
+      })
+      .catch(() => { if (!cancelled) setHazard('Stable'); });
+    return () => { cancelled = true; };
+  }, [lat, lng]);
+
+  useEffect(() => {
+    if (lat == null || lng == null) return;
+    let cancelled = false;
+    setSpots(directoryPlaces({ lat, lng, name, hazard }));
     setLoading(true);
-    loadSafetyPlaces({ lat, lng, name })
+    setFilter('All');
+    loadSafetyPlaces({ lat, lng, name, hazard })
       .then((result) => {
         if (!cancelled && result.places?.length) setSpots(result.places);
       })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [lat, lng, name]);
+  }, [lat, lng, name, hazard]);
 
   const filtered = useMemo(
     () => spots.filter((p) => filter === 'All' || p.type === filter),
@@ -60,16 +78,17 @@ export default function SafetySpotsPanel() {
   return (
     <aside className="home-safety">
       <div className="home-safety__head">
-        <h3>Safety spots <SourceInfo sources={['overpass', 'osm']} /></h3>
-        <p>Near {name} — hospitals, police, fire and clinics around the top-bar place.</p>
+        <h3>Safety hubs <SourceInfo sources={['overpass', 'osm', 'openmeteo']} /></h3>
+        <span className={`hub-tag hub-tag--${hazard.toLowerCase().replace(/\s+/g, '-')}`}>{hazard}</span>
       </div>
       <div className="home-safety__nums">
+        <span>Call if life is at risk:</span>
         <a href={`tel:${numbers.police}`}>Police {numbers.police}</a>
         <a href={`tel:${numbers.medical}`}>Medical {numbers.medical}</a>
         <a href={`tel:${numbers.fire}`}>Fire {numbers.fire}</a>
       </div>
       <div className="home-safety__filters">
-        {['All', ...PLACE_TYPES].map((t) => (
+        {['All', ...typeOpts].map((t) => (
           <button key={t} type="button" className={filter === t ? 'is-on' : ''} onClick={() => setFilter(t)}>
             {PLACE_META[t]?.icon || '📍'} {t}
           </button>
@@ -85,13 +104,24 @@ export default function SafetySpotsPanel() {
                 <span>{meta.icon}</span>
                 <span>
                   <strong>{p.name}</strong>
-                  <em>{p.type} · {p.km} km</em>
+                  <span className="hub-tags">
+                    <span className={`hub-tag hub-tag--${hazard.toLowerCase().replace(/\s+/g, '-')}`}>{hazard}</span>
+                    <span className={`hub-tag hub-tag--${p.type.toLowerCase().replace(/\s+/g, '-')}`}>{p.type}</span>
+                    <em>{p.km} km</em>
+                  </span>
                 </span>
               </button>
             </li>
           );
         })}
       </ul>
+      <button
+        type="button"
+        className="btn btn--primary home-safety__where"
+        onClick={() => window.dispatchEvent(new Event('ecokubatana-where-now'))}
+      >
+        Where to now?
+      </button>
     </aside>
   );
 }

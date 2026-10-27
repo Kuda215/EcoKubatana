@@ -10,7 +10,7 @@ const STEPS = [
   { id: 'report', title: 'Someone on the street reports', body: 'Incident reporting is how a ward tells the rest of EcoKubatana. One photo, one place.', path: '/report' },
   { id: 'community', title: 'Community collaborates', body: 'Board plus support and wellbeing. Ubuntu: the street answers the street.', path: '/community' },
   { id: 'knowledge', title: 'Knowledge Hub (do not press play)', body: 'Zimbabwe drought, Idai and pfumvudza videos live here for after the pitch. Judges who want a clip can open one later.', path: '/knowledge' },
-  { id: 'alerts', title: 'Alert: reply 1 if safe', body: 'Spoken steps, then 1 = safe / 2 = help. On a phone this is Where to now? No stage video.', path: '/alerts' },
+  { id: 'where', title: 'Where to now?', body: 'Spoken steps, then 1 = safe / 2 = help. No stage video.', path: '/' },
 ];
 
 export default function DemoTour({ open, onClose }) {

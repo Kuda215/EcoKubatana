@@ -64,7 +64,6 @@
   font-size: 10px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
   padding: 4px 8px;
   border-radius: 999px;
   background: #e6f2f3;
@@ -75,44 +74,19 @@
 .coming__tag--dry-spell { background: #c45c26; color: #fff7ed; }
 .coming__tag--heat { background: #d4a017; color: #072c30; }
 .coming__tag--quiet { background: #e6f2f3; color: #1a5c63; }
-.coming__meaning {
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--text-secondary);
-  max-width: 520px;
-  margin: 10px 0 0;
-}
 .coming__recs {
   text-align: left;
-  max-width: 520px;
   width: 100%;
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: var(--primary-light);
-  border: 1px solid var(--border-color);
+  max-width: 420px;
+  margin: 12px 0 0;
+  padding: 0 0 0 18px;
+  list-style: disc;
 }
-.coming__recs-kicker {
-  margin: 0 0 8px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--primary-dark);
-}
-.coming__recs p {
-  margin: 0 0 8px;
-  font-size: 14px;
-  line-height: 1.4;
+.coming__recs li {
+  margin: 0 0 6px;
+  font-size: 13px;
+  line-height: 1.35;
   color: var(--text-primary);
-}
-.coming__recs p:last-child { margin-bottom: 0; }
-.coming__recs-link {
-  display: inline-block;
-  margin-top: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary-dark);
 }
 .coming__photo-empty {
   height: 100%;
@@ -141,8 +115,6 @@
   text-align: center;
 }
 .coming__kicker {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
   font-size: 12px;
   font-weight: 800;
   color: var(--primary-green);
@@ -174,10 +146,9 @@
   font-size: 13px;
 }
 .coming__headline {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
-  margin: 16px 0 8px;
-  max-width: 540px;
+  margin: 12px 0 8px;
 }
 .coming__metrics {
   display: flex;

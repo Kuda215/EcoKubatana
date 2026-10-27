@@ -25,13 +25,33 @@ export default function ReportIncident() {
 
   console.log('ReportIncident component mounted.');
   const { user } = useAuth();
-  const { area } = useLocationPlace();
+  const { area, place } = useLocationPlace();
+  const [areaCheck, setAreaCheck] = useState(null);
   const [form, setForm] = useState({ title: '', type: '', location: '', description: '', severity: 'medium', reporter_name: '', reporter_contact: '' });
 
   useEffect(() => {
     if (!area) return;
     setForm((f) => ({ ...f, location: area }));
   }, [area]);
+
+  useEffect(() => {
+    if (!form.type || !form.location) {
+      setAreaCheck(null);
+      return;
+    }
+    let cancelled = false;
+    const t = setTimeout(() => {
+      incidentsAPI.recommendInArea({
+        type: form.type,
+        location: form.location,
+        lat: place?.lat,
+        lng: place?.lng,
+      }).then((r) => {
+        if (!cancelled && r.success) setAreaCheck(r.data);
+      }).catch(() => {});
+    }, 400);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [form.type, form.location, place?.lat, place?.lng]);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -69,12 +89,20 @@ export default function ReportIncident() {
       setAnalyzing(true);
       const analysisResult = await incidentAnalysisAPI.analyze(uploadResult.url);
       if (analysisResult.success) {
-        setAiAnalysis(analysisResult.data);
+        const data = analysisResult.data;
+        if (data?.climateRelated === false) {
+          setAiAnalysis(null);
+          setImageError('This is not related to Climate Change');
+        } else {
+          setAiAnalysis(data);
+        }
       } else {
-        setImageError(analysisResult.error || 'Could not analyze this photo');
+        setAiAnalysis(null);
+        setImageError('This is not related to Climate Change');
       }
-    } catch (err) {
-      setImageError(err.message);
+    } catch {
+      setAiAnalysis(null);
+      setImageError('This is not related to Climate Change');
     } finally {
       setImageUploading(false);
       setAnalyzing(false);
@@ -82,12 +110,12 @@ export default function ReportIncident() {
   };
 
   const applyAiSuggestion = () => {
-    if (!aiAnalysis) return;
+    if (!aiAnalysis || aiAnalysis.climateRelated === false) return;
     setForm(f => ({ ...f, type: aiAnalysis.likelyType, severity: aiAnalysis.suggestedSeverity }));
   };
 
   const handleProposeAlert = async () => {
-    if (!aiAnalysis) return;
+    if (!aiAnalysis || aiAnalysis.climateRelated === false) return;
     setAlertProposing(true);
     try {
       const result = await alertsAPI.create({
@@ -173,7 +201,7 @@ export default function ReportIncident() {
       <div className="page__header">
         <div>
           <h1 className="page__title">📋 Report an Incident</h1>
-          <p className="page__sub">Help your community stay safe - report what you see around you.</p>
+          <p className="page__sub">Report a climate or environment incident you can see - flood, drought, heat, storm, fire, landslide, or pollution.</p>
         </div>
       </div>
 
@@ -218,6 +246,12 @@ export default function ReportIncident() {
             <div className="form-group">
               <label className="form-label">Location / Area *</label>
               <input name="location" required className="form-input" placeholder="e.g. Nkulu Village, Guta District" value={form.location} onChange={handleChange} />
+              {areaCheck && (
+                <p className={`area-check ${areaCheck.likely ? 'area-check--yes' : 'area-check--no'}`}>
+                  {areaCheck.likely ? 'Live data supports this incident in the area. ' : 'Live data does not strongly support this incident here. '}
+                  {areaCheck.reason}
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -248,16 +282,16 @@ export default function ReportIncident() {
             {aiAnalysis ? 'What the street just showed us' : 'Drop a photo. Watch it think.'}
           </h2>
           <input type="file" accept="image/*" className="report-ai__file" onChange={handleImageChange} disabled={imageUploading || analyzing} />
-          {imageError && <p style={{ color: '#fca5a5', fontSize: 13 }}>{imageError}</p>}
+          {imageError && <p className="report-ai__err">{imageError}</p>}
 
           <div className="report-ai__photo">
-            {imageUrl ? <img src={imageUrl} alt="Uploaded incident" /> : <p style={{ padding: 40, opacity: 0.7 }}>No photo yet — the read appears here, huge.</p>}
+            {imageUrl ? <img src={imageUrl} alt="Uploaded incident" /> : <p style={{ padding: 40, opacity: 0.7 }}>Climate photos only - flood, dry fields, heat, wind damage, fire, slope, or pollution.</p>}
             {(imageUploading || analyzing) && (
               <div className="report-ai__loader">
                 <div className="report-ai__rings" />
                 <div className="report-ai__scan" />
                 <p>ANALYZING</p>
-                <small>{imageUploading ? 'Uploading the photo…' : 'Reading land, water, smoke, and scars'}</small>
+                <small>{imageUploading ? 'Uploading the photo…' : 'Checking this is a climate photo'}</small>
               </div>
             )}
           </div>
@@ -286,7 +320,7 @@ export default function ReportIncident() {
                 Use this type & severity
               </button>
               {alertProposed ? (
-                <p style={{ fontWeight: 700 }}>Alert proposed — pending review</p>
+                <p style={{ fontWeight: 700 }}>Alert proposed - pending review</p>
               ) : (
                 <button type="button" className="btn btn--primary" onClick={handleProposeAlert} disabled={alertProposing}>
                   {alertProposing ? 'Proposing…' : 'Alert nearby communities'}
@@ -296,8 +330,8 @@ export default function ReportIncident() {
           ) : (
             <p style={{ fontSize: 18, lineHeight: 1.4, opacity: 0.85 }}>
               {analyzing || imageUploading
-                ? 'Scanning colour, water, smoke, and land scars…'
-                : 'This panel is the showpiece: a giant type call, a severity pulse, and three things a neighbour can do tonight.'}
+                ? 'Reading land, water, smoke, and heat…'
+                : 'AI only reads climate photos. Unrelated pictures are rejected.'}
             </p>
           )}
         </aside>

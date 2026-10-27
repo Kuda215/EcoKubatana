@@ -12,7 +12,7 @@ const CATEGORIES = ['Event', 'Solution', 'Campaign', 'Tip', 'Alert', 'Discussion
 const COMPOSE_CATEGORIES = CATEGORIES.filter(c => c !== 'Alert');
 const REPORT_REASONS = ['False information', 'Abusive', 'Spam', 'Other'];
 const catColor = {
-  Event: '#2d6a4f', Solution: '#457b9d', Campaign: '#e07b00',
+  Event: '#1a5c63', Solution: '#457b9d', Campaign: '#e07b00',
   Tip: '#7b5ea7', Alert: '#dc2626', Discussion: '#0891b2'
 };
 const catIcon = {
@@ -50,12 +50,14 @@ export default function CommunityBoard() {
   const postRef = useRef(null);
 
   useEffect(() => {
-    loadData();
+    loadData(true);
+    const tick = setInterval(() => loadData(false), 8000);
+    return () => clearInterval(tick);
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (showLoad = true) => {
     try {
-      setLoading(true);
+      if (showLoad) setLoading(true);
       setError(null);
       const [postsResult, leaderboardResult, statsResult, reportsResult] = await Promise.all([
         communityAPI.getPosts(),
@@ -94,8 +96,18 @@ export default function CommunityBoard() {
       console.error('Error loading community data:', error);
       setError(error.message);
     } finally {
-      setLoading(false);
+      if (showLoad) setLoading(false);
     }
+  };
+
+  const handleSetPinned = async (postId, pinned) => {
+    const result = await communityAPI.setPinned(postId, pinned);
+    if (!result.success) {
+      showToast(result.error || 'Could not update pin', 'error');
+      return;
+    }
+    setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, pinned } : p)));
+    showToast(pinned ? 'Pinned' : 'Unpinned');
   };
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -365,7 +377,7 @@ export default function CommunityBoard() {
               )}
               {/* Post Header */}
               <div className="cb-post-header">
-                <div className="cb-avatar" style={{ background: catColor[post.category] || '#2d6a4f' }}>
+                    <div className="cb-avatar" style={{ background: catColor[post.category] || '#1a5c63' }}>
                   {(post.author?.name || 'U')[0].toUpperCase()}
                 </div>
                 <div className="cb-post-meta">
@@ -409,9 +421,14 @@ export default function CommunityBoard() {
                   )
                 )}
                 {isAdmin && (
-                  <button className="cb-action-btn" onClick={() => handleSetHidden(post.id, !post.hidden)}>
-                    {post.hidden ? '👁 Unhide' : '🙈 Hide'}
-                  </button>
+                  <>
+                    <button className="cb-action-btn" onClick={() => handleSetPinned(post.id, !post.pinned)}>
+                      {post.pinned ? '📌 Unpin' : '📌 Pin'}
+                    </button>
+                    <button className="cb-action-btn" onClick={() => handleSetHidden(post.id, !post.hidden)}>
+                      {post.hidden ? '👁 Unhide' : '🙈 Hide'}
+                    </button>
+                  </>
                 )}
               </div>
 
@@ -430,7 +447,7 @@ export default function CommunityBoard() {
                 <div className="cb-comments-section">
                   {(post.comments || []).map(c => (
                     <div key={c.id} className="cb-comment">
-                      <div className="cb-comment-avatar" style={{ background: '#10b981' }}>
+                      <div className="cb-comment-avatar" style={{ background: '#1a5c63' }}>
                         {(c.author?.name || 'U')[0].toUpperCase()}
                       </div>
                       <div className="cb-comment-body">
@@ -443,7 +460,7 @@ export default function CommunityBoard() {
                     </div>
                   ))}
                   <div className="cb-comment-input-row">
-                    <div className="cb-comment-avatar" style={{ background: '#0a3d2e' }}>
+                    <div className="cb-comment-avatar" style={{ background: '#072c30' }}>
                       {(user?.name || 'Y')[0].toUpperCase()}
                     </div>
                     <input

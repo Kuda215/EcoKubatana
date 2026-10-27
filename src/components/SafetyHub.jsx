@@ -128,8 +128,8 @@ export default function SafetyHub() {
       AFRICA_HUBS.forEach((h) => {
         const marker = L.circleMarker([h.lat, h.lng], {
           radius: 8,
-          color: h.id === hub.id ? '#047857' : '#0ea5e9',
-          fillColor: h.id === hub.id ? '#10b981' : '#38bdf8',
+          color: h.id === hub.id ? '#072c30' : '#0ea5e9',
+          fillColor: h.id === hub.id ? '#1a5c63' : '#38bdf8',
           fillOpacity: 0.85,
           weight: h.id === hub.id ? 3 : 1,
         });
@@ -142,8 +142,8 @@ export default function SafetyHub() {
 
     L.circleMarker([origin.lat, origin.lng], {
       radius: 9,
-      color: '#047857',
-      fillColor: '#10b981',
+      color: '#072c30',
+      fillColor: '#1a5c63',
       fillOpacity: 0.9,
       weight: 3,
     }).bindPopup(`You · ${origin.name}`).addTo(layer);

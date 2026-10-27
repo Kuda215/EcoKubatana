@@ -172,17 +172,24 @@ const FALLBACK_NAMES = {
   ],
 };
 
-export const PLACE_TYPES = ['Hospital', 'Clinic', 'Pharmacy', 'Police', 'Fire', 'Shelter'];
+export const PLACE_TYPES = ['High ground', 'Open ground', 'Water', 'Assembly'];
 
 export const PLACE_META = {
-  Hospital: { icon: '🏥', color: '#ef4444' },
-  Clinic: { icon: '🩺', color: '#f43f5e' },
-  Pharmacy: { icon: '💊', color: '#ec4899' },
-  Police: { icon: '👮', color: '#3b82f6' },
-  Fire: { icon: '🚒', color: '#f97316' },
-  Shelter: { icon: '🏠', color: '#a855f7' },
+  'High ground': { icon: '⛰️', color: '#1a5c63' },
+  'Open ground': { icon: '🟩', color: '#1a5c63' },
+  Water: { icon: '💧', color: '#1a5c63' },
+  Assembly: { icon: '🚩', color: '#c45c26' },
   Other: { icon: '📍', color: '#64748b' },
 };
+
+export function typesForHazard(hazard) {
+  const h = String(hazard || 'Stable');
+  if (h === 'Flood' || h === 'Cyclone') return ['High ground', 'Assembly', 'Open ground'];
+  if (h === 'Wildfire' || h === 'Heat') return ['Open ground', 'Water', 'Assembly'];
+  if (h === 'Drought') return ['Water', 'Open ground'];
+  if (h === 'Landslide') return ['Open ground', 'Assembly'];
+  return ['Open ground', 'Water', 'Assembly', 'High ground'];
+}
 
 export function numbersForIso(iso3) {
   return AFRICA_EMERGENCY_NUMBERS[iso3] || { police: '112', medical: '112', fire: '112', general: '112' };
@@ -205,15 +212,48 @@ export function hubById(id) {
 }
 
 function typeOf(tags = {}) {
-  const a = tags.amenity || tags.emergency || '';
-  if (a === 'hospital') return 'Hospital';
-  if (a === 'clinic' || a === 'doctors' || a === 'healthcare') return 'Clinic';
-  if (a === 'pharmacy') return 'Pharmacy';
-  if (a === 'police') return 'Police';
-  if (a === 'fire_station') return 'Fire';
-  if (tags.emergency === 'assembly_point' || a === 'community_centre' || a === 'social_facility') return 'Shelter';
-  if (a === 'ambulance_station') return 'Hospital';
+  const natural = tags.natural || '';
+  if (['peak', 'ridge', 'saddle', 'hill', 'cliff'].includes(natural)) return 'High ground';
+  if (tags.emergency === 'assembly_point') return 'Assembly';
+  if (tags.amenity === 'drinking_water' || tags.man_made === 'water_well' || natural === 'spring' || natural === 'water') return 'Water';
+  if (tags.leisure === 'park' || tags.leisure === 'pitch' || tags.landuse === 'recreation_ground') return 'Open ground';
   return 'Other';
+}
+
+function overpassForHazard(hazard, radiusM, lat, lng) {
+  const around = `(around:${radiusM},${lat},${lng})`;
+  if (hazard === 'Flood' || hazard === 'Cyclone') {
+    return `[out:json][timeout:12];(
+      node["natural"~"^(peak|ridge|saddle|hill)$"]${around};
+      node["emergency"="assembly_point"]${around};
+      node["leisure"="park"]${around};
+      way["leisure"="park"]${around};
+    );out center 80;`;
+  }
+  if (hazard === 'Wildfire') {
+    return `[out:json][timeout:12];(
+      node["emergency"="assembly_point"]${around};
+      node["natural"="water"]${around};
+      node["leisure"~"^(park|pitch)$"]${around};
+      way["leisure"~"^(park|pitch)$"]${around};
+    );out center 80;`;
+  }
+  if (hazard === 'Drought' || hazard === 'Heat') {
+    return `[out:json][timeout:12];(
+      node["amenity"="drinking_water"]${around};
+      node["man_made"="water_well"]${around};
+      node["natural"="spring"]${around};
+      node["leisure"="park"]${around};
+      way["leisure"="park"]${around};
+    );out center 80;`;
+  }
+  return `[out:json][timeout:12];(
+    node["emergency"="assembly_point"]${around};
+    node["amenity"="drinking_water"]${around};
+    node["natural"~"^(peak|ridge|hill|spring)$"]${around};
+    node["leisure"="park"]${around};
+    way["leisure"="park"]${around};
+  );out center 80;`;
 }
 
 function fallbackPlacesForHub(hub) {
@@ -252,11 +292,8 @@ async function postOverpass(url, query, signal) {
   return res.json();
 }
 
-export async function fetchOsmSafetyPlaces(lat, lng, radiusM = 25000) {
-  const query = `[out:json][timeout:12];(
-    node["amenity"~"^(hospital|clinic|doctors|police|fire_station|pharmacy)$"](around:${radiusM},${lat},${lng});
-    way["amenity"~"^(hospital|clinic|doctors|police|fire_station|pharmacy)$"](around:${radiusM},${lat},${lng});
-  );out center 80;`;
+export async function fetchOsmSafetyPlaces(lat, lng, radiusM = 25000, hazard = 'Stable') {
+  const query = overpassForHazard(hazard, radiusM, lat, lng);
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
     'https://overpass.kumi.systems/api/interpreter',
@@ -309,15 +346,31 @@ export async function fetchOsmSafetyPlaces(lat, lng, radiusM = 25000) {
   });
 }
 
-export function directoryPlaces({ lat, lng, name }) {
+export function directoryPlaces({ lat, lng, name, hazard }) {
   const label = name || 'Local';
   const origin = { lat, lng };
-  const named = [
-    { name: `${label} Hospital`, type: 'Hospital', dlat: 0.012, dlng: 0.008 },
-    { name: `${label} Clinic`, type: 'Clinic', dlat: -0.008, dlng: 0.01 },
-    { name: `${label} Police`, type: 'Police', dlat: 0.004, dlng: -0.006 },
-    { name: `${label} Fire Station`, type: 'Fire', dlat: -0.006, dlng: -0.008 },
-  ];
+  const h = hazard || 'Stable';
+  const named = (h === 'Flood' || h === 'Cyclone')
+    ? [
+      { name: `Higher ground north of ${label}`, type: 'High ground', dlat: 0.04, dlng: 0.01 },
+      { name: `${label} assembly point (open)`, type: 'Assembly', dlat: 0.012, dlng: -0.01 },
+      { name: `Ridge / high path near ${label}`, type: 'High ground', dlat: -0.03, dlng: 0.02 },
+    ]
+    : h === 'Wildfire'
+      ? [
+        { name: `Open assembly ground, ${label}`, type: 'Open ground', dlat: 0.02, dlng: 0.01 },
+        { name: `Water / dam near ${label}`, type: 'Water', dlat: -0.015, dlng: 0.02 },
+      ]
+      : h === 'Drought' || h === 'Heat'
+        ? [
+          { name: `${label} water point / well`, type: 'Water', dlat: 0.01, dlng: -0.008 },
+          { name: `Shaded park / open ground, ${label}`, type: 'Open ground', dlat: -0.012, dlng: 0.01 },
+        ]
+        : [
+          { name: `Open assembly ground, ${label}`, type: 'Open ground', dlat: 0.012, dlng: 0.008 },
+          { name: `${label} water point`, type: 'Water', dlat: -0.008, dlng: 0.01 },
+          { name: `Higher ground near ${label}`, type: 'High ground', dlat: 0.03, dlng: -0.01 },
+        ];
   return named.map((p, i) => {
     const plat = lat + p.dlat;
     const plng = lng + p.dlng;
@@ -335,8 +388,8 @@ export function directoryPlaces({ lat, lng, name }) {
   }).sort((a, b) => a.km - b.km);
 }
 
-export async function loadSafetyPlaces({ lat, lng, name }) {
-  const key = `ek_osm_places_v3_${Number(lat).toFixed(3)}_${Number(lng).toFixed(3)}`;
+export async function loadSafetyPlaces({ lat, lng, name, hazard = 'Stable' }) {
+  const key = `ek_osm_places_v4_${hazard}_${Number(lat).toFixed(3)}_${Number(lng).toFixed(3)}`;
   try {
     const cached = sessionStorage.getItem(key);
     if (cached) {
@@ -347,9 +400,9 @@ export async function loadSafetyPlaces({ lat, lng, name }) {
     }
   } catch { /* ignore */ }
 
-  const directory = directoryPlaces({ lat, lng, name });
+  const directory = directoryPlaces({ lat, lng, name, hazard });
   try {
-    const osm = await fetchOsmSafetyPlaces(lat, lng);
+    const osm = await fetchOsmSafetyPlaces(lat, lng, 25000, hazard);
     if (osm.length) {
       sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), places: osm, fallback: false }));
       return { places: osm, cached: false, fallback: false };

@@ -1,4 +1,4 @@
-/** Open-Meteo geocoding — no API key. */
+/** Open-Meteo geocoding - no API key. */
 
 export function detectGps() {
   return new Promise((resolve, reject) => {
@@ -53,17 +53,61 @@ export function areaLabel(place) {
   return [...new Set(bits.map((p) => String(p || '').trim()).filter(Boolean))].join(', ');
 }
 
-export async function wikiPhoto(name) {
-  if (!name) return null;
+async function wikiSummaryImage(title) {
+  if (!title) return null;
   try {
     const data = await fetchTimeout(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`,
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
       2500
     );
+    if (data.type === 'disambiguation') return null;
     return data.originalimage?.source || data.thumbnail?.source || null;
   } catch {
     return null;
   }
+}
+
+export async function wikiPhoto(name) {
+  return wikiSummaryImage(name);
+}
+
+/** Photo of this town, not a same-name page elsewhere. Uses lat/lng first. */
+export async function wikiPhotoForPlace(place) {
+  const name = place?.name;
+  const lat = place?.lat;
+  const lng = place?.lng;
+  const country = place?.country || '';
+  if (lat != null && lng != null) {
+    try {
+      const gs = await fetchTimeout(
+        `https://en.wikipedia.org/w/api.php?origin=*&action=query&list=geosearch&gscoord=${lat}|${lng}&gsradius=12000&gslimit=10&format=json`,
+        3000
+      );
+      const hits = gs.query?.geosearch || [];
+      const n = String(name || '').toLowerCase();
+      const ranked = [...hits].sort((a, b) => {
+        const at = a.title.toLowerCase();
+        const bt = b.title.toLowerCase();
+        const as = n && (at.includes(n) || n.includes(at.split(',')[0])) ? 0 : 1;
+        const bs = n && (bt.includes(n) || n.includes(bt.split(',')[0])) ? 0 : 1;
+        return as - bs || (a.dist || 0) - (b.dist || 0);
+      });
+      for (const h of ranked.slice(0, 6)) {
+        const img = await wikiSummaryImage(h.title);
+        if (img) return img;
+      }
+    } catch { /* try title */ }
+  }
+  const titles = [
+    country ? `${name}, ${country}` : null,
+    place?.admin1 ? `${name}, ${place.admin1}` : null,
+    name,
+  ].filter(Boolean);
+  for (const t of titles) {
+    const img = await wikiSummaryImage(t);
+    if (img) return img;
+  }
+  return null;
 }
 
 export async function searchPlaces(query, count = 6) {
@@ -106,26 +150,26 @@ export function plainTalk(scored) {
     return {
       tag: 'Rain watch',
       line: 'Heavy rain is likely this week.',
-      meaning: `Latest 7-day Open-Meteo read: about ${rain} mm of rain, up to ${chance}% chance of a wet day. That means low ground and rivers can rise — keep grain up and stay off flooded paths.`,
+      meaning: `Latest 7-day Open-Meteo read: about ${rain} mm of rain, up to ${chance}% chance of a wet day. That means low ground and rivers can rise - keep grain up and stay off flooded paths.`,
     };
   }
   if (hazard === 'Drought') {
     return {
       tag: 'Dry spell',
       line: 'Little rain and a dry week ahead.',
-      meaning: `Latest 7-day Open-Meteo read: only about ${rain} mm of rain, hottest ${heat}°C. That means water and pasture can run short — share points and protect stock.`,
+      meaning: `Latest 7-day Open-Meteo read: only about ${rain} mm of rain, hottest ${heat}°C. That means water and pasture can run short - share points and protect stock.`,
     };
   }
   if (hazard === 'Heat') {
     return {
       tag: 'Heat',
       line: 'Very hot days are coming.',
-      meaning: `Latest 7-day Open-Meteo read: hottest ${heat}°C. That means shade, water, and rest at midday — check on children and elders.`,
+      meaning: `Latest 7-day Open-Meteo read: hottest ${heat}°C. That means shade, water, and rest at midday - check on children and elders.`,
     };
   }
   return {
     tag: 'Quiet',
     line: 'No strong weather warning this week.',
-    meaning: `Latest 7-day Open-Meteo read: about ${rain} mm of rain, hottest ${heat}°C, rain chance up to ${chance}%. That means a fairly normal week — still watch the sky.`,
+    meaning: `Latest 7-day Open-Meteo read: about ${rain} mm of rain, hottest ${heat}°C, rain chance up to ${chance}%. That means a fairly normal week - still watch the sky.`,
   };
 }

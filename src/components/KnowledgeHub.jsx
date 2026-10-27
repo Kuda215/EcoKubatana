@@ -1,65 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { aiAssistantAPI, faqsAPI, videosAPI, translationsAPI } from '../lib/api';
+import { aiAssistantAPI, faqsAPI, translationsAPI } from '../lib/api';
+import { CLIMATE_VIDEOS, recommendVideosForArea } from '../lib/climateVideos';
+import { useLocationPlace } from '../contexts/LocationContext';
+import { useClimateData } from '../lib/climateData';
 import './PageStyles.css';
 
-function getYouTubeEmbedId(url) {
-  const match = url?.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
-
-const videoContent = [
-  {
-    id: 1,
-    title: 'All this area used to be green - Zimbabwe voices from the climate frontline',
-    author: 'The Climate Frontline',
-    duration: '8:42',
-    posted: '2 years ago',
-    category: 'Drought',
-    url: 'https://www.youtube.com/watch?v=eMOviCHkqh8',
-    thumbnail: 'https://img.youtube.com/vi/eMOviCHkqh8/hqdefault.jpg',
-  },
-  {
-    id: 2,
-    title: 'Drought resilience in Buhera and Makoni, Zimbabwe',
-    author: 'Practical Action',
-    duration: '6:15',
-    posted: '3 years ago',
-    category: 'Drought',
-    url: 'https://www.youtube.com/watch?v=mHH4nWGoxdA',
-    thumbnail: 'https://img.youtube.com/vi/mHH4nWGoxdA/hqdefault.jpg',
-  },
-  {
-    id: 3,
-    title: 'Cyclone Idai: roads destroyed in Zimbabwe (MSF)',
-    author: 'MSF / Doctors Without Borders',
-    duration: '4:08',
-    posted: '5 years ago',
-    category: 'Cyclone',
-    url: 'https://www.youtube.com/watch?v=t_GjiwGw9kA',
-    thumbnail: 'https://img.youtube.com/vi/t_GjiwGw9kA/hqdefault.jpg',
-  },
-  {
-    id: 4,
-    title: 'Building climate resilience in Zimbabwe',
-    author: 'UNDP Zimbabwe',
-    duration: '5:21',
-    posted: '1 year ago',
-    category: 'Community',
-    url: 'https://www.youtube.com/watch?v=cISoqgq-BG4',
-    thumbnail: 'https://img.youtube.com/vi/cISoqgq-BG4/hqdefault.jpg',
-  },
-  {
-    id: 5,
-    title: 'Early Warnings for All - Zimbabwe climate action',
-    author: 'WMO',
-    duration: '3:47',
-    posted: '11 months ago',
-    category: 'Early warning',
-    url: 'https://www.youtube.com/watch?v=gglCXUzODyk',
-    thumbnail: 'https://img.youtube.com/vi/gglCXUzODyk/hqdefault.jpg',
-  },
-];
+const PAGE_SIZE = 12;
 
 const resources = [
   { icon: '📋', cat: 'GUIDES', title: 'Household pack for drought and flood', desc: 'IDs, 3 litres of water each, seed above flood line, torch. Civil Protection first.' },
@@ -80,14 +27,19 @@ export default function KnowledgeHub() {
   const [faqsLoading, setFaqsLoading] = useState(true);
   const [faqTranslations, setFaqTranslations] = useState({});
   const [translatingFaqs, setTranslatingFaqs] = useState(false);
-  const [videos, setVideos] = useState([]);
-  const [videosLoading, setVideosLoading] = useState(true);
-  const [selectedVideo, setSelectedVideo] = useState(null);
+  const { place } = useLocationPlace();
+  const { hotspots } = useClimateData();
   const chatEndRef = useRef(null);
+  const moreRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const categories = ['All', 'Drought', 'Cyclone', 'Community', 'Early warning'];
+  const categories = ['All', 'Drought', 'Flood', 'Cyclone', 'Heat', 'Wildfire', 'Community', 'Early warning'];
+  const recommended = useMemo(
+    () => recommendVideosForArea(place, hotspots, 6),
+    [place, hotspots]
+  );
 
   useEffect(() => {
     faqsAPI.list()
@@ -95,10 +47,6 @@ export default function KnowledgeHub() {
       .catch(err => console.error('Failed to load FAQs:', err))
       .finally(() => setFaqsLoading(false));
 
-    videosAPI.list()
-      .then(result => { if (result.success) setVideos(result.data); })
-      .catch(err => console.error('Failed to load videos:', err))
-      .finally(() => setVideosLoading(false));
   }, []);
 
   useEffect(() => {
@@ -154,21 +102,37 @@ export default function KnowledgeHub() {
     }
   };
 
-  // Optional: filter the static videos by search + category
-  const filteredVideos = videoContent.filter(video => {
+  const filteredVideos = CLIMATE_VIDEOS.filter((video) => {
     const matchesCategory = selectedCategory === 'All' || video.category === selectedCategory;
-    const matchesSearch = !searchQuery || 
-      video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      video.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !searchQuery
+      || video.title.toLowerCase().includes(q)
+      || video.category.toLowerCase().includes(q)
+      || String(video.country || '').toLowerCase().includes(q);
     return matchesCategory && matchesSearch;
   });
+  const shown = filteredVideos.slice(0, visibleCount);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    const el = moreRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) setVisibleCount((n) => Math.min(n + PAGE_SIZE, filteredVideos.length));
+    }, { rootMargin: '200px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [filteredVideos.length, activeTab]);
 
   return (
     <div className="page kh-page">
       <div className="page__header kh-head">
         <div>
           <h1 className="page__title">AI Knowledge Hub</h1>
-          <p className="page__sub">Watch, ask, and take home a step you can use this week — drought, Idai, pfumvudza, early warning.</p>
+          <p className="page__sub">Watch, ask, and take home a step you can use this week - drought, Idai, pfumvudza, early warning.</p>
         </div>
         <div className="kh-search">
           <input
@@ -218,8 +182,26 @@ export default function KnowledgeHub() {
       {/* Video Learning Tab */}
       {activeTab === 'learning' && (
         <div className="tab-content">
+          {recommended.length > 0 && (
+            <div className="kh-rec">
+              <h3 className="card__title">For {place?.name || 'your area'}</h3>
+              <p className="page__sub">Picked from historic drought/flood near you - African climate films only.</p>
+              <div className="yt-grid">
+                {recommended.map((video) => (
+                  <a key={`rec-${video.id}`} href={video.url} target="_blank" rel="noopener noreferrer" className="yt-card">
+                    <div className="yt-thumb">
+                      <img src={video.thumbnail} alt="" loading="lazy" />
+                      <span className="yt-play">▶</span>
+                      <span className={`yt-tag yt-tag--${video.category.toLowerCase().replace(/\s+/g, '-')}`}>{video.category}</span>
+                    </div>
+                    <h4 className="yt-title">{video.title}</h4>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="yt-grid">
-            {filteredVideos.map((video) => (
+            {shown.map((video) => (
               <a
                 key={video.id}
                 href={video.url}
@@ -228,7 +210,7 @@ export default function KnowledgeHub() {
                 className="yt-card"
               >
                 <div className="yt-thumb">
-                  <img src={video.thumbnail} alt="" />
+                  <img src={video.thumbnail} alt="" loading="lazy" />
                   <span className="yt-play">▶</span>
                   <span className="yt-time">{video.duration}</span>
                   <span className={`yt-tag yt-tag--${video.category.toLowerCase().replace(/\s+/g, '-')}`}>{video.category}</span>
@@ -238,11 +220,14 @@ export default function KnowledgeHub() {
                   <div>
                     <h4 className="yt-title">{video.title}</h4>
                     <p className="yt-author">{video.author}</p>
-                    <p className="yt-meta">{video.posted}</p>
+                    <p className="yt-meta">{video.posted} · {video.country}</p>
                   </div>
                 </div>
               </a>
             ))}
+          </div>
+          <div ref={moreRef} className="kh-more">
+            {shown.length < filteredVideos.length ? `Loading ${shown.length} of ${filteredVideos.length}…` : `${filteredVideos.length} African climate videos`}
           </div>
         </div>
       )}
@@ -253,7 +238,7 @@ export default function KnowledgeHub() {
           <div className="card" style={{ marginBottom: '24px' }}>
             <h3 className="card__title">🤖 AI Climate Assistant</h3>
             <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-              Ask questions about climate change, get local solutions, and learn adaptation strategies
+              Climate only - drought, flood, heat, storms, crops, water, and how to stay safe. Other topics are refused.
             </p>
             {chatMessages.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '360px', overflowY: 'auto', marginBottom: '16px', padding: '4px' }}>
@@ -273,7 +258,7 @@ export default function KnowledgeHub() {
             <div className="ai-chat-box">
               <textarea
                 className="form-textarea"
-                placeholder="Ask me anything about climate change, adaptation, or local solutions..."
+                placeholder="Ask a climate question - drought, flood, heat, crops, water…"
                 value={aiMessage}
                 onChange={(e) => setAiMessage(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && e.ctrlKey) handleAskAI(); }}
@@ -333,15 +318,15 @@ export default function KnowledgeHub() {
             <h3 className="card__title">📞 Emergency Contacts</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
               <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <strong style={{ color: '#0a3d2e' }}>🚨 Emergency Services</strong>
+                <strong style={{ color: '#072c30' }}>🚨 Emergency Services</strong>
                 <p style={{ margin: '8px 0 0', fontSize: '18px', fontWeight: '700', color: '#e63946' }}>999</p>
               </div>
               <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <strong style={{ color: '#0a3d2e' }}>🌧️ Weather Hotline</strong>
+                <strong style={{ color: '#072c30' }}>🌧️ Weather Hotline</strong>
                 <p style={{ margin: '8px 0 0', fontSize: '18px', fontWeight: '700', color: '#0077b6' }}>0800-WEATHER</p>
               </div>
               <div style={{ padding: '16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                <strong style={{ color: '#0a3d2e' }}>🏥 Health Emergency</strong>
+                <strong style={{ color: '#072c30' }}>🏥 Health Emergency</strong>
                 <p style={{ margin: '8px 0 0', fontSize: '18px', fontWeight: '700', color: '#ff8c00' }}>114</p>
               </div>
             </div>

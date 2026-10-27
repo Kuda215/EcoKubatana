@@ -8,7 +8,7 @@ import PlaceSearch from './PlaceSearch';
 import './Login.css';
 
 const ROLE_OPTIONS = [
-  { value: 'member',    label: 'Member',    icon: '👤', color: '#10b981' },
+  { value: 'member',    label: 'Member',    icon: '👤', color: '#1a5c63' },
   { value: 'volunteer', label: 'Volunteer', icon: '🤝', color: '#3b82f6' },
   { value: 'admin',     label: 'Admin',     icon: '⚙️', color: '#f43f5e' },
 ];
