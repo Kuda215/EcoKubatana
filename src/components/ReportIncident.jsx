@@ -7,6 +7,8 @@ import './PageStyles.css';
 
 const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
 
+const SEVERITY_LABEL = { low: 'Low', medium: 'Medium', high: 'High / Critical' };
+
 const NOT_CLIMATE_MSG = "You won't be able to report this incident";
 
 const ALERT_TYPE_FOR = { Flood: 'Flood Warning', Wildfire: 'Fire Emergency' };
@@ -98,6 +100,8 @@ export default function ReportIncident() {
           setImageError(NOT_CLIMATE_MSG);
         } else {
           setAiAnalysis(data);
+          // The photo decides type and severity; the dropdowns lock while it is attached
+          setForm(f => ({ ...f, type: data.likelyType, severity: data.suggestedSeverity }));
         }
       } else {
         setAiAnalysis(null);
@@ -114,9 +118,15 @@ export default function ReportIncident() {
     }
   };
 
-  const applyAiSuggestion = () => {
-    if (!aiAnalysis || aiAnalysis.climateRelated === false) return;
-    setForm(f => ({ ...f, type: aiAnalysis.likelyType, severity: aiAnalysis.suggestedSeverity }));
+  // Manual type/severity only when no photo is driving them
+  const photoLocked = !!aiAnalysis || imageUploading || analyzing;
+
+  const removePhoto = () => {
+    setImageUrl(null);
+    setAiAnalysis(null);
+    setAlertProposed(false);
+    setImageError(null);
+    setForm(f => ({ ...f, type: '', severity: 'medium' }));
   };
 
   const handleProposeAlert = async () => {
@@ -237,20 +247,38 @@ export default function ReportIncident() {
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Type of Incident *</label>
-                <select name="type" required className="form-input" value={form.type} onChange={handleChange}>
-                  <option value="">Select type…</option>
-                  {incidentTypes.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
+                {photoLocked ? (
+                  <div className="form-input form-input--static">{form.type || 'Reading the photo…'}</div>
+                ) : (
+                  <select name="type" required className="form-input" value={form.type} onChange={handleChange}>
+                    <option value="">Select type…</option>
+                    {incidentTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                )}
               </div>
               <div className="form-group">
                 <label className="form-label">Severity</label>
-                <select name="severity" className="form-input" value={form.severity} onChange={handleChange}>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High / Critical</option>
-                </select>
+                {photoLocked ? (
+                  <div className={`form-input form-input--static sev-field sev-field--${form.severity}`}>
+                    {aiAnalysis ? SEVERITY_LABEL[form.severity] : 'Reading the photo…'}
+                  </div>
+                ) : (
+                  <select name="severity" className={`form-input sev-field sev-field--${form.severity}`} value={form.severity} onChange={handleChange}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High / Critical</option>
+                  </select>
+                )}
               </div>
             </div>
+            {aiAnalysis && (
+              <p style={{ margin: '-8px 0 16px', fontSize: 13, color: 'var(--text-muted)' }}>
+                🤖 Type and severity were set from your photo.{' '}
+                <button type="button" className="btn btn--ghost" style={{ padding: '2px 8px', fontSize: 13 }} onClick={removePhoto}>
+                  Remove photo to choose yourself
+                </button>
+              </p>
+            )}
 
             <div className="form-group">
               <label className="form-label">Location / Area *</label>
@@ -325,9 +353,6 @@ export default function ReportIncident() {
                   <span key={m}>{m}</span>
                 ))}
               </div>
-              <button type="button" className="btn btn--secondary" onClick={applyAiSuggestion}>
-                Use this type & severity
-              </button>
               {alertProposed ? (
                 <p style={{ fontWeight: 700 }}>Alert proposed - pending review</p>
               ) : (
