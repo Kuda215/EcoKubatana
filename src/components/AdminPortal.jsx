@@ -523,6 +523,23 @@ export default function AdminPortal() {
               </div>
             ))}
           </div>
+          <div className="admin-org-card">
+            <h3>Organisation</h3>
+            <p>
+              You work from <strong>EcoKubatana</strong>
+              {user?.name ? ` (${user.name})` : ''}. We are a community climate risk network: neighbours report what they see, coordinators verify, and the street gets a place to act before harm grows.
+            </p>
+            <h4>Risk management partners</h4>
+            <ul>
+              <li>Civil Protection Unit (Zimbabwe) and equivalent disaster agencies in neighbouring countries</li>
+              <li>Meteorological Services Department (MSD) and African weather services</li>
+              <li>UNDRR and Early Warnings for All</li>
+              <li>African Risk Capacity (ARC)</li>
+              <li>IFRC and national Red Cross / Red Crescent societies</li>
+              <li>UNDP, UNEP, FAO climate adaptation desks</li>
+              <li>Local ward disaster committees and community radios</li>
+            </ul>
+          </div>
           <div className="admin-quick-actions">
             <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#072c30', marginBottom: '16px' }}>Quick Actions</h3>
             <div className="action-grid">

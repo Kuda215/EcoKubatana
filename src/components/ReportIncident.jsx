@@ -7,6 +7,8 @@ import './PageStyles.css';
 
 const incidentTypes = ['Flood', 'Drought', 'Heatwave', 'Strong Winds', 'Landslide', 'Wildfire', 'Pollution', 'Other'];
 
+const NOT_CLIMATE_MSG = "You won't be able to report this incident";
+
 const ALERT_TYPE_FOR = { Flood: 'Flood Warning', Wildfire: 'Fire Emergency' };
 const ALERT_LEVEL_FOR = { high: 'Critical', medium: 'Warning', low: 'Info' };
 const WOW_MOVES = {
@@ -92,17 +94,20 @@ export default function ReportIncident() {
         const data = analysisResult.data;
         if (data?.climateRelated === false) {
           setAiAnalysis(null);
-          setImageError('This is not related to Climate Change');
+          setImageUrl(null);
+          setImageError(NOT_CLIMATE_MSG);
         } else {
           setAiAnalysis(data);
         }
       } else {
         setAiAnalysis(null);
-        setImageError('This is not related to Climate Change');
+        setImageUrl(null);
+        setImageError(NOT_CLIMATE_MSG);
       }
     } catch {
       setAiAnalysis(null);
-      setImageError('This is not related to Climate Change');
+      setImageUrl(null);
+      setImageError(NOT_CLIMATE_MSG);
     } finally {
       setImageUploading(false);
       setAnalyzing(false);
@@ -139,6 +144,10 @@ export default function ReportIncident() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (imageError === NOT_CLIMATE_MSG || (aiAnalysis && aiAnalysis.climateRelated === false)) {
+      setError(NOT_CLIMATE_MSG);
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -270,8 +279,8 @@ export default function ReportIncident() {
               </div>
             </div>
 
-            <button type="submit" disabled={submitting} className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
-              {submitting ? 'Submitting...' : 'Submit Incident Report'}
+            <button type="submit" disabled={submitting || imageError === NOT_CLIMATE_MSG} className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
+              {imageError === NOT_CLIMATE_MSG ? NOT_CLIMATE_MSG : submitting ? 'Submitting...' : 'Submit Incident Report'}
             </button>
           </form>
         </div>

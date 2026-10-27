@@ -2779,6 +2779,17 @@
   gap: 32px;
 }
 
+.admin-org-card {
+  background: #fff;
+  border: 2px solid #1a5c63;
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+}
+.admin-org-card h3 { margin: 0 0 8px; font-size: 18px; color: #072c30; }
+.admin-org-card h4 { margin: 16px 0 8px; font-size: 14px; color: #072c30; }
+.admin-org-card p, .admin-org-card li { font-size: 14px; color: var(--text-secondary); line-height: 1.45; }
+.admin-org-card ul { margin: 0; padding-left: 18px; }
+
 .admin-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
