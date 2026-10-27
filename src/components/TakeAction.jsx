@@ -5,7 +5,7 @@ const actions = [
   { icon: '📋', title: 'Report an Incident',      desc: 'Quickly report a climate issue near you.',          link: '/report',    btn: 'Report Now',     color: '#0a3d2e' },
   { icon: '📚', title: 'AI Knowledge Hub',        desc: 'Build your climate resilience skills.',             link: '/knowledge', btn: 'Start Learning', color: '#0a3d2e' },
   { icon: '👥', title: 'Community Board',         desc: 'Connect and discuss with community members.',       link: '/community', btn: 'Join the Chat',  color: '#0a3d2e' },
-  { icon: '📍', title: 'Find Nearest Safety Hub', desc: 'Hospitals, police, fire and clinics across African hub cities.', link: '/safety-hub', btn: 'Open Map', color: '#0a3d2e' },
+  { icon: '📍', title: 'Find nearest safety spots', desc: 'Hospitals, police, fire and clinics sit on Home, beside the map.', link: '/', btn: 'Open Home', color: '#0a3d2e' },
   { icon: '❓', title: 'FAQ',                       desc: 'Answers to common questions about the platform.',   link: '#',          btn: 'View FAQ',       color: '#0a3d2e' },
   { icon: '📦', title: 'More Resources',          desc: 'Access guides, tools, content and supplies.',       link: '/resources', btn: 'Explore More',   color: '#0a3d2e' },
 ];

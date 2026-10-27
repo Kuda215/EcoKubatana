@@ -123,7 +123,7 @@ export default function Wellbeing() {
   }
 
   return (
-    <div className="page">
+    <div className="wellbeing-embed">
 
       <div className="wellbeing-grid">
         <div className="card wellbeing-card">

@@ -60,13 +60,8 @@ export default function CommunitySolutions() {
   const goHub = () => {
     setHandsFree(false);
     stopSpeak();
-    navigate('/safety-hub', {
-      state: {
-        hubId: localHub?.id,
-        origin: { lat: localHub?.lat, lng: localHub?.lng, name: `${localHub?.name}, ${localHub?.country}` },
-        speakNearest: true,
-        fromGuide: true,
-      },
+    navigate('/', {
+      state: { openSafety: true, hubId: localHub?.id },
     });
   };
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { addBasemap } from '../lib/mapTiles';
 import { useAuth } from '../contexts/AuthContext';
 import { useAccess } from '../contexts/AccessContext';
 import { AFRICA_HUBS } from '../lib/africaHubs';
@@ -106,10 +107,7 @@ export default function SafetyHub() {
   useEffect(() => {
     if (flags.smsOnly || !elRef.current || mapRef.current) return;
     const map = L.map(elRef.current, { zoomControl: true, attributionControl: true }).setView([origin.lat, origin.lng], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap',
-    }).addTo(map);
+    addBasemap(map);
     mapRef.current = map;
     layerRef.current = L.layerGroup().addTo(map);
     setTimeout(() => map.invalidateSize(), 80);

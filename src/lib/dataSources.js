@@ -44,7 +44,7 @@ export const DATA_SOURCES = {
   osm: {
     id: 'osm',
     label: 'OpenStreetMap',
-    detail: 'Community map tiles (roads, places, local geography).',
+    detail: 'Free OpenStreetMap street tiles. No API key. Place names are OSM community data.',
     url: 'https://www.openstreetmap.org',
   },
   overpass: {

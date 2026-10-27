@@ -9,96 +9,60 @@ function getYouTubeEmbedId(url) {
 }
 
 const videoContent = [
-  { 
-    id: 1, 
-    title: 'What Causes Floods?', 
-    emoji: '🌊', 
-    duration: '8:24', 
-    category: 'Floods',
-    url: 'https://www.youtube.com/watch?v=yIUNr0H0I88',
-    thumbnail: 'https://img.youtube.com/vi/yIUNr0H0I88/maxresdefault.jpg'
+  {
+    id: 1,
+    title: 'All this area used to be green - Zimbabwe voices from the climate frontline',
+    emoji: '🌾',
+    duration: 'Watch',
+    category: 'Drought',
+    url: 'https://www.youtube.com/watch?v=eMOviCHkqh8',
+    thumbnail: 'https://img.youtube.com/vi/eMOviCHkqh8/hqdefault.jpg',
   },
-  { 
-    id: 2, 
-    title: 'Climate Change Explained', 
-    emoji: '🌍', 
-    duration: '10:15', 
-    category: 'Climate',
-    url: 'https://www.youtube.com/watch?v=F8vI5_gN90g',
-    thumbnail: 'https://img.youtube.com/vi/F8vI5_gN90g/maxresdefault.jpg'
+  {
+    id: 2,
+    title: 'Drought resilience in Buhera and Makoni, Zimbabwe',
+    emoji: '☀️',
+    duration: 'Watch',
+    category: 'Drought',
+    url: 'https://www.youtube.com/watch?v=mHH4nWGoxdA',
+    thumbnail: 'https://img.youtube.com/vi/mHH4nWGoxdA/hqdefault.jpg',
   },
-  { 
-    id: 3, 
-    title: 'Understanding Extreme Weather', 
-    emoji: '⛈️', 
-    duration: '12:45', 
-    category: 'Weather',
-    url: 'https://www.youtube.com/watch?v=eeISzbk9SeE',
-    thumbnail: 'https://img.youtube.com/vi/eeISzbk9SeE/maxresdefault.jpg'
+  {
+    id: 3,
+    title: 'Cyclone Idai: roads destroyed in Zimbabwe (MSF)',
+    emoji: '🌀',
+    duration: 'Watch',
+    category: 'Cyclone',
+    url: 'https://www.youtube.com/watch?v=t_GjiwGw9kA',
+    thumbnail: 'https://img.youtube.com/vi/t_GjiwGw9kA/hqdefault.jpg',
   },
-  { 
-    id: 4, 
-    title: 'Water Conservation at Home', 
-    emoji: '💧', 
-    duration: '9:30', 
-    category: 'Water',
-    url: 'https://www.youtube.com/watch?v=eVdTkQ8_bk4',
-    thumbnail: 'https://img.youtube.com/vi/eVdTkQ8_bk4/maxresdefault.jpg'
-  },
-  { 
-    id: 5, 
-    title: 'Disaster Preparedness Guide', 
-    emoji: '🚨', 
-    duration: '14:20', 
-    category: 'Safety',
-    url: 'https://www.youtube.com/watch?v=VMF4tDaJJXo',
-    thumbnail: 'https://img.youtube.com/vi/VMF4tDaJJXo/maxresdefault.jpg'
-  },
-  { 
-    id: 6, 
-    title: 'Building Climate Resilience', 
-    emoji: '🏘️', 
-    duration: '11:05', 
+  {
+    id: 4,
+    title: 'Building climate resilience in Zimbabwe',
+    emoji: '🏘️',
+    duration: 'Watch',
     category: 'Community',
-    url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
-    thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
+    url: 'https://www.youtube.com/watch?v=cISoqgq-BG4',
+    thumbnail: 'https://img.youtube.com/vi/cISoqgq-BG4/hqdefault.jpg',
   },
-  { 
-    id: 7, 
-    title: 'Disaster Preparedness Guide', 
-    emoji: '🚨', 
-    duration: '14:20', 
-    category: 'Safety',
-    url: 'https://www.youtube.com/watch?v=VMF4tDaJJXo',
-    thumbnail: 'https://img.youtube.com/vi/VMF4tDaJJXo/maxresdefault.jpg'
+  {
+    id: 5,
+    title: 'Early Warnings for All - Zimbabwe climate action',
+    emoji: '📡',
+    duration: 'Watch',
+    category: 'Early warning',
+    url: 'https://www.youtube.com/watch?v=gglCXUzODyk',
+    thumbnail: 'https://img.youtube.com/vi/gglCXUzODyk/hqdefault.jpg',
   },
-  { 
-    id: 8, 
-    title: 'Building Climate Resilience', 
-    emoji: '🏘️', 
-    duration: '11:05', 
-    category: 'Community',
-    url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
-    thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
-  },
-  { 
-    id: 9, 
-    title: 'Building Climate Resilience', 
-    emoji: '🏘️', 
-    duration: '11:05', 
-    category: 'Community',
-    url: 'https://www.youtube.com/watch?v=Q7iF_o16tcE',
-    thumbnail: 'https://img.youtube.com/vi/Q7iF_o16tcE/maxresdefault.jpg'
-  }
 ];
 
 const resources = [
-  { icon: '📋', cat: 'GUIDES', title: 'Household Preparedness Checklist', desc: 'Essential items and steps for climate emergencies' },
-  { icon: '🌧️', cat: 'WATER', title: 'Rainwater Harvesting Guide', desc: 'Build your own water collection system' },
-  { icon: '🌱', cat: 'AGRICULTURE', title: 'Climate-Smart Farming', desc: 'Techniques for sustainable food production' },
-  { icon: '⚡', cat: 'ENERGY', title: 'Renewable Energy Options', desc: 'Solar, wind, and biogas for your community' },
-  { icon: '🌳', cat: 'ENVIRONMENT', title: 'Tree Planting Guide', desc: 'Best practices for reforestation' },
-  { icon: '📞', cat: 'EMERGENCY', title: 'Emergency Contacts', desc: 'Important numbers for climate emergencies' },
+  { icon: '📋', cat: 'GUIDES', title: 'Household pack for drought and flood', desc: 'IDs, 3 litres of water each, seed above flood line, torch. Civil Protection first.' },
+  { icon: '🌧️', cat: 'WATER', title: 'Rainwater and greywater (Harare to rural wards)', desc: 'Roof catch, first-flush, boil after heavy rain. Useful when municipal supply is erratic.' },
+  { icon: '🌱', cat: 'AGRICULTURE', title: 'Pfumvudza / small grains', desc: 'Mulch basins, sorghum and millet when the maize season fails. Destock early in drought.' },
+  { icon: '🌀', cat: 'CYCLONE', title: 'Eastern Highlands after Idai', desc: 'Chimanimani and Chipinge: higher ground, do not walk flood water, livestock inland.' },
+  { icon: '📞', cat: 'EMERGENCY', title: 'Zimbabwe numbers', desc: 'Police 995. Medical 994. Fire 993. Or 112. Then mark safe in EcoKubatana.' },
+  { icon: '📡', cat: 'MSD', title: 'Listen to Meteorological Services', desc: 'Treat MSD / Civil Protection as official. EcoKubatana carries the same alert into the street.' },
 ];
 
 export default function KnowledgeHub() {
@@ -118,7 +82,7 @@ export default function KnowledgeHub() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = ['All', 'Floods', 'Climate', 'Weather', 'Water', 'Safety', 'Community'];
+  const categories = ['All', 'Drought', 'Cyclone', 'Community', 'Early warning'];
 
   useEffect(() => {
     faqsAPI.list()
@@ -199,7 +163,7 @@ export default function KnowledgeHub() {
       <div className="page__header" style={{ marginBottom: '20px' }}>
         <div>
           <h1 className="page__title">🤖 AI Knowledge Hub</h1>
-          <p className="page__sub">AI-powered learning, resources, and expert guidance</p>
+          <p className="page__sub">Zimbabwe-first climate learning: drought, Idai, pfumvudza, and MSD-style early warning. Videos stay in the hub - we do not play them on stage.</p>
         </div>
         
         {/* Search and Filters in Header */}
@@ -275,7 +239,7 @@ export default function KnowledgeHub() {
           <div className="card" style={{ marginBottom: '24px' }}>
             <h3 className="card__title">🎓 Educational Videos</h3>
             <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-              Watch and learn about climate adaptation, sustainable practices, and community action
+              Real Zimbabwe and Southern Africa clips. Open one after the demo if a judge asks. Do not autoplay.
             </p>
           </div>
 

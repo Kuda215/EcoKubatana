@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { alertsAPI } from '../lib/api';
 import { supabase } from '../lib/supabaseClient';
@@ -160,9 +159,9 @@ export default function Alerts() {
             <button type="button" className="btn btn--ghost" style={{ marginTop: 12 }} onClick={() => speakPlaybook(PLAYBOOK_STEPS, i18n.language)}>
               🔊 Read playbook aloud
             </button>
-            <Link to="/CommunitySolutions" className="btn btn--primary" style={{ marginTop: 12, marginLeft: 8, display: 'inline-block' }}>
-              Where to now? Follow by voice
-            </Link>
+            <p style={{ marginTop: 12, fontSize: 13, color: 'var(--neutral-600)' }}>
+              On a phone, a critical alert opens this Where to now? voice guide automatically.
+            </p>
           </div>
         )}
       </div>

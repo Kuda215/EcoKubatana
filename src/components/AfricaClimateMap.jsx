@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { riskColor } from '../lib/climateData';
+import { addBasemap } from '../lib/mapTiles';
 import { useFeatures } from '../contexts/FeatureContext';
 import { useAccess } from '../contexts/AccessContext';
 import SourceInfo from './SourceInfo';
@@ -14,7 +15,7 @@ function patternFor(hazard = '') {
   return { shape: 'circle', dash: null, letter: 'W' };
 }
 
-export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'historic', onSelect, selectedId, height = 360 }) {
+export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'historic', onSelect, selectedId, height = 360, focus }) {
   const { isEnabled } = useFeatures();
   const { flags } = useAccess();
   const mapRef = useRef(null);
@@ -23,13 +24,11 @@ export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'h
 
   useEffect(() => {
     if (flags.smsOnly || !elRef.current || mapRef.current) return;
-    const map = L.map(elRef.current, { zoomControl: true, attributionControl: true }).setView([2.2, 20], 3);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 12,
-      attribution: '&copy; OpenStreetMap',
-    }).addTo(map);
+    const map = L.map(elRef.current, { zoomControl: true, attributionControl: true }).setView([10, 15], 2);
+    addBasemap(map);
     mapRef.current = map;
     layerRef.current = L.layerGroup().addTo(map);
+    setTimeout(() => map.invalidateSize(), 120);
     return () => {
       map.remove();
       mapRef.current = null;
@@ -68,19 +67,23 @@ export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'h
       }
     });
 
-    if (mode === 'flags') {
-      events.filter((e) => e.lat != null && e.lng != null).forEach((e) => {
-        L.circleMarker([e.lat, e.lng], {
-          radius: 5,
-          color: '#111',
-          fillColor: flags.colorBlind ? '#000' : '#e63946',
-          fillOpacity: 0.9,
-          weight: 1,
-          dashArray: '2 2',
-        }).bindPopup(`<strong>${e.title}</strong><br/>${e.category}<br/>${e.source}`).addTo(layer);
-      });
-    }
+    events.filter((e) => e.lat != null && e.lng != null).forEach((e) => {
+      L.circleMarker([e.lat, e.lng], {
+        radius: 5,
+        color: '#111',
+        fillColor: flags.colorBlind ? '#000' : '#e63946',
+        fillOpacity: 0.85,
+        weight: 1,
+        dashArray: '2 2',
+      }).bindPopup(`<strong>${e.title}</strong><br/>${e.category}<br/>${e.source || ''}`).addTo(layer);
+    });
   }, [hotspots, events, mode, selectedId, onSelect, flags.colorBlind]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || focus?.lat == null || focus?.lng == null) return;
+    map.flyTo([focus.lat, focus.lng], 8, { duration: 0.8 });
+  }, [focus?.lat, focus?.lng]);
 
   if (flags.smsOnly) {
     const rows = [...hotspots].sort((a, b) => (b.historic_score || 0) - (a.historic_score || 0)).slice(0, 12);
@@ -103,7 +106,7 @@ export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'h
       <div ref={elRef} className="africa-map-canvas" style={{ height }} />
       {isEnabled('osm_community') && (
         <p className="africa-map-note">
-          OpenStreetMap basemap · markers sized by {mode} risk{flags.colorBlind ? ' · letters F flood, D drought, R fire, W watch' : ''}
+          OpenStreetMap (free, no key) · hubs plus live NASA / ReliefWeb pins{flags.colorBlind ? ' · letters F flood, D drought, R fire, W watch' : ''}
           <SourceInfo sources={['osm', 'openmeteo', 'eonet', 'reliefweb']} />
         </p>
       )}

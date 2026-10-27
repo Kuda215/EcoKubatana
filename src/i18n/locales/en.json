@@ -1,6 +1,8 @@
 {
   "sidebar": {
-    "dashboard": "Dashboard",
+    "dashboard": "Home",
+    "home": "Home",
+    "coming": "What's coming",
     "communitySolutions": "Where to now?",
     "safetyHub": "Safety Hub",
     "incidents": "Incidents",
@@ -18,8 +20,8 @@
     "population_risk": "Population at risk",
     "stokvel": "Stokvel / savings",
     "ussd": "*123# phone",
-    "tagline": "Stronger Communities",
-    "motto": "Ubuntu · Collaboration · Resilience"
+    "tagline": "Neighbours acting on climate",
+    "motto": "Share what you see. Act together before harm grows."
   },
   "topbar": {
     "voiceReport": "Voice Report",
@@ -30,6 +32,7 @@
     "communitySolutions": "Where to now?",
     "safetyHub": "Nearest Help & Safety Hub",
     "incidents": "Climate Incidents",
+    "coming": "What's coming",
     "alerts": "Weather & Climate Alerts",
     "community": "Community Board",
     "knowledge": "AI Knowledge Hub",

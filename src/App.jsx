@@ -7,28 +7,28 @@ import { FeatureProvider } from './contexts/FeatureContext'
 import { AccessProvider } from './contexts/AccessContext'
 import Sidebar        from './components/Sidebar'
 import Dashboard      from './components/Dashboard'
-import SafetyHub      from './components/SafetyHub'
 import Incidents      from './components/Incidents'
 import Alerts         from './components/Alerts'
  import CommunityBoard from './components/CommunityBoard'
 import ReportIncident from './components/ReportIncident'
-import TakeAction     from './components/TakeAction'
 import KnowledgeHub   from './components/KnowledgeHub'
-import Wellbeing      from './components/Wellbeing'
 import Settings       from './components/Settings'
 import Login          from './components/Login'
 import AdminPortal    from './components/AdminPortal'
 import VoiceReport    from './components/VoiceReport'
-import CommunitySolutions    from './components/CommunitySolutions'
 import ForecastLab    from './components/ForecastLab'
 import HistoricIntel  from './components/HistoricIntel'
 import HazardFlags    from './components/HazardFlags'
 import PopulationRisk from './components/PopulationRisk'
 import FeatureGate    from './components/FeatureGate'
 import UssdConsole    from './components/UssdConsole'
-import Stokvels       from './components/Stokvels'
-import DemoTour       from './components/DemoTour'
 import OfflineBanner  from './components/OfflineBanner'
+import AlertGuidePopup from './components/AlertGuidePopup'
+import LiveBlastPopup from './components/LiveBlastPopup'
+import PlaceSearch from './components/PlaceSearch'
+import ComingWatch from './components/ComingWatch'
+import { LocationProvider } from './contexts/LocationContext'
+import { getAvatarUrl } from './lib/avatar'
 
 import { helpRequestsAPI, alertsAPI, notificationsAPI } from './lib/api'
 import './App.css'
@@ -46,14 +46,11 @@ function timeAgo(date) {
 
 // Page title mapping - maps each route to its pageTitles.* translation key
 const pageTitleKeys = {
-  '/safety-hub': 'safetyHub',
-  '/CommunitySolutions': 'communitySolutions',
   '/incidents': 'incidents',
   '/alerts': 'alerts',
   '/community': 'community',
   '/knowledge': 'knowledge',
   '/take-action': 'takeAction',
-  '/wellbeing': 'wellbeing',
   '/report': 'report',
   '/settings': 'settings',
   '/admin': 'admin',
@@ -62,7 +59,7 @@ const pageTitleKeys = {
   '/hazard-flags': 'hazardFlags',
   '/population-risk': 'populationRisk',
   '/ussd': 'ussd',
-  '/stokvel': 'stokvel',
+  '/coming': 'coming',
 }
 
 function AppContent() {
@@ -76,7 +73,6 @@ function AppContent() {
   const [bellOpen, setBellOpen] = useState(false)
   const [recentAlerts, setRecentAlerts] = useState([])
   const [lastSeenAlertsAt, setLastSeenAlertsAt] = useState('1970-01-01T00:00:00Z')
-  const [demoOpen, setDemoOpen] = useState(false)
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -175,11 +171,9 @@ function AppContent() {
             <span>EcoKubatana</span>
           </div>
           <div className="topbar__title">{currentTitle}</div>
+          <PlaceSearch />
           <div className="topbar__right">
-            <button className="topbar__help-btn" onClick={() => setDemoOpen(true)} title="90-second judge path">
-              ⏱️ Demo
-            </button>
-            <button className="topbar__help-btn" style={{ background: '#0a3d2e' }} onClick={() => setVoiceReportOpen(true)}>
+            <button className="topbar__help-btn" style={{ background: 'var(--primary-dark)' }} onClick={() => setVoiceReportOpen(true)}>
               🎙️ {t('topbar.voiceReport')}
             </button>
             <button className="topbar__help-btn" onClick={openHelpModal}>
@@ -239,12 +233,18 @@ function AppContent() {
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 title={user?.name}
               >
-                {user?.name?.[0]?.toUpperCase() || 'U'}
+                {getAvatarUrl(user)
+                  ? <img src={getAvatarUrl(user)} alt="" />
+                  : (user?.name?.[0]?.toUpperCase() || 'U')}
               </button>
               {profileMenuOpen && (
                 <div className="profile-menu">
                   <div className="profile-menu-header">
-                    <div className="profile-menu-avatar">{user?.name?.[0]?.toUpperCase()}</div>
+                    <div className="profile-menu-avatar">
+                      {getAvatarUrl(user)
+                        ? <img src={getAvatarUrl(user)} alt="" />
+                        : (user?.name?.[0]?.toUpperCase())}
+                    </div>
                     <div className="profile-menu-info">
                       <div className="profile-menu-name">{user?.name}</div>
                       <div className="profile-menu-role">{user?.role}</div>
@@ -271,21 +271,22 @@ function AppContent() {
         <main className="app-content" id="main-content">
           <Routes>
             <Route path="/"           element={<Dashboard />} />
-            <Route path="/safety-hub" element={<SafetyHub />} />
+            <Route path="/safety-hub" element={<Navigate to="/" replace />} />
             <Route path="/incidents"  element={<Incidents />} />
+            <Route path="/coming"     element={<ComingWatch />} />
             <Route path="/alerts"     element={<Alerts />} />
             <Route path="/community"  element={<CommunityBoard />} /> 
             <Route path="/knowledge"  element={<KnowledgeHub />} />
-            <Route path="/CommunitySolutions" element={<CommunitySolutions />} />
-            <Route path="/wellbeing"  element={<Wellbeing />} />
+            <Route path="/CommunitySolutions" element={<Navigate to="/" replace />} />
+            <Route path="/wellbeing"  element={<Navigate to="/community" replace />} />
             <Route path="/report"     element={<ReportIncident />} />
             <Route path="/settings"   element={<Settings />} />
             <Route path="/forecast-lab" element={<FeatureGate featureKey="forecast_lab"><ForecastLab /></FeatureGate>} />
             <Route path="/historic-intel" element={<FeatureGate featureKey="historic_intel"><HistoricIntel /></FeatureGate>} />
             <Route path="/hazard-flags" element={<FeatureGate featureKey="hazard_flags"><HazardFlags /></FeatureGate>} />
             <Route path="/population-risk" element={<FeatureGate featureKey="population_risk"><PopulationRisk /></FeatureGate>} />
-            <Route path="/ussd"       element={<UssdConsole />} />
-            <Route path="/stokvel"    element={<Stokvels />} />
+            <Route path="/ussd"       element={<FeatureGate featureKey="ussd"><UssdConsole /></FeatureGate>} />
+            <Route path="/stokvel"    element={<Navigate to="/" replace />} />
             <Route path="/admin"      element={isAdmin ? <AdminPortal /> : <Navigate to="/" />} />
           </Routes>
         </main>
@@ -389,7 +390,8 @@ function AppContent() {
         )}
 
         <VoiceReport isOpen={voiceReportOpen} onClose={() => setVoiceReportOpen(false)} />
-        <DemoTour open={demoOpen} onClose={() => setDemoOpen(false)} />
+        <AlertGuidePopup alerts={recentAlerts} />
+        <LiveBlastPopup />
       </div>
     </>
   )
@@ -401,11 +403,13 @@ function App() {
       <AccessProvider>
         <AuthProvider>
           <FeatureProvider>
-            <BrowserRouter>
-              <div className="app-shell">
-                <AppContent />
-              </div>
-            </BrowserRouter>
+            <LocationProvider>
+              <BrowserRouter>
+                <div className="app-shell">
+                  <AppContent />
+                </div>
+              </BrowserRouter>
+            </LocationProvider>
           </FeatureProvider>
         </AuthProvider>
       </AccessProvider>

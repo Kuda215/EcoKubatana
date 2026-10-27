@@ -1,6 +1,7 @@
 {
   "sidebar": {
-    "dashboard": "Painel",
+    "dashboard": "Início",
+    "home": "Início",
     "communitySolutions": "Para onde agora?",
     "safetyHub": "Centro de segurança",
     "incidents": "Incidentes",

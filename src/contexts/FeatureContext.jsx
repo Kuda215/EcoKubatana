@@ -31,7 +31,11 @@ export function FeatureProvider({ children }) {
     if (!supabase) return;
     (async () => {
       const { data } = await supabase.from('feature_catalog').select('*').order('sort_order');
-      if (data?.length) setCatalog(data);
+      if (data?.length) {
+        const keys = new Set(data.map((row) => row.key));
+        const extra = FEATURE_CATALOG.filter((f) => !keys.has(f.key));
+        setCatalog([...data, ...extra].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)));
+      }
     })();
   }, []);
 
