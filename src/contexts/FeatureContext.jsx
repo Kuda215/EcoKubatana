@@ -65,16 +65,17 @@ export function FeatureProvider({ children }) {
     setOverrides((prev) => ({ ...prev, [key]: enabled }));
   };
 
-  const save = async () => {
+  // `next` lets a caller save overrides it has just changed, before state has re-rendered
+  const save = async (next = overrides) => {
     setSaving(true);
     setSaveMsg('');
     try {
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(overrides));
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(next));
       if (supabase && user?.id) {
         const rows = catalog.map((f) => ({
           user_id: user.id,
           feature_key: f.key,
-          enabled: enabledMap[f.key],
+          enabled: next[f.key] !== undefined ? next[f.key] : f.default_enabled,
           updated_at: new Date().toISOString(),
         }));
         const { error } = await supabase.from('user_features').upsert(rows);
@@ -88,10 +89,17 @@ export function FeatureProvider({ children }) {
     }
   };
 
+  // Toggle and save straight away (Settings autosaves)
+  const setAndSave = (key, enabled) => {
+    const next = { ...overrides, [key]: enabled };
+    setOverrides(next);
+    return save(next);
+  };
+
   const technicalNav = catalog.filter((f) => f.tab_path && isEnabled(f.key));
 
   return (
-    <FeatureContext.Provider value={{ catalog, enabledMap, isEnabled, setDraft, save, saving, saveMsg, technicalNav }}>
+    <FeatureContext.Provider value={{ catalog, enabledMap, isEnabled, setDraft, setAndSave, save, saving, saveMsg, technicalNav }}>
       {children}
     </FeatureContext.Provider>
   );

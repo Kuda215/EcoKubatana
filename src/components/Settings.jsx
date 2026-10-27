@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '../i18n';
 import { useAuth } from '../contexts/AuthContext';
@@ -11,14 +11,12 @@ import { sendLiveBlast } from '../lib/liveBlast';
 import LivelihoodPicker from './LivelihoodPicker';
 import TagInput from './TagInput';
 import PlaceSearch from './PlaceSearch';
-import { useLocationPlace } from '../contexts/LocationContext';
 import './PageStyles.css';
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
   const { user, updateUser } = useAuth();
-  const { area } = useLocationPlace();
-  const { catalog, isEnabled, setDraft, save, saving, saveMsg } = useFeatures();
+  const { catalog, isEnabled, setAndSave, saveMsg } = useFeatures();
   const [tab, setTab] = useState('personal');
   const [fontSize, setFontSize] = useState('medium');
   const [livelihood, setLivelihood] = useState(user?.livelihood || '');
@@ -26,7 +24,6 @@ export default function Settings() {
     (user?.emergency_priorities || []).map((p) => EMERGENCY_PRIORITIES.find((x) => x.value === p)?.label || p)
   );
   const [name, setName] = useState(user?.name || '');
-  const [location, setLocation] = useState(user?.location || '');
   const [avatar, setAvatar] = useState(getAvatarUrl(user));
   const [profileMsg, setProfileMsg] = useState('');
   const [blast, setBlast] = useState({ type: 'Flood', level: 'Emergency', location: 'All members', message: '' });
@@ -63,23 +60,23 @@ export default function Settings() {
     }
   };
 
-  const saveProfile = async () => {
-    const payload = {
-      name: name.trim(),
-      location: (area || location).trim(),
-      livelihood: (livelihood || '').trim(),
-      emergency_priorities: priorities,
-      onboarding_complete: true,
-    };
-    if (avatar) payload.avatar_url = avatar;
-    const result = await updateUser(payload);
-    setProfileMsg(result.success ? 'Profile saved.' : (result.error || 'Could not save.'));
-  };
-
-  const handleSaveAll = async () => {
-    await saveProfile();
-    await save();
-  };
+  // Autosave the typed fields shortly after the user stops typing.
+  // Photo, location, language, font and access already save the moment they change.
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) { firstRun.current = false; return; }
+    if (!name.trim()) return;
+    const timer = setTimeout(async () => {
+      const result = await updateUser({
+        name: name.trim(),
+        livelihood: (livelihood || '').trim(),
+        emergency_priorities: priorities,
+        onboarding_complete: true,
+      });
+      setProfileMsg(result.success ? '✓ Saved' : (result.error || 'Could not save.'));
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [name, livelihood, priorities]);
 
   const triggerCommunityAlert = async () => {
     if (!blast.message.trim()) {
@@ -240,7 +237,7 @@ export default function Settings() {
             <div className="setting-toggles">
               {catalog.map((f) => (
                 <label key={f.key} className="setting-toggle">
-                  <input type="checkbox" checked={isEnabled(f.key)} onChange={(e) => setDraft(f.key, e.target.checked)} />
+                  <input type="checkbox" checked={isEnabled(f.key)} onChange={(e) => { setProfileMsg(''); setAndSave(f.key, e.target.checked); }} />
                   <span>
                     <strong>{f.icon} {f.label}</strong>
                     {f.is_premium && <span className="premium-badge">Paid extra</span>}
@@ -268,12 +265,11 @@ export default function Settings() {
         </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24, alignItems: 'center', flexWrap: 'wrap' }}>
-        {(saveMsg || profileMsg) && <span style={{ fontSize: 13, color: '#072c30' }}>{saveMsg || profileMsg}</span>}
-        <button className="btn btn--primary" onClick={handleSaveAll} disabled={saving}>
-          {saving ? 'Saving…' : t('settings.save', { defaultValue: 'Save changes' })}
-        </button>
-      </div>
+      {(profileMsg || saveMsg) && (
+        <p style={{ textAlign: 'right', marginTop: 16, fontSize: 13, color: 'var(--text-secondary)' }}>
+          {profileMsg || saveMsg}
+        </p>
+      )}
     </div>
   );
 }
