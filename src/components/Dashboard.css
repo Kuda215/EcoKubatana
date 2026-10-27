@@ -904,17 +904,20 @@
   position: fixed;
   inset: 0;
   z-index: 80;
-  background: rgba(6, 20, 15, 0.55);
+  background: rgba(7, 44, 48, 0.55);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
+  padding: 16px;
 }
 .alert-guide-popup__sheet {
-  width: 100%;
-  max-width: 520px;
-  max-height: 92vh;
-  background: #f1f5f9;
-  border-radius: 20px 20px 0 0;
+  width: 390px;
+  max-width: 100%;
+  max-height: 780px;
+  height: min(780px, 92vh);
+  background: #f8fafb;
+  border-radius: 36px;
+  border: 10px solid #072c30;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -924,7 +927,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #dc2626;
+  background: #072c30;
   color: #fff;
 }
 .alert-guide-popup__bar button {
@@ -934,7 +937,16 @@
   font-size: 20px;
   cursor: pointer;
 }
-.alert-guide-popup__body { overflow: auto; padding: 8px; }
+.alert-guide-popup__body { overflow: auto; padding: 8px; flex: 1; }
+.alert-guide-popup__body .where-now { padding: 0; }
+.alert-guide-popup__body .where-now__phone {
+  width: 100%;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 4px;
+}
 
 .settings-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .settings-tabs button {

@@ -9,8 +9,7 @@ import './Login.css';
 
 const ROLE_OPTIONS = [
   { value: 'member',    label: 'Member',    icon: '👤', color: '#1a5c63' },
-  { value: 'volunteer', label: 'Volunteer', icon: '🤝', color: '#3b82f6' },
-  { value: 'admin',     label: 'Admin',     icon: '⚙️', color: '#f43f5e' },
+  { value: 'volunteer', label: 'Volunteer', icon: '🤝', color: '#1a5c63' },
 ];
 
 export default function Login() {
@@ -61,7 +60,7 @@ export default function Login() {
     setLoading(true);
     const result = await register(formData.email, formData.password, {
       name: formData.name,
-      role,
+      role: role === 'volunteer' ? 'volunteer' : 'member',
       location: home,
       phone: formData.phone,
       livelihood: livelihood.trim(),
@@ -194,9 +193,8 @@ export default function Login() {
                   <div className="role-card-icon">{roleOption.icon}</div>
                   <h3 className="role-card-title">{roleOption.label}</h3>
                   <p className="role-card-description">
-                    {roleOption.value === 'member' && 'Receive alerts, report incidents, and stay informed'}
-                    {roleOption.value === 'volunteer' && 'Help respond to incidents and support the community'}
-                    {roleOption.value === 'admin' && 'Manage the platform and coordinate emergency responses'}
+                    {roleOption.value === 'member' && 'Report incidents, learn, and stay informed'}
+                    {roleOption.value === 'volunteer' && 'Help neighbours and support the community'}
                   </p>
                   <div className="role-card-arrow">→</div>
                 </button>

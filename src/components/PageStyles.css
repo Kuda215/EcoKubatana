@@ -3886,21 +3886,29 @@ input[type="checkbox"] {
 /* ─── Where to now (voice guide) ─────────────────────────── */
 .where-now {
   align-items: center;
+  justify-content: center;
+  padding: 12px 0;
 }
 
 .where-now__phone {
-  width: 100%;
-  max-width: 460px;
+  width: 390px;
+  max-width: 100%;
+  min-height: 680px;
   margin: 0 auto;
+  background: #fff;
+  border: 10px solid #072c30;
+  border-radius: 36px;
+  padding: 16px 12px 24px;
+  box-shadow: 0 12px 32px rgba(7, 44, 48, 0.25);
+  overflow: auto;
 }
 
 .where-now__alert {
-  background: #dc2626;
+  background: #1a5c63;
   color: #fff;
-  padding: 28px 24px;
-  border-radius: 24px;
+  padding: 24px 18px;
+  border-radius: 20px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(220, 38, 38, 0.25);
 }
 
 .where-now__siren { font-size: 42px; margin-bottom: 8px; }
@@ -3934,7 +3942,7 @@ input[type="checkbox"] {
   margin-top: 10px;
 }
 
-.where-now__primary { background: #15803d; color: #fff; }
+.where-now__primary { background: #072c30; color: #fff; }
 .where-now__ghost { background: #e5e7eb; color: #111827; }
 .where-now__ghost:disabled { opacity: 0.45; cursor: not-allowed; }
 .where-now__link {
@@ -3950,7 +3958,7 @@ input[type="checkbox"] {
 }
 
 .where-now__head {
-  background: #dc2626;
+  background: #072c30;
   color: #fff;
   padding: 18px;
   border-radius: 20px;
@@ -3973,7 +3981,7 @@ input[type="checkbox"] {
   font-weight: 700;
   cursor: pointer;
 }
-.where-now__modes button.is-on { background: #15803d; color: #fff; }
+.where-now__modes button.is-on { background: #072c30; color: #fff; }
 
 .where-now__card {
   background: #fff;
@@ -3990,7 +3998,7 @@ input[type="checkbox"] {
   border-radius: 999px;
   background: #d1d5db;
 }
-.where-now__dots span.is-on { background: #16a34a; }
+.where-now__dots span.is-on { background: #1a5c63; }
 .where-now__visual { text-align: center; font-size: 56px; margin: 16px 0; }
 .where-now__time {
   background: #fef3c7;
@@ -4019,7 +4027,7 @@ input[type="checkbox"] {
   font-weight: 800;
   cursor: pointer;
 }
-.where-now__mic.is-live button { background: #15803d; }
+.where-now__mic.is-live button { background: #072c30; }
 .where-now__hands { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 8px; }
 .where-now__err { color: #b45309; font-size: 13px; }
 .where-now__arrived { text-align: center; }

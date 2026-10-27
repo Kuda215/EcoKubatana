@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
           .from('profiles')
           .update({
             name: userData.name,
-            role: userData.role,
+            role: userData.role === 'volunteer' ? 'volunteer' : 'member',
             location: userData.location,
             phone: userData.phone,
             livelihood: userData.livelihood || null,

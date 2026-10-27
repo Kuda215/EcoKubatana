@@ -171,7 +171,7 @@ export default function CommunitySolutions() {
       <div className="where-now__phone">
         {screen === 'alert' && (
           <div className="where-now__alert">
-            <div className="where-now__siren" aria-hidden>🚨</div>
+            <div className="where-now__siren" aria-hidden>📍</div>
             <h1>Verified {hazard} alert</h1>
             <p>
               {localHub
@@ -202,7 +202,7 @@ export default function CommunitySolutions() {
         {screen === 'guide' && (
           <>
             <div className="where-now__head">
-              <h2>🚨 {hazard} · {livelihoodLabel}</h2>
+              <h2>{hazard} · {livelihoodLabel}</h2>
               <p>{priorities.length ? `Priorities: ${priorities.join(', ')}` : 'People first, then essentials.'}</p>
             </div>
 
