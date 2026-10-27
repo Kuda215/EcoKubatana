@@ -1,10 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { communityAPI } from '../lib/api';
+import OffersNeeds from './OffersNeeds';
 import Wellbeing from './Wellbeing';
 import './PageStyles.css';
 
 const CATEGORIES = ['Event', 'Solution', 'Campaign', 'Tip', 'Alert', 'Discussion'];
+// 'Alert' is not offered when posting: warnings must go through incident reports,
+// where a coordinator verifies them first. Older Alert posts still display.
+const COMPOSE_CATEGORIES = CATEGORIES.filter(c => c !== 'Alert');
+const REPORT_REASONS = ['False information', 'Abusive', 'Spam', 'Other'];
 const catColor = {
   Event: '#2d6a4f', Solution: '#457b9d', Campaign: '#e07b00',
   Tip: '#7b5ea7', Alert: '#dc2626', Discussion: '#0891b2'
@@ -13,12 +19,6 @@ const catIcon = {
   Event: '📅', Solution: '💡', Campaign: '📣',
   Tip: '🌿', Alert: '⚠️', Discussion: '💬'
 };
-
-const ACTIVE_EVENTS = [
-  { id: 1, title: 'Rainwater Training', date: 'Sat 16 Aug', spots: 12, registered: 8, color: '#2d6a4f' },
-  { id: 2, title: 'Drainage Clean-up',  date: 'Sun 17 Aug', spots: 30, registered: 21, color: '#e07b00' },
-  { id: 3, title: 'Tree Planting Day',  date: 'Sat 23 Aug', spots: 20, registered: 5, color: '#10b981' },
-];
 
 function timeAgo(dateString) {
   if (!dateString) return 'Just now';
@@ -31,7 +31,8 @@ function timeAgo(dateString) {
 }
 
 export default function CommunityBoard() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const [view, setView] = useState('board'); // 'board' | 'aid'
   const [posts, setPosts] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [stats, setStats] = useState({ totalMembers: 0, totalPosts: 0, activeMembers: 0 });
@@ -44,7 +45,8 @@ export default function CommunityBoard() {
   const [newComment, setNewComment] = useState({});
   const [showLeaderboard, setShowLeaderboard] = useState(true);
   const [toast, setToast] = useState(null);
-  const [events, setEvents] = useState(ACTIVE_EVENTS);
+  const [reports, setReports] = useState([]);
+  const [reportingId, setReportingId] = useState(null);
   const postRef = useRef(null);
 
   useEffect(() => {
@@ -55,11 +57,14 @@ export default function CommunityBoard() {
     try {
       setLoading(true);
       setError(null);
-      const [postsResult, leaderboardResult, statsResult] = await Promise.all([
+      const [postsResult, leaderboardResult, statsResult, reportsResult] = await Promise.all([
         communityAPI.getPosts(),
         communityAPI.getLeaderboard(),
         communityAPI.getStats(),
+        communityAPI.listReports(),
       ]);
+
+      if (reportsResult.success) setReports(reportsResult.data);
 
       console.log('Community data loaded:', { postsResult, leaderboardResult, statsResult });
 
@@ -169,16 +174,59 @@ export default function CommunityBoard() {
     }
   };
 
-  const handleRegisterEvent = (eventId) => {
-    setEvents(prev => prev.map(e =>
-      e.id === eventId ? { ...e, registered: Math.min(e.registered + 1, e.spots) } : e
-    ));
-    showToast('You\'re registered! 🙌');
+  const handleShare = async (post) => {
+    const url = `${window.location.origin}/community#post-${post.id}`;
+    const text = `${post.author?.name || 'A community member'} on EcoKubatana: ${post.content}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'EcoKubatana Community Board', text, url });
+        return;
+      }
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      showToast('Link copied! 🔗');
+    } catch (error) {
+      // AbortError = the user closed the share sheet; nothing to report
+      if (error?.name !== 'AbortError') showToast('Could not share this post', 'error');
+    }
   };
 
+  const handleReport = async (postId, reason) => {
+    setReportingId(null);
+    const result = await communityAPI.reportPost(postId, reason);
+    if (!result.success) {
+      showToast(result.error || 'Could not report this post', 'error');
+      return;
+    }
+    setReports(prev => [...prev, { post_id: postId, reporter_id: user?.id, reason }]);
+    showToast('Thanks. A coordinator will review this post.');
+  };
+
+  const handleSetHidden = async (postId, hidden) => {
+    const result = await communityAPI.setHidden(postId, hidden);
+    if (!result.success) {
+      showToast(result.error || 'Could not update this post', 'error');
+      return;
+    }
+    setPosts(prev => prev.map(p => (p.id === postId ? { ...p, hidden } : p)));
+    showToast(hidden ? 'Post hidden' : 'Post visible again');
+  };
+
+  const openEventPost = (postId) => {
+    setActiveFilter('All');
+    setExpandedComments(prev => ({ ...prev, [postId]: true }));
+    setTimeout(() => document.getElementById(`post-${postId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  };
+
+  // Hidden posts (reported 3+ times, or hidden by an admin) stay visible to admins only
+  const visiblePosts = isAdmin ? posts : posts.filter(p => !p.hidden);
+  const reportCount = (postId) => reports.filter(r => r.post_id === postId).length;
+  const reportedByMe = (postId) => reports.some(r => r.post_id === postId && r.reporter_id === user?.id);
+  const filterCategories = visiblePosts.some(p => p.category === 'Alert') ? CATEGORIES : COMPOSE_CATEGORIES;
+  const eventPosts = visiblePosts.filter(p => p.category === 'Event' && !p.hidden).slice(0, 4);
+
   const filteredPosts = activeFilter === 'All'
-    ? posts
-    : posts.filter(p => p.category === activeFilter);
+    ? visiblePosts
+    : visiblePosts.filter(p => p.category === activeFilter);
 
   const pinnedPosts = filteredPosts.filter(p => p.pinned);
   const regularPosts = filteredPosts.filter(p => !p.pinned);
@@ -229,13 +277,27 @@ export default function CommunityBoard() {
         </div>
       </div>
 
+      {/* Board / Offers & Needs switch */}
+      <div className="cb-view-tabs" role="tablist">
+        <button type="button" role="tab" aria-selected={view === 'board'}
+          className={`cb-view-tab ${view === 'board' ? 'cb-view-tab--active' : ''}`}
+          onClick={() => setView('board')}
+        >💬 Board</button>
+        <button type="button" role="tab" aria-selected={view === 'aid'}
+          className={`cb-view-tab ${view === 'aid' ? 'cb-view-tab--active' : ''}`}
+          onClick={() => setView('aid')}
+        >🤝 Offers &amp; Needs</button>
+      </div>
+
+      {view === 'aid' ? <OffersNeeds showToast={showToast} /> : (
+      <>
       {/* Category filter bar */}
       <div className="filter-tabs">
         <button
           className={`filter-tab ${activeFilter === 'All' ? 'filter-tab--active' : ''}`}
           onClick={() => setActiveFilter('All')}
-        >All ({posts.length})</button>
-        {CATEGORIES.map(cat => (
+        >All ({visiblePosts.length})</button>
+        {filterCategories.map(cat => (
           <button key={cat}
             className={`filter-tab ${activeFilter === cat ? 'filter-tab--active' : ''}`}
             style={activeFilter === cat ? { background: catColor[cat], borderColor: catColor[cat], color: 'white' } : {}}
@@ -263,7 +325,7 @@ export default function CommunityBoard() {
             </div>
             <div className="cb-compose-footer">
               <div className="cb-compose-tags">
-                {CATEGORIES.map(tag => (
+                {COMPOSE_CATEGORIES.map(tag => (
                   <button key={tag}
                     className={`cb-tag ${selectedTag === tag ? 'cb-tag--selected' : ''}`}
                     style={selectedTag === tag
@@ -283,6 +345,9 @@ export default function CommunityBoard() {
             {newPost.trim() && (
               <p className="cb-compose-hint">Press Ctrl+Enter to post quickly</p>
             )}
+            <p className="cb-compose-hint">
+              Seen danger, like a flood or fire? <Link to="/report">Report an incident</Link> instead. A coordinator checks it before anyone is warned.
+            </p>
           </div>
 
           {/* Posts Feed */}
@@ -290,8 +355,14 @@ export default function CommunityBoard() {
             <div className="cb-empty">No posts in this category yet. Be the first! 🌱</div>
           )}
           {sortedPosts.map(post => (
-            <div key={post.id} className={`cb-post-card ${post.pinned ? 'cb-post-card--pinned' : ''}`}>
+            <div key={post.id} id={`post-${post.id}`} className={`cb-post-card ${post.pinned ? 'cb-post-card--pinned' : ''} ${post.hidden ? 'cb-post-card--hidden' : ''}`}>
               {post.pinned && <div className="cb-pinned-badge">📌 Pinned</div>}
+              {isAdmin && (post.hidden || reportCount(post.id) > 0) && (
+                <div className="cb-moderation-note">
+                  {post.hidden ? '🙈 Hidden from members' : '👁 Visible'}
+                  {reportCount(post.id) > 0 && ` · 🚩 ${reportCount(post.id)} ${reportCount(post.id) === 1 ? 'report' : 'reports'}`}
+                </div>
+              )}
               {/* Post Header */}
               <div className="cb-post-header">
                 <div className="cb-avatar" style={{ background: catColor[post.category] || '#2d6a4f' }}>
@@ -302,7 +373,9 @@ export default function CommunityBoard() {
                     {post.author?.name || 'Community Member'}
                     {post.verified && <span className="cb-verified-badge">✓</span>}
                   </div>
-                  <div className="cb-post-location">📍 {user?.location || 'EcoKubatana'} · 🕐 {timeAgo(post.created_at)}</div>
+                  <div className="cb-post-location">
+                    {post.author?.location && <>📍 {post.author.location} · </>}🕐 {timeAgo(post.created_at)}
+                  </div>
                 </div>
                 <span className="cb-category-pill"
                   style={{ background: catColor[post.category] + '20', color: catColor[post.category], borderColor: catColor[post.category] + '40' }}
@@ -323,10 +396,34 @@ export default function CommunityBoard() {
                 <button className="cb-action-btn" onClick={() => setExpandedComments(prev => ({ ...prev, [post.id]: !prev[post.id] }))}>
                   💬 {post.comments_count} {post.comments_count === 1 ? 'Comment' : 'Comments'}
                 </button>
-                <button className="cb-action-btn" onClick={() => showToast('Link copied! 🔗')}>
+                <button className="cb-action-btn" onClick={() => handleShare(post)}>
                   🔗 Share
                 </button>
+                {post.author_id !== user?.id && (
+                  reportedByMe(post.id) ? (
+                    <span className="cb-action-btn cb-action-btn--muted">🚩 Reported</span>
+                  ) : (
+                    <button className="cb-action-btn" onClick={() => setReportingId(reportingId === post.id ? null : post.id)}>
+                      🚩 Report
+                    </button>
+                  )
+                )}
+                {isAdmin && (
+                  <button className="cb-action-btn" onClick={() => handleSetHidden(post.id, !post.hidden)}>
+                    {post.hidden ? '👁 Unhide' : '🙈 Hide'}
+                  </button>
+                )}
               </div>
+
+              {reportingId === post.id && (
+                <div className="cb-report-menu">
+                  <span>Why are you reporting this post?</span>
+                  {REPORT_REASONS.map(reason => (
+                    <button key={reason} type="button" className="chip" onClick={() => handleReport(post.id, reason)}>{reason}</button>
+                  ))}
+                  <button type="button" className="btn btn--ghost btn--small" onClick={() => setReportingId(null)}>Cancel</button>
+                </div>
+              )}
 
               {/* Comments */}
               {expandedComments[post.id] && (
@@ -368,34 +465,27 @@ export default function CommunityBoard() {
         <aside className="leaderboard-sidebar">
           {/* Upcoming Events */}
           <div className="cb-sidebar-card">
-            <h3 className="cb-sidebar-title">📅 Upcoming Events</h3>
+            <h3 className="cb-sidebar-title">📅 Community Events</h3>
             <div className="cb-events-list">
-              {events.map(ev => {
-                const pct = Math.round((ev.registered / ev.spots) * 100);
-                return (
-                  <div key={ev.id} className="cb-event-item">
-                    <div className="cb-event-dot" style={{ background: ev.color }} />
-                    <div className="cb-event-info">
-                      <div className="cb-event-name">{ev.title}</div>
-                      <div className="cb-event-date">{ev.date}</div>
-                      <div className="cb-event-progress-wrap">
-                        <div className="cb-event-progress-bar">
-                          <div className="cb-event-progress-fill" style={{ width: `${pct}%`, background: ev.color }} />
-                        </div>
-                        <span className="cb-event-spots">{ev.registered}/{ev.spots}</span>
-                      </div>
-                    </div>
-                    <button
-                      className="cb-event-btn"
-                      style={{ borderColor: ev.color, color: ev.color }}
-                      onClick={() => handleRegisterEvent(ev.id)}
-                      disabled={ev.registered >= ev.spots}
-                    >
-                      {ev.registered >= ev.spots ? 'Full' : 'Join'}
-                    </button>
+              {eventPosts.length === 0 && (
+                <p className="cb-event-date">No events yet. Post one with the 📅 Event tag, like a clean-up or a drill.</p>
+              )}
+              {eventPosts.map(ev => (
+                <div key={ev.id} className="cb-event-item">
+                  <div className="cb-event-dot" style={{ background: catColor.Event }} />
+                  <div className="cb-event-info">
+                    <div className="cb-event-name">{ev.content.length > 70 ? `${ev.content.slice(0, 70)}…` : ev.content}</div>
+                    <div className="cb-event-date">{ev.author?.name || 'Community member'} · {timeAgo(ev.created_at)}</div>
                   </div>
-                );
-              })}
+                  <button
+                    className="cb-event-btn"
+                    style={{ borderColor: catColor.Event, color: catColor.Event }}
+                    onClick={() => openEventPost(ev.id)}
+                  >
+                    View
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -431,6 +521,8 @@ export default function CommunityBoard() {
         </aside>
       </div>
       <Wellbeing />
+      </>
+      )}
     </div>
   );
 }
