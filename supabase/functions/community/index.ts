@@ -62,7 +62,8 @@ serve(async (req) => {
           author:profiles!author_id (
             id,
             name,
-            role
+            role,
+            location
           )
         `)
         .order('pinned', { ascending: false })
@@ -164,7 +165,8 @@ serve(async (req) => {
           author:profiles!author_id (
             id,
             name,
-            role
+            role,
+            location
           )
         `)
         .single();

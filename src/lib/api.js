@@ -262,6 +262,83 @@ export const communityAPI = {
       return { success: false, error: error.message, data: [] };
     }
   },
+
+  // Report a post (direct client + RLS). 3 reports from different members auto-hide it.
+  async reportPost(postId, reason = 'Other') {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Sign in to report a post.' };
+    const { error } = await supabase
+      .from('community_post_reports')
+      .insert({ post_id: postId, reporter_id: user.id, reason });
+    // 23505 = unique violation: this user already reported the post
+    if (error && error.code !== '23505') return { success: false, error: error.message };
+    return { success: true };
+  },
+
+  // Post ids the current user has reported; admins get every report (for counts)
+  async listReports() {
+    const { data, error } = await supabase
+      .from('community_post_reports')
+      .select('post_id, reporter_id, reason');
+    if (error) return { success: false, error: error.message, data: [] };
+    return { success: true, data };
+  },
+
+  // Admin: hide or unhide a post
+  async setHidden(postId, hidden) {
+    const { error } = await supabase
+      .from('community_posts')
+      .update({ hidden })
+      .eq('id', postId);
+    if (error) return { success: false, error: error.message };
+    return { success: true };
+  },
+};
+
+// ══════════════════════════════════════════
+// OFFERS & NEEDS (direct client + RLS, see database/18_community_board_upgrade.sql)
+// ══════════════════════════════════════════
+export const aidAPI = {
+  async list() {
+    const { data, error } = await supabase
+      .from('aid_posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (error) return { success: false, error: error.message, data: [] };
+    return { success: true, data };
+  },
+
+  async create({ kind, category, details, location, contact, authorName }) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: 'Sign in to post.' };
+    const { data, error } = await supabase
+      .from('aid_posts')
+      .insert({
+        author_id: user.id,
+        author_name: authorName || 'Community member',
+        kind,
+        category,
+        details,
+        location,
+        contact: contact || null,
+      })
+      .select()
+      .single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  },
+
+  async markSorted(id) {
+    const { data, error } = await supabase
+      .from('aid_posts')
+      .update({ status: 'sorted', sorted_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) return { success: false, error: error.message };
+    return { success: true, data };
+  },
 };
 
 // ══════════════════════════════════════════
