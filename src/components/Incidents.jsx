@@ -83,7 +83,7 @@ export default function Incidents() {
     <div className="page incidents-page">
       <div className="page__header incidents-head">
         <div>
-          <h1 className="page__title">Incidents</h1>
+          <h1 className="page__title">Climate incidents</h1>
           <p className="page__sub">
             Snapshot for <strong>{place?.name || 'your area'}</strong>
           </p>
