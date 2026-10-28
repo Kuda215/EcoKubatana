@@ -29,12 +29,34 @@
   --neutral-800: #1a202c;
   --neutral-900: #0d1117;
   
-  /* Gradients */
+  /* Gradients - one brand gradient; the old names alias it */
   --gradient-primary: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
-  --gradient-warm: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
-  --gradient-cool: linear-gradient(135deg, #072c30 0%, #0d4a50 100%);
-  --gradient-sunset: linear-gradient(135deg, #072c30 0%, #1a5c63 100%);
-  --gradient-sky: linear-gradient(180deg, #072c30 0%, #1a5c63 100%);
+  --gradient-warm: var(--gradient-primary);
+  --gradient-cool: var(--gradient-primary);
+  --gradient-sunset: var(--gradient-primary);
+  --gradient-sky: var(--gradient-primary);
+
+  /* Type scale */
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-base: 14px;
+  --fs-md: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+  --fs-3xl: 32px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Headings and brand-coloured text (flips in dark mode) */
+  --heading-color: #072c30;
+  --danger-soft: #fde8e8;
   
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -105,6 +127,10 @@
   --input-border:   #2d3650;
   --card-shadow:    0 4px 16px rgba(0, 0, 0, 0.4);
 
+  --heading-color:  #e6f2f3;
+  --primary-light:  #163a40;
+  --danger-soft:    #3a1d22;
+
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
   --shadow-md: 0 4px 6px rgba(0,0,0,0.35);
   --shadow-lg: 0 10px 15px rgba(0,0,0,0.4);
@@ -128,6 +154,7 @@ body {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

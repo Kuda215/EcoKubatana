@@ -91,7 +91,7 @@ export default function SafetySpotsPanel() {
       <div className="home-safety__nums">
         <span>Call if life is at risk:</span>
         <a href={`tel:${numbers.police}`}>Police {numbers.police}</a>
-        <a href={`tel:${numbers.medical}`}>Medical {numbers.medical}</a>
+        <a href={`tel:${numbers.medical}`}>Ambulance {numbers.medical}</a>
         <a href={`tel:${numbers.fire}`}>Fire {numbers.fire}</a>
       </div>
       <div className="home-safety__filters">

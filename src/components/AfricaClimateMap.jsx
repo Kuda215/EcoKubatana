@@ -117,7 +117,7 @@ export default function AfricaClimateMap({ hotspots = [], events = [], mode = 'h
       <div ref={elRef} className="africa-map-canvas" style={{ height }} />
       {isEnabled('osm_community') && (
         <p className="africa-map-note">
-          OpenStreetMap (free, no key) · hubs plus live NASA / ReliefWeb pins{flags.colorBlind ? ' · letters F flood, D drought, R fire, W watch' : ''}
+          Map: OpenStreetMap · red pins are recent events reported by NASA and ReliefWeb{flags.colorBlind ? ' · letters: F flood, D drought, R fire, W other' : ''}
           <SourceInfo sources={['osm', 'openmeteo', 'eonet', 'reliefweb']} />
         </p>
       )}

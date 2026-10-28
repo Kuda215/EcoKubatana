@@ -19,7 +19,7 @@ function timeAgo(dateString) {
   return `${Math.floor(diff / 86400000)}d ago`;
 }
 
-// "Ferndale, Johannesburg" -> "ferndale"; used to match posts in the same area
+// "Mbare, Harare" -> "mbare"; used to match posts in the same area
 function areaKey(location) {
   return String(location || '').split(',')[0].trim().toLowerCase();
 }
@@ -120,7 +120,7 @@ export default function OffersNeeds({ showToast }) {
     <div className="aid">
       <div className="card aid-intro">
         <div>
-          <h2 className="aid-intro__title">Offers &amp; Needs</h2>
+          <h2 className="aid-intro__title">Offers &amp; needs</h2>
           <p className="aid-intro__sub">
             Neighbours helping neighbours. Offer what you have, ask for what you need, and mark it sorted once it&apos;s handled.
           </p>
@@ -179,7 +179,7 @@ export default function OffersNeeds({ showToast }) {
             </div>
           </div>
           <div className="aid-form__actions">
-            <button type="button" className="btn btn--ghost" onClick={() => setFormKind(null)}>Cancel</button>
+            <button type="button" className="btn btn--secondary" onClick={() => setFormKind(null)}>Cancel</button>
             <button type="submit" className="btn btn--primary"
               disabled={submitting || !form.details.trim() || !form.location.trim()}>
               {submitting ? 'Posting…' : 'Post'}
@@ -212,18 +212,29 @@ export default function OffersNeeds({ showToast }) {
         </label>
       </div>
 
-      {loading && <div className="cb-empty">Loading offers and needs…</div>}
+      {loading && (
+        <div className="ui-state" role="status">
+          <div className="ui-spinner" aria-hidden="true" />
+          <p className="ui-state__text">Loading offers and needs…</p>
+        </div>
+      )}
       {!loading && error && (
-        <div className="cb-empty">
-          Could not load offers and needs. Has <code>18_community_board_upgrade.sql</code> been run?
-          <div style={{ marginTop: 12 }}><button className="btn btn--primary" onClick={load}>Try again</button></div>
+        <div className="ui-state ui-state--boxed ui-state--error" role="alert">
+          <div className="ui-state__icon" aria-hidden="true">⚠️</div>
+          <h3 className="ui-state__title">We couldn't load offers and needs</h3>
+          <p className="ui-state__text">Check your connection and try again.</p>
+          <button className="btn btn--secondary" onClick={load}>Try again</button>
         </div>
       )}
       {!loading && !error && visible.length === 0 && (
-        <div className="cb-empty">
-          {showSorted ? 'Nothing sorted yet.' : 'Nothing here yet. Be the first to offer or ask. 🌱'}
+        <div className="ui-state ui-state--boxed">
+          <div className="ui-state__icon" aria-hidden="true">🌱</div>
+          <h3 className="ui-state__title">{showSorted ? 'Nothing sorted yet' : 'Nothing here yet'}</h3>
+          <p className="ui-state__text">
+            {showSorted ? 'Posts marked as sorted will show here.' : 'Be the first to offer help or ask for it.'}
+          </p>
           {(kindFilter !== 'all' || categoryFilter !== 'All' || nearMe) && (
-            <div style={{ marginTop: 12 }}><button className="btn btn--ghost" onClick={clearFilters}>Clear filters</button></div>
+            <button className="btn btn--secondary" onClick={clearFilters}>Clear filters</button>
           )}
         </div>
       )}

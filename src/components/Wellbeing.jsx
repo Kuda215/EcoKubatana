@@ -123,64 +123,77 @@ export default function Wellbeing() {
   }
 
   return (
-    <div className="wellbeing-embed">
+    <section className="wellbeing-embed" aria-labelledby="wellbeing-heading">
+      <div className="page__header">
+        <div>
+          <h2 id="wellbeing-heading" className="card__title">Wellbeing</h2>
+          <p className="page__sub">Support for the stress that floods, droughts and heat can bring.</p>
+        </div>
+      </div>
 
       <div className="wellbeing-grid">
         <div className="card wellbeing-card">
           <div className="wellbeing-card__icon">🧠</div>
-          <h3>Mental Health Support</h3>
+          <h3>Mental health support</h3>
           <p>Connect with trained community wellbeing volunteers for anonymous, compassionate support during climate stress.</p>
-          <button className="btn btn--primary">Find Support</button>
+          <button className="btn btn--primary">Find support</button>
         </div>
         <div className="card wellbeing-card">
           <div className="wellbeing-card__icon">🤝</div>
-          <h3>Community Circle</h3>
+          <h3>Community circle</h3>
           <p>Join group discussions where community members share experiences, coping strategies, and hope with one another.</p>
-          <button className="btn btn--primary">Join a Circle</button>
+          <button className="btn btn--primary">Join a circle</button>
         </div>
         <div className="card wellbeing-card">
           <div className="wellbeing-card__icon">📞</div>
-          <h3>Crisis Line</h3>
+          <h3>Crisis line</h3>
           <p>24/7 confidential support line for anyone experiencing distress related to climate events or displacement.</p>
-          <button className="btn btn--calm">Call Now</button>
+          <button className="btn btn--calm">Call now</button>
         </div>
         <div className="card wellbeing-card">
           <div className="wellbeing-card__icon">📓</div>
-          <h3>Resilience Toolkit</h3>
+          <h3>Resilience toolkit</h3>
           <p>Practical guides on managing anxiety, stress, and uncertainty during and after climate-related events.</p>
-          <button className="btn btn--ghost">Download Toolkit</button>
+          <button className="btn btn--ghost">Download toolkit</button>
         </div>
       </div>
 
       {error && (
-        <div className="wellbeing-message wellbeing-message--error">{error}</div>
+        <div className="form-note form-note--error" role="alert">{error}</div>
       )}
 
       {reportSuccess && !error && (
-        <div className="wellbeing-message wellbeing-message--success">✓ {reportSuccess}</div>
+        <div className="form-note form-note--success" role="status">✓ {reportSuccess}</div>
       )}
 
       <div className="wellbeing-share-grid">
 
         <div className="card wellbeing-share-card">
-          <h3 className="card__title">💬 Share How You're Feeling</h3>
+          <h3 className="card__title">💬 Share how you're feeling</h3>
           <p className="wellbeing-share-description">You're not alone. Share anonymously with your community.</p>
           <textarea className="form-textarea" rows={3} maxLength={2000} placeholder="How has the recent climate situation affected you? Share your experience…" value={feeling} onChange={(e) => setFeeling(e.target.value)} disabled={sharing} />
           <div className="wellbeing-character-count">{feeling.length}/2000</div>
-          <button className="btn btn--primary wellbeing-share-button" onClick={handleShare} disabled={sharing || !feeling.trim()}>{sharing ? 'Sharing...' : 'Share Anonymously'}</button>
+          <button className="btn btn--primary wellbeing-share-button" onClick={handleShare} disabled={sharing || !feeling.trim()}>{sharing ? 'Sharing…' : 'Share anonymously'}</button>
         </div>
 
         <div className="card wellbeing-share-card">
-          <h3 className="card__title">🗨️ Recent Shares</h3>
+          <h3 className="card__title">🗨️ Recent shares</h3>
           <p className="wellbeing-share-description">Anonymous experiences from your community.</p>
 
           <div className="wellbeing-share-list">
             {loading && (
-              <p className="wellbeing-status">Loading…</p>
+              <div className="ui-state" role="status">
+                <div className="ui-spinner" aria-hidden="true" />
+                <p className="ui-state__text">Loading shares…</p>
+              </div>
             )}
 
             {!loading && shares.length === 0 && (
-              <p className="wellbeing-status">No shares yet. Be the first.</p>
+              <div className="ui-state ui-state--boxed">
+                <div className="ui-state__icon" aria-hidden="true">💬</div>
+                <h4 className="ui-state__title">No shares yet</h4>
+                <p className="ui-state__text">Be the first to share how you're feeling. It stays anonymous.</p>
+              </div>
             )}
 
             {!loading && shares.map((share) => (
@@ -205,6 +218,6 @@ export default function Wellbeing() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

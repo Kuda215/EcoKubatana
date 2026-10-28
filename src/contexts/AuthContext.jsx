@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }) => {
         gap: '16px'
       }}>
         <div style={{ fontSize: '48px' }}>🌿</div>
-        <div style={{ fontSize: '18px', fontWeight: '700', color: '#072c30' }}>Loading EcoKubatana...</div>
+        <div style={{ fontSize: '18px', fontWeight: '700', color: 'var(--heading-color)' }}>Loading EcoKubatana…</div>
       </div>
     );
   }
@@ -203,30 +203,32 @@ export const AuthProvider = ({ children }) => {
         padding: '40px',
         maxWidth: '700px',
         margin: '0 auto',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: 'var(--text-primary)'
       }}>
         <div style={{ fontSize: '64px' }}>⚙️</div>
-        <h1 style={{ fontSize: '32px', fontWeight: '900', color: '#072c30', margin: 0 }}>
-          Supabase Configuration Needed
+        <h1 style={{ fontSize: '32px', fontWeight: '900', color: 'var(--heading-color)', margin: 0 }}>
+          Supabase configuration needed
         </h1>
         <div style={{ 
-          background: 'linear-gradient(135deg, #fff8f0 0%, #fde8e8 100%)', 
-          border: '2px solid #f97316',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
           borderRadius: '12px',
           padding: '24px',
           textAlign: 'left',
           width: '100%'
         }}>
-          <h3 style={{ margin: '0 0 16px 0', color: '#ea580c' }}>Quick Setup:</h3>
-          <ol style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}>
+          <h3 style={{ margin: '0 0 16px 0', color: 'var(--heading-color)' }}>Quick setup</h3>
+          <ol style={{ margin: 0, paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
             <li><strong>Create .env file</strong> in project root</li>
-            <li><strong>Go to</strong> <a href="https://app.supabase.com" target="_blank" style={{ color: '#1a5c63' }}>Supabase Dashboard</a></li>
+            <li><strong>Go to</strong> <a href="https://app.supabase.com" target="_blank" rel="noreferrer" style={{ color: 'var(--primary-green)' }}>Supabase dashboard</a></li>
             <li><strong>Settings</strong> → <strong>API</strong></li>
             <li><strong>Copy</strong> Project URL and anon public key</li>
             <li><strong>Add to .env:</strong>
               <pre style={{ 
-                background: '#1f2937', 
-                color: '#1a5c63', 
+                background: 'var(--bg-muted)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
                 padding: '12px', 
                 borderRadius: '6px', 
                 fontSize: '12px',
@@ -240,8 +242,8 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here`}
             <li><strong>Restart</strong> dev server (Ctrl+C, then npm run dev)</li>
           </ol>
         </div>
-        <p style={{ color: '#6b7280', fontSize: '14px' }}>
-          Check the browser console for more details
+        <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+          Check the browser console for more details.
         </p>
       </div>
     );

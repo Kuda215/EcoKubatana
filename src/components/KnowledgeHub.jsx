@@ -34,7 +34,7 @@ const resources = [
   { icon: '🩺', cat: 'Health', title: 'Cholera and clean water after disasters', desc: 'Floods and drought both raise the risk of water-borne disease.',
     steps: ['Boil water for at least one minute, or use purification tablets', 'Wash hands with soap after the toilet and before eating', 'Mix oral rehydration: 1 litre clean water, 6 level teaspoons sugar, ½ teaspoon salt', 'Get anyone with severe watery diarrhoea to a clinic immediately'] },
   { icon: '🧠', cat: 'Health', title: 'Coping after a disaster', desc: 'Stress, grief and fear are normal. Talk about it.',
-    steps: ['Keep daily routines for children as much as possible', 'Talk to someone you trust - a neighbour, church or community leader', 'Check on people living alone', 'Use the Wellbeing section in EcoKubatana to ask for support'] },
+    steps: ['Keep daily routines for children as much as possible', 'Talk to someone you trust - a neighbour, church or community leader', 'Check on people living alone', 'Use the Wellbeing section on the Community page to ask for support'] },
   { icon: '🤝', cat: 'Community', title: 'Set up a street warning chain', desc: 'One person hears the alert, ten houses know in minutes.',
     steps: ['List every household on your street with a phone number', 'Each person agrees to call or visit the next three', 'Mark elders, disabled people and children who need help to move', 'Test the chain once a season'] },
   { icon: '📡', cat: 'Community', title: 'Trust official warnings', desc: 'MSD and Civil Protection are official. EcoKubatana carries the alert to the street.',
@@ -252,7 +252,7 @@ export default function KnowledgeHub() {
     <div className="page kh-page">
       <div className="page__header kh-head">
         <div>
-          <h1 className="page__title">Knowledge Hub</h1>
+          <h1 className="page__title">Knowledge hub</h1>
           <p className="page__sub">Watch, ask, and take home a step you can use this week - drought, Idai, pfumvudza, early warning.</p>
         </div>
       </div>
@@ -263,19 +263,19 @@ export default function KnowledgeHub() {
           className={`knowledge-tab ${activeTab === 'learning' ? 'knowledge-tab--active' : ''}`}
           onClick={() => setActiveTab('learning')}
         >
-          🎥 Video Learning
+          🎥 Video learning
         </button>
         <button 
           className={`knowledge-tab ${activeTab === 'ai' ? 'knowledge-tab--active' : ''}`}
           onClick={() => setActiveTab('ai')}
         >
-          🤖 AI Assistant & FAQs
+          🤖 AI assistant & FAQs
         </button>
         <button 
           className={`knowledge-tab ${activeTab === 'resources' ? 'knowledge-tab--active' : ''}`}
           onClick={() => setActiveTab('resources')}
         >
-          📦 Resources & Guides
+          📦 Resources & guides
         </button>
       </div>
 
@@ -316,9 +316,13 @@ export default function KnowledgeHub() {
           <section className="kh-section">
             {recommended.length > 0 && <h3 className="kh-section__title">More African climate videos</h3>}
             {filteredVideos.length === 0 ? (
-              <div className="kh-empty">
-                No videos match{searchQuery.trim() ? ` "${searchQuery.trim()}"` : ''}{selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}.
-                <button type="button" className="btn btn--ghost" onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}>
+              <div className="ui-state ui-state--boxed">
+                <div className="ui-state__icon" aria-hidden="true">🔍</div>
+                <h4 className="ui-state__title">No videos found</h4>
+                <p className="ui-state__text">
+                  No videos match{searchQuery.trim() ? ` "${searchQuery.trim()}"` : ''}{selectedCategory !== 'All' ? ` in ${selectedCategory}` : ''}.
+                </p>
+                <button type="button" className="btn btn--secondary" onClick={() => { setSearchQuery(''); setSelectedCategory('All'); }}>
                   Clear filters
                 </button>
               </div>
@@ -337,9 +341,9 @@ export default function KnowledgeHub() {
       {/* AI Assistant & FAQs Tab */}
       {activeTab === 'ai' && (
         <div className="tab-content">
-          <div className="card" style={{ marginBottom: '24px' }}>
-            <h3 className="card__title">🤖 AI Climate Assistant</h3>
-            <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
+          <div className="card" style={{ marginBottom: 'var(--space-5)' }}>
+            <h3 className="card__title">🤖 AI climate assistant</h3>
+            <p className="text-muted" style={{ marginBottom: 'var(--space-4)' }}>
               Climate only - drought, flood, heat, storms, crops, water, and how to stay safe. Other topics are refused.
             </p>
             {chatMessages.length > 0 && (
@@ -350,7 +354,7 @@ export default function KnowledgeHub() {
                   </div>
                 ))}
                 {sending && (
-                  <div style={{ alignSelf: 'flex-start', color: 'var(--neutral-500)', fontSize: '13px', padding: '0 14px' }}>
+                  <div className="text-muted" style={{ alignSelf: 'flex-start', fontSize: 'var(--fs-sm)', padding: '0 14px' }}>
                     Thinking…
                   </div>
                 )}
@@ -385,7 +389,7 @@ export default function KnowledgeHub() {
                 </span>
                 <button className="btn btn--primary kh-ask-btn"
                   onClick={handleAskAI} disabled={sending || !aiMessage.trim()}>
-                  {sending ? 'Thinking…' : 'Ask AI Assistant'}
+                  {sending ? 'Thinking…' : 'Ask the assistant'}
                 </button>
               </div>
               <audio ref={audioPlayerRef} style={{ display: 'none' }} />
@@ -393,9 +397,21 @@ export default function KnowledgeHub() {
           </div>
 
           <div className="card">
-            <h3 className="card__title">❓ Frequently Asked Questions</h3>
-            {faqsLoading && <p style={{ color: 'var(--neutral-500)' }}>Loading FAQs…</p>}
-            {translatingFaqs && <p style={{ color: 'var(--neutral-500)', fontSize: '13px' }}>Translating…</p>}
+            <h3 className="card__title">❓ Frequently asked questions</h3>
+            {faqsLoading && (
+              <div className="ui-state" role="status">
+                <div className="ui-spinner" aria-hidden="true" />
+                <p className="ui-state__text">Loading questions…</p>
+              </div>
+            )}
+            {translatingFaqs && <p className="text-muted" style={{ fontSize: 'var(--fs-sm)' }}>Translating…</p>}
+            {!faqsLoading && faqs.length === 0 && (
+              <div className="ui-state ui-state--boxed">
+                <div className="ui-state__icon" aria-hidden="true">❓</div>
+                <h4 className="ui-state__title">No questions yet</h4>
+                <p className="ui-state__text">Common questions will appear here. Until then, ask the assistant above.</p>
+              </div>
+            )}
             <div className="faq-list">
               {faqs.map((faq) => {
                 const translated = i18n.language !== 'en' ? faqTranslations[faq.id] : null;
@@ -455,8 +471,8 @@ export default function KnowledgeHub() {
             })}
           </div>
 
-          <div className="card" style={{ marginTop: '24px' }}>
-            <h3 className="card__title">📞 Zimbabwe Emergency Contacts</h3>
+          <div className="card" style={{ marginTop: 'var(--space-5)' }}>
+            <h3 className="card__title">📞 Zimbabwe emergency contacts</h3>
             <div className="kh-contacts">
               {[
                 ['🚓 Police', '995'],

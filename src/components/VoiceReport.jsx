@@ -117,12 +117,12 @@ export default function VoiceReport({ isOpen, onClose }) {
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>🎙️ Voice Report</h2>
-          <button className="modal-close" onClick={handleClose}>✕</button>
+          <h2>🎙️ Voice report</h2>
+          <button className="modal-close" onClick={handleClose} aria-label="Close">✕</button>
         </div>
         <div className="modal-body">
-          <p style={{ color: 'var(--neutral-500)', marginBottom: '16px' }}>
-            Climate only - describe a flood, drought, heat, storm, fire, landslide, or pollution. Other topics are refused.
+          <p className="text-muted" style={{ marginBottom: '16px' }}>
+            Describe a climate problem near you: a flood, drought, heat, storm, fire, landslide or pollution. Other topics are not covered.
           </p>
 
           {messages.length > 0 && (
@@ -133,8 +133,8 @@ export default function VoiceReport({ isOpen, onClose }) {
                   maxWidth: '85%',
                   padding: '10px 14px',
                   borderRadius: '12px',
-                  background: msg.role === 'user' ? '#072c30' : '#f1f5f4',
-                  color: msg.role === 'user' ? 'white' : '#072c30',
+                  background: msg.role === 'user' ? 'var(--primary-dark)' : 'var(--bg-muted)',
+                  color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
                   fontSize: '14px',
                   whiteSpace: 'pre-wrap',
                 }}>
@@ -145,7 +145,7 @@ export default function VoiceReport({ isOpen, onClose }) {
           )}
 
           {error && (
-            <div style={{ padding: '10px 14px', background: '#fee', border: '1px solid #e63946', borderRadius: '8px', color: '#e63946', fontSize: '13px', marginBottom: '16px' }}>
+            <div className="form-note form-note--error" style={{ marginBottom: '16px' }}>
               {error}
             </div>
           )}
@@ -154,13 +154,14 @@ export default function VoiceReport({ isOpen, onClose }) {
             <button
               onClick={recording ? stopRecording : startRecording}
               disabled={!!status}
+              aria-label={recording ? 'Stop recording' : 'Start recording'}
               style={{
                 width: '72px',
                 height: '72px',
                 borderRadius: '50%',
                 border: 'none',
                 cursor: status ? 'default' : 'pointer',
-                background: recording ? '#e63946' : '#072c30',
+                background: recording ? 'var(--danger)' : 'var(--primary-dark)',
                 color: 'white',
                 fontSize: '28px',
                 display: 'flex',
@@ -172,7 +173,7 @@ export default function VoiceReport({ isOpen, onClose }) {
             >
               {recording ? '⏹' : '🎙️'}
             </button>
-            <p style={{ fontSize: '13px', color: 'var(--neutral-500)', margin: 0 }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0 }}>
               {recording ? 'Recording… tap to stop' : statusLabel || 'Tap to record'}
             </p>
           </div>

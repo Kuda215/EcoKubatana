@@ -172,7 +172,7 @@ export default function CommunitySolutions() {
         {screen === 'alert' && (
           <div className="where-now__alert">
             <div className="where-now__siren" aria-hidden>📍</div>
-            <h1>Verified {hazard} alert</h1>
+            <h1>{hazard} alert</h1>
             <p>
               {localHub
                 ? `${hazard} risk around ${localHub.name}, ${localHub.country}. This guide is for a ${livelihoodLabel}.`

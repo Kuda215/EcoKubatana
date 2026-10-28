@@ -42,10 +42,10 @@ export default function Dashboard() {
   ).sort((a, b) => b[1] - a[1]).slice(0, 4);
 
   const stats = [
-    { label: 'Peer Incidents', value: String(totalInc || 0), sub: 'From the community feed', icon: '⚠️', trend: 'Live from reports' },
-    { label: 'Community Members', value: (memberCount || 0).toLocaleString(), sub: 'Across Africa hubs', icon: '👥', trend: 'Profiles in EcoKubatana' },
-    { label: 'Map flags', value: String(flagged), sub: 'Watch / alert hubs', icon: '🚩', trend: 'From live APIs' },
-    { label: 'Hazard hubs', value: String(hotspots.length), sub: 'Historic + forecast layers', icon: '🌍', trend: climateLoading ? 'Refreshing…' : 'Live APIs' },
+    { label: 'Community reports', value: String(totalInc || 0), sub: 'Incidents shared by people', icon: '⚠️', trend: 'Updated as reports come in' },
+    { label: 'Community members', value: (memberCount || 0).toLocaleString(), sub: 'Across Africa', icon: '👥', trend: 'People on EcoKubatana' },
+    { label: 'Places on alert', value: String(flagged), sub: 'Cities at alert or emergency level', icon: '🚩', trend: 'From live weather and disaster data' },
+    { label: 'Cities tracked', value: String(hotspots.length), sub: 'Past events and forecasts', icon: '🌍', trend: climateLoading ? 'Refreshing…' : 'Up to date' },
   ];
 
   const localHub = hubForUser(hotspots, place?.name || user?.location);
@@ -60,10 +60,16 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">Home</h1>
+          <p className="page__sub">Climate risk, safety spots and local reports for {place?.name || user?.location || 'your area'}.</p>
+        </div>
+      </div>
       {!user?.livelihood && (
         <div className="dashboard__highlight">
           <div className="highlight__badge">Finish setup</div>
-          <p>Tell us what you do (for example Farmer) and what to protect first in an emergency. It personalises advice.</p>
+          <p>Tell us what you do (for example, farmer) and what to protect first in an emergency, so we can tailor advice to you.</p>
           <Link to="/settings" className="card__link">Complete your profile →</Link>
         </div>
       )}
@@ -72,7 +78,7 @@ export default function Dashboard() {
         <div className="africa-map-panel home-split__map">
           <div className="map-mode-tabs" style={{ alignItems: 'center' }}>
             {[
-              ['historic', 'Historic'],
+              ['historic', 'Past events'],
               ['forecast', 'Forecast'],
               ['flags', 'Flags'],
             ].map(([id, label]) => (
@@ -86,12 +92,12 @@ export default function Dashboard() {
             mode={mapMode}
             selectedId={selected?.id}
             onSelect={setSelected}
-            height={560}
+            height="min(560px, 60vh)"
             focus={place}
           />
           {selected && (
             <div className="map-selected-card">
-              <button className="map-selected-close" onClick={() => setSelected(null)}>✕</button>
+              <button className="map-selected-close" onClick={() => setSelected(null)} aria-label="Close">✕</button>
               <span className="map-risk-pill" style={{ background: riskColor(mapMode === 'forecast' ? selected.forecast_score : selected.historic_score, selected.flag_status) }}>
                 {mapMode === 'forecast' ? selected.forecast_hazard : selected.historic_hazard} · {selected.flag_status}
               </span>
@@ -99,15 +105,15 @@ export default function Dashboard() {
               <p>{selected.summary}</p>
               {(job.includes('farm') || job.includes('livestock')) && <p><strong>For your work:</strong> {selected.farmer_action}</p>}
               <p><strong>Money at risk (city):</strong> {formatMoney(estimateLosses(selected, user?.livelihood).potential_loss_usd)}</p>
-              <p style={{ fontSize: 11, color: 'var(--neutral-500)' }}>Sources: {(selected.sources || []).join(' · ')} <SourceInfo sources={['openmeteo', 'eonet', 'reliefweb', 'worldbank', 'osm']} /></p>
+              <p className="text-muted" style={{ fontSize: 11 }}>Sources: {(selected.sources || []).join(' · ')} <SourceInfo sources={['openmeteo', 'eonet', 'reliefweb', 'worldbank', 'osm']} /></p>
             </div>
           )}
           <div className="map-legend-bar">
-            <span>Hubs + live events worldwide</span>
-            <span>🟢 Watch</span>
-            <span>🟡 Building</span>
+            <span>Cities and recent events</span>
+            <span>🟢 Low</span>
+            <span>🟡 Watch</span>
             <span>🟠 Alert</span>
-            <span>🔴 Event pin</span>
+            <span>🔴 Emergency or event</span>
             {syncedAt && <span>Updated {new Date(syncedAt).toLocaleTimeString()}</span>}
           </div>
         </div>
@@ -121,7 +127,7 @@ export default function Dashboard() {
         <div className="dashboard__highlight">
           <div className="highlight__badge">Potential loss near you <SourceInfo sources={['worldbank']} /></div>
           <p>
-            Around <strong>{localHub.name}</strong>, a scored {localMoney.hazard_for_money} event could put about <strong>{formatMoney(localMoney.potential_loss_usd)}</strong> of local economic value at risk.
+            Around <strong>{localHub.name}</strong>, a serious {localMoney.hazard_for_money} event could put about <strong>{formatMoney(localMoney.potential_loss_usd)}</strong> of local economic value at risk.
             For your household{user?.livelihood ? ` (${String(user.livelihood).replace(/_/g, ' ')})` : ''}, a planning range is <strong>{formatMoney(localMoney.household_loss_usd)}</strong> - crops, stock, travel, repairs. Not an insurance quote.
           </p>
         </div>
@@ -143,10 +149,14 @@ export default function Dashboard() {
 
       <div className="dashboard__mid">
         <div className="card">
-          <h3 className="card__title">Incidents by Type</h3>
+          <h3 className="card__title">Incidents by type</h3>
           <div className="chart-placeholder">
             {totalInc === 0 ? (
-              <p style={{ color: 'var(--neutral-500)' }}>No verified incidents yet - the map still uses historic + forecast APIs. <SourceInfo sources={['openmeteo', 'eonet']} /></p>
+              <div className="ui-state">
+                <div className="ui-state__icon">📭</div>
+                <p className="ui-state__title">No verified incidents yet</p>
+                <p className="ui-state__text">The map still shows past events and forecasts. <SourceInfo sources={['openmeteo', 'eonet']} /></p>
+              </div>
             ) : (
               <div className="donut-legend">
                 {typeEntries.map(([type, n]) => (
@@ -161,7 +171,7 @@ export default function Dashboard() {
         </div>
 
         <div className="card">
-          <h3 className="card__title">Africa hubs by historic score</h3>
+          <h3 className="card__title">Cities most affected in the past</h3>
           <div className="area-list">
             {[...hotspots].sort((a, b) => (b.historic_score || 0) - (a.historic_score || 0)).slice(0, 5).map((h) => (
               <div key={h.id} className="area-row">
@@ -174,9 +184,14 @@ export default function Dashboard() {
         </div>
 
         <div className="card">
-          <h3 className="card__title">Incidents by Area</h3>
+          <h3 className="card__title">Incidents by area</h3>
           <div className="area-list">
-            {areaCounts.length === 0 && <p style={{ color: 'var(--neutral-500)' }}>Waiting for community reports.</p>}
+            {areaCounts.length === 0 && (
+              <div className="ui-state">
+                <div className="ui-state__icon">📍</div>
+                <p className="ui-state__text">No community reports yet.</p>
+              </div>
+            )}
             {areaCounts.map(([area, count], i) => (
               <div key={area} className="area-row">
                 <span className="area-dot" style={{ background: ['#e63946', '#f4a261', '#2a9d8f', '#457b9d'][i] }} />
@@ -192,23 +207,26 @@ export default function Dashboard() {
         <div className="card card--wide">
           <div className="card__header">
             <h3 className="card__title">Why the map looks like this</h3>
-            <Link to="/historic-intel" className="card__link">Historic intel →</Link>
+            <Link to="/historic-intel" className="card__link">Past disasters →</Link>
           </div>
           <p style={{ color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-            We combine satellite-linked events (NASA EONET / Earthdata), predictive models (Open-Meteo + Copernicus GloFAS river flow), historic disaster records (ReliefWeb / EM-DAT-style), population context (World Bank / WorldPop-style urban estimates), and OpenStreetMap as the basemap - focused on Africa.
+            Each city's colour combines recent events seen from space, weather and river-flow forecasts, past disaster records and how many people live there.
+          </p>
+          <p className="text-muted" style={{ fontSize: 13, marginTop: 8 }}>
+            Sources: NASA, Open-Meteo, Copernicus, ReliefWeb, World Bank, OpenStreetMap.
             <SourceInfo sources={['eonet', 'openmeteo', 'glofas', 'reliefweb', 'emdat', 'worldbank', 'worldpop', 'osm']} />
           </p>
         </div>
 
         <div className="card">
           <div className="card__header">
-            <h3 className="card__title">Weather Outlook</h3>
+            <h3 className="card__title">Weather outlook</h3>
           </div>
           <div className="weather-current">
             <span className="weather-icon">{WX_ICON[weather?.wx?.current?.weather_code] || '⛅'}</span>
             <div>
               <div className="weather-temp">{weather?.wx?.current?.temperature_2m != null ? `${Math.round(weather.wx.current.temperature_2m)}°C` : '-'}</div>
-              <div className="weather-desc">{weather?.loc?.name || user?.location || 'Your area'} · Open-Meteo <SourceInfo sources={['openmeteo']} /></div>
+              <div className="weather-desc">{weather?.loc?.name || user?.location || 'Your area'} <SourceInfo sources={['openmeteo']} /></div>
             </div>
           </div>
           <div className="weather-forecast">
@@ -224,13 +242,13 @@ export default function Dashboard() {
 
         <div className="card">
           <div className="card__header">
-            <h3 className="card__title">Helpful Resources</h3>
+            <h3 className="card__title">Helpful resources</h3>
             <Link to="/report" className="card__link">Report an incident →</Link>
           </div>
           {[
-            { icon: '🚨', label: 'Emergency Contacts', desc: 'Police, fire, medical - then EcoKubatana' },
+            { icon: '🚨', label: 'Emergency contacts', desc: 'Police, fire and ambulance, then EcoKubatana' },
             { icon: '🌾', label: 'Role playbook', desc: user?.livelihood ? `Steps for a ${user.livelihood.replace('_', ' ')}` : 'Set your livelihood in settings' },
-            { icon: '📣', label: 'Report an Incident', desc: 'Tell us what is happening near you' },
+            { icon: '📣', label: 'Report an incident', desc: 'Tell us what is happening near you' },
           ].map((r) => (
             <div key={r.label} className="resource-row">
               <span className="resource-icon">{r.icon}</span>

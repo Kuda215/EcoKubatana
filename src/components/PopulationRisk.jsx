@@ -32,15 +32,25 @@ export default function PopulationRisk() {
 
   return (
     <div className="page">
-      <p className="page__sub">
-        Population at risk joins WorldPop-style city counts with World Bank country population and hazard scores. Bigger markers mean more people on a known hazard.
-        <SourceInfo sources={['worldpop', 'worldbank']} />
-      </p>
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">Population at risk</h1>
+          <p className="page__sub">
+            How many people live where floods, droughts or heat are likely. Bigger markers mean more people facing a known hazard.
+            <SourceInfo sources={['worldpop', 'worldbank']} />
+          </p>
+        </div>
+      </div>
       <AfricaClimateMap hotspots={hotspots} mode="historic" />
-      {loading && <p>Joining population and hazard layers...</p>}
+      {loading && (
+        <div className="ui-state" role="status">
+          <div className="ui-spinner" aria-hidden="true" />
+          <p className="ui-state__text">Loading population and hazard data…</p>
+        </div>
+      )}
       <div className="card">
         <h3 className="card__title">Totals <SourceInfo sources={['worldbank', 'worldpop']} /></h3>
-        <p>About <strong>{people.toLocaleString()}</strong> people-weighted exposure units, and about <strong>{formatMoney(money)}</strong> indicative economic loss if scored hazards hit at today's city sizes.</p>
+        <p>Roughly <strong>{people.toLocaleString()}</strong> people are exposed, counting each city&apos;s population by how high its hazard score is. If those hazards struck at today&apos;s city sizes, the possible economic loss is about <strong>{formatMoney(money)}</strong>.</p>
       </div>
       <DataGrid title="Population and money-at-risk grid" filename="ecokubatana-population-risk" sources={['worldpop', 'worldbank']} rows={rows} />
     </div>

@@ -78,8 +78,10 @@ export default function ComingWatch() {
   return (
     <div className="coming coming--two">
       <section className="coming__stage">
-        <p className="coming__kicker">What’s coming</p>
-        <h1>{place?.name || 'Choose a town'}</h1>
+        <header className="coming__intro">
+          <p className="coming__intro-sub">The week ahead for the places you follow.</p>
+        </header>
+        <h1 className="coming__place">{place?.name || 'Choose a town'}</h1>
         <p className="coming__admin">{place?.admin}</p>
         <div className="coming__photo">
           {photo ? (
@@ -87,7 +89,7 @@ export default function ComingWatch() {
           ) : (
             <div className="coming__photo-empty">{loading ? 'Updating…' : 'No photo yet'}</div>
           )}
-          {loading && <div className="coming__photo-load">Updating…</div>}
+          {loading && photo && <div className="coming__photo-load">Updating…</div>}
         </div>
         {talk && (
           <>
@@ -106,8 +108,8 @@ export default function ComingWatch() {
             )}
             <p className="coming__note">
               {updatedAt
-                ? `${updatedAt.toLocaleTimeString()} · Open-Meteo`
-                : 'Open-Meteo'}
+                ? `Updated ${updatedAt.toLocaleTimeString()} · Source: Open-Meteo`
+                : 'Source: Open-Meteo'}
             </p>
           </>
         )}

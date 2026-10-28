@@ -8,10 +8,15 @@ export default function FeatureGate({ featureKey, children }) {
   const feature = catalog.find((f) => f.key === featureKey);
   return (
     <div className="page">
-      <div className="card" style={{ maxWidth: 560, margin: '40px auto', textAlign: 'center' }}>
-        <div style={{ fontSize: 40 }}>{feature?.icon || '🔒'}</div>
-        <h2>{feature?.label || 'Premium tab'}</h2>
-        <p style={{ color: 'var(--neutral-500)' }}>{feature?.description} Turn it on in Settings (paid extras). Default accounts stay on the community tools you already have.</p>
+      <div className="ui-state ui-state--boxed" style={{ maxWidth: 560, margin: 'var(--space-6) auto' }}>
+        <div className="ui-state__icon" aria-hidden="true">{feature?.icon || '🔒'}</div>
+        <h2 className="ui-state__title">{feature?.label || 'This feature'}</h2>
+        <p className="ui-state__text">
+          {feature?.description}{' '}
+          {feature?.is_premium
+            ? 'This is a paid extra, so it is switched off until you turn it on in Settings.'
+            : 'This feature is switched off for your account. You can turn it on in Settings.'}
+        </p>
         <Link to="/settings" className="btn btn--primary">Open feature settings</Link>
       </div>
     </div>
