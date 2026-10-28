@@ -121,6 +121,15 @@ function AppContent() {
       <OfflineBanner />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
+      {/* Phones hide the top bar and sidebar; these keep the menu and emergency actions in reach */}
+      {!sidebarOpen && (
+        <div className="mobile-fab">
+          <button type="button" className="mobile-fab__btn mobile-fab__btn--help" onClick={openHelpModal} aria-label={t('topbar.requestHelp')}>🚨</button>
+          <button type="button" className="mobile-fab__btn" onClick={() => setVoiceReportOpen(true)} aria-label={t('topbar.voiceReport')}>🎙️</button>
+          <button type="button" className="mobile-fab__btn" onClick={() => setSidebarOpen(true)} aria-label="Open menu">☰</button>
+        </div>
+      )}
+
       <div className="app-main">
         {/* Top bar */}
         <header className="topbar">

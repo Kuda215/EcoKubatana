@@ -16,7 +16,7 @@ const navItems = [
 const adminNavItem = { path: '/admin', key: 'admin', icon: '🛡️' };
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { isAdmin } = useAuth();
+  const { isAdmin, logout } = useAuth();
   const { technicalNav } = useFeatures();
   const { t } = useTranslation();
 
@@ -84,6 +84,8 @@ export default function Sidebar({ isOpen, onClose }) {
         </nav>
 
         <div className="sidebar__footer">
+          {/* Phones have no top bar (and so no profile menu), so log out lives here */}
+          <button type="button" className="sidebar__logout" onClick={logout}>🚪 Log out</button>
           <p className="sidebar__motto">{t('sidebar.motto')}</p>
         </div>
       </aside>
