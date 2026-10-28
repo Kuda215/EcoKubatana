@@ -765,7 +765,7 @@
 .map-mode-tabs {
   display: flex;
   gap: 8px;
-  padding: 12px 12px 0;
+  padding: 12px;
 }
 .africa-map-shell { position: relative; }
 .africa-map-canvas {
