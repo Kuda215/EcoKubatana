@@ -14,7 +14,8 @@ const DEFAULTS = {
 
 function read() {
   try {
-    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    // SMS-only is hidden from Settings, so clear it for anyone who turned it on earlier
+    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}'), smsOnly: false };
   } catch {
     return { ...DEFAULTS };
   }

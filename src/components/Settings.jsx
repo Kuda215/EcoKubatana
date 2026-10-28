@@ -196,7 +196,6 @@ export default function Settings() {
                 ['dyslexiaFont', 'Dyslexia-friendly font'],
                 ['colorBlind', 'Colour-blind map (letters + patterns)'],
                 ['bigTargets', 'Bigger tap targets'],
-                ['smsOnly', 'SMS-only (hide maps, text lists)'],
               ].map(([key, label]) => (
                 <label key={key} className="setting-toggle">
                   <input type="checkbox" checked={!!flags[key]} onChange={(e) => setFlag(key, e.target.checked)} />
