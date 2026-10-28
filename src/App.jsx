@@ -131,7 +131,7 @@ function AppContent() {
             <span>🌿</span>
             <span>EcoKubatana</span>
           </div>
-          <div className="topbar__title">{currentTitle}</div>
+          <div className={`topbar__title ${location.pathname === '/' ? 'topbar__title--greeting' : ''}`}>{currentTitle}</div>
           <PlaceSearch />
           <div className="topbar__right">
             <button className="topbar__help-btn topbar__help-btn--voice" onClick={() => setVoiceReportOpen(true)} aria-label={t('topbar.voiceReport')}>

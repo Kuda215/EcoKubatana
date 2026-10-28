@@ -372,6 +372,26 @@
   .topbar__title { display: none; }
 }
 
+/* Only Home shows a topbar title; other pages already have their own
+   heading. The space is kept so nothing else in the bar moves. */
+.topbar__title:not(.topbar__title--greeting) { visibility: hidden; }
+
+/* Home greeting ("Welcome back, Ashleigh") is never cut off or hidden */
+.topbar__title--greeting {
+  flex: 0 0 auto;
+  max-width: 100%;
+  white-space: normal;
+  overflow: visible;
+}
+@media (max-width: 1024px) {
+  .topbar__title--greeting {
+    display: block;
+    order: 9;
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .topbar {
     padding: 8px 12px;
@@ -386,14 +406,40 @@
   }
 }
 
+/* Brand gives way to the action buttons instead of sliding under them */
+.topbar__brand {
+  min-width: 0;
+  overflow: hidden;
+}
+.topbar__brand span:last-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar__menu,
+.topbar__right { flex-shrink: 0; }
+
 @media (max-width: 640px) {
-  .topbar__brand { min-width: 0; }
   .topbar__btn-label { display: none; }
-  .topbar__help-btn {
-    width: 40px;
-    padding: 0;
-    font-size: 18px;
+  .topbar__brand { font-size: var(--fs-md); gap: 6px; }
+  .topbar__brand span:first-child { font-size: 20px; }
+  .topbar__right { gap: 6px; }
+  .topbar__help-btn,
+  .topbar__theme-toggle,
+  .topbar__avatar {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
   }
+  .topbar__help-btn {
+    padding: 0;
+    font-size: 17px;
+  }
+}
+
+/* Narrowest phones: keep the leaf logo, drop the wordmark */
+@media (max-width: 400px) {
+  .topbar__brand span:last-child { display: none; }
 }
 
 /* ── What's coming: page intro sits inside the main card ── */
