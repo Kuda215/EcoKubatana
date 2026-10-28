@@ -27,10 +27,14 @@ import LiveBlastPopup from './components/LiveBlastPopup'
 import PlaceSearch from './components/PlaceSearch'
 import ComingWatch from './components/ComingWatch'
 import { LocationProvider } from './contexts/LocationContext'
+import { numbersForIso } from './lib/safetyPlaces'
+import { hubForUser } from './lib/dataSources'
+import { AFRICA_HUBS } from './lib/africaHubs'
 import { getAvatarUrl } from './lib/avatar'
 
 import { helpRequestsAPI } from './lib/api'
 import './App.css'
+import './polish.css'
 
 // Page title mapping - maps each route to its pageTitles.* translation key
 const pageTitleKeys = {
@@ -109,6 +113,7 @@ function AppContent() {
   };
 
   const currentTitle = getPageTitle(location.pathname)
+  const localNumbers = numbersForIso(hubForUser(AFRICA_HUBS, user?.location)?.iso3 || 'ZWE')
 
   return (
     <>
@@ -129,16 +134,16 @@ function AppContent() {
           <div className="topbar__title">{currentTitle}</div>
           <PlaceSearch />
           <div className="topbar__right">
-            <button className="topbar__help-btn" style={{ background: 'var(--primary-dark)' }} onClick={() => setVoiceReportOpen(true)}>
-              🎙️ {t('topbar.voiceReport')}
+            <button className="topbar__help-btn topbar__help-btn--voice" onClick={() => setVoiceReportOpen(true)} aria-label={t('topbar.voiceReport')}>
+              🎙️ <span className="topbar__btn-label">{t('topbar.voiceReport')}</span>
             </button>
-            <button className="topbar__help-btn" onClick={openHelpModal}>
-              🚨 {t('topbar.requestHelp')}
+            <button className="topbar__help-btn" onClick={openHelpModal} aria-label={t('topbar.requestHelp')}>
+              🚨 <span className="topbar__btn-label">{t('topbar.requestHelp')}</span>
             </button>
             <button
               className="topbar__icon topbar__theme-toggle"
               onClick={toggleTheme}
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               aria-label="Toggle theme"
             >
               {isDark ? '☀️' : '🌙'}
@@ -148,6 +153,8 @@ function AppContent() {
                 className="topbar__avatar" 
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 title={user?.name}
+                aria-label="Account menu"
+                aria-expanded={profileMenuOpen}
               >
                 {getAvatarUrl(user)
                   ? <img src={getAvatarUrl(user)} alt="" />
@@ -172,11 +179,11 @@ function AppContent() {
                   </button>
                   {isAdmin && (
                     <button className="profile-menu-item" onClick={() => { setProfileMenuOpen(false); navigate('/admin'); }}>
-                      🔧 Admin Portal
+                      🛡️ Admin portal
                     </button>
                   )}
                   <button className="profile-menu-item profile-menu-item--logout" onClick={logout}>
-                    🚪 Logout
+                    🚪 Log out
                   </button>
                 </div>
               )}
@@ -212,56 +219,49 @@ function AppContent() {
           <div className="modal-overlay" onClick={() => setHelpModalOpen(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>🚨 Request Emergency Help</h2>
-                <button className="modal-close" onClick={() => setHelpModalOpen(false)}>✕</button>
+                <h2>🚨 Request emergency help</h2>
+                <button className="modal-close" onClick={() => setHelpModalOpen(false)} aria-label="Close">✕</button>
               </div>
               <div className="modal-body">
                 <p>Your location: <strong>{user?.location || 'Not set'}</strong></p>
                 <div className="emergency-contacts-modal">
-                  <a href="tel:10111" className="emergency-contact-item emergency-contact-item--police">
+                  <a href={`tel:${localNumbers.police}`} className="emergency-contact-item emergency-contact-item--police">
                     <span className="emergency-contact-icon">👮</span>
                     <div>
                       <div className="emergency-contact-label">Police</div>
-                      <div className="emergency-contact-number">10111</div>
+                      <div className="emergency-contact-number">{localNumbers.police}</div>
                     </div>
                   </a>
-                  <a href="tel:10177" className="emergency-contact-item emergency-contact-item--fire">
+                  <a href={`tel:${localNumbers.fire}`} className="emergency-contact-item emergency-contact-item--fire">
                     <span className="emergency-contact-icon">🚒</span>
                     <div>
                       <div className="emergency-contact-label">Fire</div>
-                      <div className="emergency-contact-number">10177</div>
+                      <div className="emergency-contact-number">{localNumbers.fire}</div>
                     </div>
                   </a>
-                  <a href="tel:999" className="emergency-contact-item emergency-contact-item--medical">
+                  <a href={`tel:${localNumbers.medical}`} className="emergency-contact-item emergency-contact-item--medical">
                     <span className="emergency-contact-icon">🏥</span>
                     <div>
-                      <div className="emergency-contact-label">Medical</div>
-                      <div className="emergency-contact-number">999</div>
-                    </div>
-                  </a>
-                  <a href="tel:0800-72835437" className="emergency-contact-item emergency-contact-item--weather">
-                    <span className="emergency-contact-icon">⛈️</span>
-                    <div>
-                      <div className="emergency-contact-label">Weather Emergency</div>
-                      <div className="emergency-contact-number">0800-WEATHER</div>
+                      <div className="emergency-contact-label">Ambulance</div>
+                      <div className="emergency-contact-number">{localNumbers.medical}</div>
                     </div>
                   </a>
                 </div>
 
-                <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}>
-                  <h3 style={{ margin: '0 0 8px', fontSize: '15px', color: '#072c30' }}>Or notify the EcoKubatana team</h3>
-                  <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#6b7280' }}>
+                <div className="section-divider">
+                  <h3 style={{ margin: '0 0 8px', fontSize: 15, color: 'var(--heading-color)' }}>Or notify the EcoKubatana team</h3>
+                  <p className="text-muted" style={{ margin: '0 0 12px', fontSize: 13 }}>
                     For non-life-threatening situations, submit a request and an admin or volunteer will follow up.
                   </p>
 
                   {helpSubmitResult?.success ? (
-                    <div style={{ padding: '12px', background: '#e6f2f3', border: '1px solid #1a5c63', borderRadius: '8px', color: '#072c30', fontSize: '14px' }}>
+                    <div className="form-note form-note--success">
                       ✓ Your request has been sent. Someone will respond shortly.
                     </div>
                   ) : (
                     <form onSubmit={handleSubmitHelpRequest}>
-                      <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-                        <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                      <div className="form-row" style={{ marginBottom: 12 }}>
+                        <div className="form-group">
                           <label className="form-label">Type</label>
                           <select className="form-input" value={helpForm.type} onChange={e => setHelpForm({ ...helpForm, type: e.target.value })}>
                             <option value="Medical">Medical</option>
@@ -270,7 +270,7 @@ function AppContent() {
                             <option value="Other">Other</option>
                           </select>
                         </div>
-                        <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                        <div className="form-group">
                           <label className="form-label">Priority</label>
                           <select className="form-input" value={helpForm.priority} onChange={e => setHelpForm({ ...helpForm, priority: e.target.value })}>
                             <option value="low">Low</option>
@@ -282,20 +282,20 @@ function AppContent() {
                       </div>
                       <div className="form-group">
                         <label className="form-label">Location *</label>
-                        <input type="text" className="form-input" placeholder="e.g., Ferndale, Johannesburg"
+                        <input type="text" className="form-input" placeholder="e.g., Avondale, Harare"
                           value={helpForm.location} onChange={e => setHelpForm({ ...helpForm, location: e.target.value })} />
                       </div>
                       <div className="form-group">
                         <label className="form-label">What's happening? *</label>
-                        <textarea className="form-textarea" rows="3" placeholder="Briefly describe the situation..."
+                        <textarea className="form-textarea" rows="3" placeholder="Briefly describe the situation…"
                           value={helpForm.description} onChange={e => setHelpForm({ ...helpForm, description: e.target.value })} />
                       </div>
                       {helpSubmitResult?.error && (
-                        <p style={{ color: '#dc2626', fontSize: '13px', marginBottom: '8px' }}>{helpSubmitResult.error}</p>
+                        <p className="form-note form-note--error" style={{ marginBottom: 8 }}>{helpSubmitResult.error}</p>
                       )}
                       <button type="submit" className="btn btn--primary" style={{ width: '100%' }}
                         disabled={helpSubmitting || !helpForm.location.trim() || !helpForm.description.trim()}>
-                        {helpSubmitting ? 'Sending…' : '🚨 Submit Help Request'}
+                        {helpSubmitting ? 'Sending…' : '🚨 Send help request'}
                       </button>
                     </form>
                   )}

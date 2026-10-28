@@ -90,7 +90,7 @@ export default function CommunityBoard() {
 
       // If all three failed, show error
       if (!postsResult.success && !leaderboardResult.success && !statsResult.success) {
-        setError(postsResult.error || 'Failed to load community data. Please check your Supabase Edge Functions are deployed.');
+        setError(postsResult.error || "We couldn't load the community feed. Check your connection and try again.");
       }
     } catch (error) {
       console.error('Error loading community data:', error);
@@ -247,9 +247,9 @@ export default function CommunityBoard() {
   if (loading) {
     return (
       <div className="page">
-        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌿</div>
-          <p style={{ color: '#6b7280', fontSize: '16px' }}>Loading community board...</p>
+        <div className="ui-state" role="status">
+          <div className="ui-spinner" aria-hidden="true" />
+          <p className="ui-state__text">Loading the community board…</p>
         </div>
       </div>
     );
@@ -258,14 +258,11 @@ export default function CommunityBoard() {
   if (error) {
     return (
       <div className="page">
-        <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-          <h3 style={{ color: '#e63946', marginBottom: '8px' }}>Error Loading Community Board</h3>
-          <p style={{ color: '#6b7280', marginBottom: '20px' }}>{error}</p>
-          <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>
-            Make sure your Supabase Edge Functions are deployed. Check the browser console for details.
-          </p>
-          <button className="btn btn--primary" onClick={loadData}>Try Again</button>
+        <div className="ui-state ui-state--boxed ui-state--error" role="alert">
+          <div className="ui-state__icon" aria-hidden="true">⚠️</div>
+          <h3 className="ui-state__title">We couldn't load the community board</h3>
+          <p className="ui-state__text">We couldn't load the community feed. Check your connection and try again.</p>
+          <button className="btn btn--secondary" onClick={loadData}>Try again</button>
         </div>
       </div>
     );
@@ -280,12 +277,14 @@ export default function CommunityBoard() {
 
       <div className="page__header">
         <div>
-          <h1 className="page__title">🌍 Community Board</h1>
+          <h1 className="page__title">Community board</h1>
           <p className="page__sub">Share, support, and wellbeing in one place</p>
         </div>
-        <div className="cb-live-badge">
-          <span className="cb-live-dot" />
-          LIVE
+        <div className="page__actions">
+          <div className="cb-live-badge">
+            <span className="cb-live-dot" />
+            Live
+          </div>
         </div>
       </div>
 
@@ -342,7 +341,7 @@ export default function CommunityBoard() {
                     className={`cb-tag ${selectedTag === tag ? 'cb-tag--selected' : ''}`}
                     style={selectedTag === tag
                       ? { background: catColor[tag], color: 'white', borderColor: catColor[tag] }
-                      : { borderColor: catColor[tag], color: catColor[tag] }
+                      : { borderColor: catColor[tag], color: 'var(--text-primary)' }
                     }
                     onClick={() => setSelectedTag(selectedTag === tag ? '' : tag)}
                   >{catIcon[tag]} {tag}</button>
@@ -364,7 +363,11 @@ export default function CommunityBoard() {
 
           {/* Posts Feed */}
           {sortedPosts.length === 0 && (
-            <div className="cb-empty">No posts in this category yet. Be the first! 🌱</div>
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">🌱</div>
+              <h3 className="ui-state__title">No posts here yet</h3>
+              <p className="ui-state__text">Nothing has been posted in this category. Be the first to share something.</p>
+            </div>
           )}
           {sortedPosts.map(post => (
             <div key={post.id} id={`post-${post.id}`} className={`cb-post-card ${post.pinned ? 'cb-post-card--pinned' : ''} ${post.hidden ? 'cb-post-card--hidden' : ''}`}>
@@ -377,7 +380,7 @@ export default function CommunityBoard() {
               )}
               {/* Post Header */}
               <div className="cb-post-header">
-                    <div className="cb-avatar" style={{ background: catColor[post.category] || '#1a5c63' }}>
+                    <div className="cb-avatar" style={{ background: catColor[post.category] || 'var(--primary-dark)' }}>
                   {(post.author?.name || 'U')[0].toUpperCase()}
                 </div>
                 <div className="cb-post-meta">
@@ -390,7 +393,7 @@ export default function CommunityBoard() {
                   </div>
                 </div>
                 <span className="cb-category-pill"
-                  style={{ background: catColor[post.category] + '20', color: catColor[post.category], borderColor: catColor[post.category] + '40' }}
+                  style={{ background: catColor[post.category] + '20', color: 'var(--text-primary)', borderColor: catColor[post.category] }}
                 >{catIcon[post.category]} {post.category}</span>
               </div>
 
@@ -425,7 +428,7 @@ export default function CommunityBoard() {
                     <button className="cb-action-btn" onClick={() => handleSetPinned(post.id, !post.pinned)}>
                       {post.pinned ? '📌 Unpin' : '📌 Pin'}
                     </button>
-                    <button className="cb-action-btn" onClick={() => handleSetHidden(post.id, !post.hidden)}>
+                    <button className={post.hidden ? 'btn btn--secondary btn--small' : 'btn btn--danger btn--small'} onClick={() => handleSetHidden(post.id, !post.hidden)}>
                       {post.hidden ? '👁 Unhide' : '🙈 Hide'}
                     </button>
                   </>
@@ -438,7 +441,7 @@ export default function CommunityBoard() {
                   {REPORT_REASONS.map(reason => (
                     <button key={reason} type="button" className="chip" onClick={() => handleReport(post.id, reason)}>{reason}</button>
                   ))}
-                  <button type="button" className="btn btn--ghost btn--small" onClick={() => setReportingId(null)}>Cancel</button>
+                  <button type="button" className="btn btn--secondary btn--small" onClick={() => setReportingId(null)}>Cancel</button>
                 </div>
               )}
 
@@ -447,7 +450,7 @@ export default function CommunityBoard() {
                 <div className="cb-comments-section">
                   {(post.comments || []).map(c => (
                     <div key={c.id} className="cb-comment">
-                      <div className="cb-comment-avatar" style={{ background: '#1a5c63' }}>
+                      <div className="cb-comment-avatar" style={{ background: 'var(--primary-dark)' }}>
                         {(c.author?.name || 'U')[0].toUpperCase()}
                       </div>
                       <div className="cb-comment-body">
@@ -460,7 +463,7 @@ export default function CommunityBoard() {
                     </div>
                   ))}
                   <div className="cb-comment-input-row">
-                    <div className="cb-comment-avatar" style={{ background: '#072c30' }}>
+                    <div className="cb-comment-avatar" style={{ background: 'var(--primary-green)' }}>
                       {(user?.name || 'Y')[0].toUpperCase()}
                     </div>
                     <input
@@ -482,7 +485,7 @@ export default function CommunityBoard() {
         <aside className="leaderboard-sidebar">
           {/* Upcoming Events */}
           <div className="cb-sidebar-card">
-            <h3 className="cb-sidebar-title">📅 Community Events</h3>
+            <h3 className="cb-sidebar-title">📅 Community events</h3>
             <div className="cb-events-list">
               {eventPosts.length === 0 && (
                 <p className="cb-event-date">No events yet. Post one with the 📅 Event tag, like a clean-up or a drill.</p>
@@ -495,8 +498,7 @@ export default function CommunityBoard() {
                     <div className="cb-event-date">{ev.author?.name || 'Community member'} · {timeAgo(ev.created_at)}</div>
                   </div>
                   <button
-                    className="cb-event-btn"
-                    style={{ borderColor: catColor.Event, color: catColor.Event }}
+                    className="btn btn--secondary btn--small"
                     onClick={() => openEventPost(ev.id)}
                   >
                     View
@@ -509,11 +511,16 @@ export default function CommunityBoard() {
           {/* Leaderboard */}
           <div className="leaderboard-card">
             <div className="leaderboard-header">
-              <h3>🏆 Top Contributors</h3>
-              <button className="leaderboard-toggle" onClick={() => setShowLeaderboard(!showLeaderboard)}>
+              <h3>🏆 Top contributors</h3>
+              <button className="leaderboard-toggle" aria-label={showLeaderboard ? 'Hide top contributors' : 'Show top contributors'} aria-expanded={showLeaderboard} onClick={() => setShowLeaderboard(!showLeaderboard)}>
                 {showLeaderboard ? '−' : '+'}
               </button>
             </div>
+            {showLeaderboard && leaderboard.length === 0 && (
+              <div className="ui-state">
+                <p className="ui-state__text">No contributors yet. Post, comment or like to appear here.</p>
+              </div>
+            )}
             {showLeaderboard && leaderboard.map(m => (
               <div key={m.rank} className={`leaderboard-item ${m.medalClass}`}>
                 <div className="leaderboard-rank">{m.badge}</div>
@@ -529,11 +536,11 @@ export default function CommunityBoard() {
 
           {/* Community Stats */}
           <div className="stats-card">
-            <h4>📊 Community Stats</h4>
-            <div className="stat-row"><span>Total Posts</span><strong>{stats.totalPosts || 0}</strong></div>
-            <div className="stat-row"><span>Total Members</span><strong>{stats.totalMembers || 0}</strong></div>
-            <div className="stat-row"><span>Active Members</span><strong>{stats.activeMembers || 0}</strong></div>
-            <div className="stat-row"><span>Total Likes</span><strong>{posts.reduce((s, p) => s + (p.likes_count || 0), 0)}</strong></div>
+            <h4>📊 Community stats</h4>
+            <div className="stat-row"><span>Total posts</span><strong>{stats.totalPosts || 0}</strong></div>
+            <div className="stat-row"><span>Total members</span><strong>{stats.totalMembers || 0}</strong></div>
+            <div className="stat-row"><span>Active members</span><strong>{stats.activeMembers || 0}</strong></div>
+            <div className="stat-row"><span>Total likes</span><strong>{posts.reduce((s, p) => s + (p.likes_count || 0), 0)}</strong></div>
           </div>
         </aside>
       </div>

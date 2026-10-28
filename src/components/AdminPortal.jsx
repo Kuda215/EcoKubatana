@@ -134,14 +134,14 @@ export default function AdminPortal() {
     try {
       const result = await incidentsAPI.verify(report.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Update Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Update failed', location: result.error || 'Please try again' });
         return;
       }
       setReports(prev => prev.map(r => r.id === report.id ? { ...r, ...result.data } : r));
       triggerPopup('verify', { ...report, reporter: report.reporter_name || 'Anonymous' });
     } catch (error) {
       console.error('Failed to verify incident:', error);
-      triggerPopup('reject', { type: 'Update Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Update failed', location: 'Please try again' });
     }
   };
 
@@ -149,14 +149,14 @@ export default function AdminPortal() {
     try {
       const result = await incidentsAPI.reject(report.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Update Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Update failed', location: result.error || 'Please try again' });
         return;
       }
       setReports(prev => prev.map(r => r.id === report.id ? { ...r, ...result.data } : r));
       triggerPopup('reject', { ...report, reporter: report.reporter_name || 'Anonymous' });
     } catch (error) {
       console.error('Failed to reject incident:', error);
-      triggerPopup('reject', { type: 'Update Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Update failed', location: 'Please try again' });
     }
   };
 
@@ -164,14 +164,14 @@ export default function AdminPortal() {
     try {
       const result = await helpRequestsAPI.respond(req.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Update Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Update failed', location: result.error || 'Please try again' });
         return;
       }
       setHelpRequests(prev => prev.map(r => r.id === req.id ? result.data : r));
-      triggerPopup('verify', { type: `${req.type} Response Assigned`, location: req.location });
+      triggerPopup('verify', { type: `${req.type} response assigned`, location: req.location });
     } catch (error) {
       console.error('Failed to respond to help request:', error);
-      triggerPopup('reject', { type: 'Update Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Update failed', location: 'Please try again' });
     }
   };
 
@@ -179,14 +179,14 @@ export default function AdminPortal() {
     try {
       const result = await helpRequestsAPI.resolve(req.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Update Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Update failed', location: result.error || 'Please try again' });
         return;
       }
       setHelpRequests(prev => prev.map(r => r.id === req.id ? result.data : r));
-      triggerPopup('verify', { type: `${req.type} Request Resolved`, location: req.location });
+      triggerPopup('verify', { type: `${req.type} request resolved`, location: req.location });
     } catch (error) {
       console.error('Failed to resolve help request:', error);
-      triggerPopup('reject', { type: 'Update Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Update failed', location: 'Please try again' });
     }
   };
 
@@ -194,7 +194,7 @@ export default function AdminPortal() {
     try {
       const result = await alertsAPI.publish(alert.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Publish Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Publish failed', location: result.error || 'Please try again' });
         return;
       }
 
@@ -205,12 +205,12 @@ export default function AdminPortal() {
         result.whatsappResults && `💬 WhatsApp ${result.whatsappResults.sent}/${result.whatsappResults.total}`,
       ].filter(Boolean).join(' · ');
       triggerPopup('verify', {
-        type: 'Alert Published!',
-        location: [alert.area || 'All Areas', channelSummaries].filter(Boolean).join(' · '),
+        type: 'Alert published',
+        location: [alert.area || 'All areas', channelSummaries].filter(Boolean).join(' · '),
       });
     } catch (error) {
       console.error('Failed to publish alert:', error);
-      triggerPopup('reject', { type: 'Publish Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Publish failed', location: 'Please try again' });
     }
   };
 
@@ -218,15 +218,15 @@ export default function AdminPortal() {
     try {
       const result = await alertsAPI.reject(alert.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Reject Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Reject failed', location: result.error || 'Please try again' });
         return;
       }
 
       setPendingAlerts(prev => prev.filter(a => a.id !== alert.id));
-      triggerPopup('reject', { type: 'Alert Rejected', location: alert.area || 'All Areas' });
+      triggerPopup('reject', { type: 'Alert rejected', location: alert.area || 'All areas' });
     } catch (error) {
       console.error('Failed to reject alert:', error);
-      triggerPopup('reject', { type: 'Reject Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Reject failed', location: 'Please try again' });
     }
   };
 
@@ -240,15 +240,15 @@ export default function AdminPortal() {
         display_order: faqs.length,
       });
       if (!result.success) {
-        triggerPopup('reject', { type: 'FAQ Save Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'FAQ not saved', location: result.error || 'Please try again' });
         return;
       }
       setFaqs(prev => [...prev, result.data]);
       setFaqForm({ question: '', answer: '' });
-      triggerPopup('verify', { type: 'FAQ Added', location: result.data.question });
+      triggerPopup('verify', { type: 'FAQ added', location: result.data.question });
     } catch (error) {
       console.error('Failed to add FAQ:', error);
-      triggerPopup('reject', { type: 'FAQ Save Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'FAQ not saved', location: 'Please try again' });
     }
   };
 
@@ -265,15 +265,15 @@ export default function AdminPortal() {
         answer: editFaqForm.answer.trim(),
       });
       if (!result.success) {
-        triggerPopup('reject', { type: 'FAQ Save Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'FAQ not saved', location: result.error || 'Please try again' });
         return;
       }
       setFaqs(prev => prev.map(f => f.id === id ? result.data : f));
       setEditingFaqId(null);
-      triggerPopup('verify', { type: 'FAQ Updated', location: result.data.question });
+      triggerPopup('verify', { type: 'FAQ updated', location: result.data.question });
     } catch (error) {
       console.error('Failed to update FAQ:', error);
-      triggerPopup('reject', { type: 'FAQ Save Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'FAQ not saved', location: 'Please try again' });
     }
   };
 
@@ -281,14 +281,14 @@ export default function AdminPortal() {
     try {
       const result = await faqsAPI.remove(faq.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Delete Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Delete failed', location: result.error || 'Please try again' });
         return;
       }
       setFaqs(prev => prev.filter(f => f.id !== faq.id));
-      triggerPopup('reject', { type: 'FAQ Deleted', location: faq.question });
+      triggerPopup('reject', { type: 'FAQ deleted', location: faq.question });
     } catch (error) {
       console.error('Failed to delete FAQ:', error);
-      triggerPopup('reject', { type: 'Delete Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Delete failed', location: 'Please try again' });
     }
   };
 
@@ -305,15 +305,15 @@ export default function AdminPortal() {
         display_order: videos.length,
       });
       if (!result.success) {
-        triggerPopup('reject', { type: 'Video Save Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Video not saved', location: result.error || 'Please try again' });
         return;
       }
       setVideos(prev => [...prev, result.data]);
       setVideoForm(emptyVideoForm);
-      triggerPopup('verify', { type: 'Video Added', location: result.data.title });
+      triggerPopup('verify', { type: 'Video added', location: result.data.title });
     } catch (error) {
       console.error('Failed to add video:', error);
-      triggerPopup('reject', { type: 'Video Save Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Video not saved', location: 'Please try again' });
     }
   };
 
@@ -339,15 +339,15 @@ export default function AdminPortal() {
         emoji: editVideoForm.emoji.trim() || '🎥',
       });
       if (!result.success) {
-        triggerPopup('reject', { type: 'Video Save Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Video not saved', location: result.error || 'Please try again' });
         return;
       }
       setVideos(prev => prev.map(v => v.id === id ? result.data : v));
       setEditingVideoId(null);
-      triggerPopup('verify', { type: 'Video Updated', location: result.data.title });
+      triggerPopup('verify', { type: 'Video updated', location: result.data.title });
     } catch (error) {
       console.error('Failed to update video:', error);
-      triggerPopup('reject', { type: 'Video Save Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Video not saved', location: 'Please try again' });
     }
   };
 
@@ -355,14 +355,14 @@ export default function AdminPortal() {
     try {
       const result = await videosAPI.remove(video.id);
       if (!result.success) {
-        triggerPopup('reject', { type: 'Delete Failed', location: result.error || 'Please try again' });
+        triggerPopup('reject', { type: 'Delete failed', location: result.error || 'Please try again' });
         return;
       }
       setVideos(prev => prev.filter(v => v.id !== video.id));
-      triggerPopup('reject', { type: 'Video Deleted', location: video.title });
+      triggerPopup('reject', { type: 'Video deleted', location: video.title });
     } catch (error) {
       console.error('Failed to delete video:', error);
-      triggerPopup('reject', { type: 'Delete Failed', location: 'Please try again' });
+      triggerPopup('reject', { type: 'Delete failed', location: 'Please try again' });
     }
   };
 
@@ -379,7 +379,7 @@ export default function AdminPortal() {
     return (
       <div className="page">
         <div className="page__header">
-          <h1 className="page__title">⚠️ Access Denied</h1>
+          <h1 className="page__title">Access denied</h1>
         </div>
         <div className="card">
           <p>You do not have permission to access this page. Admin access required.</p>
@@ -406,8 +406,10 @@ export default function AdminPortal() {
                     <polyline points="25,52 42,68 75,35" className="popup-checkmark" />
                   </svg>
                 </div>
-                <h2 className="admin-popup-title">Verified!</h2>
-                <p className="admin-popup-sub">{popup.data?.type} - {popup.data?.location}</p>
+                <h2 className="admin-popup-title">{popup.data?.reporter ? 'Verified' : (popup.data?.type || 'Done')}</h2>
+                <p className="admin-popup-sub">
+                  {popup.data?.reporter ? [popup.data?.type, popup.data?.location].filter(Boolean).join(' · ') : popup.data?.location}
+                </p>
               </>
             )}
             {popup.type === 'reject' && (
@@ -419,8 +421,10 @@ export default function AdminPortal() {
                     <line x1="70" y1="30" x2="30" y2="70" className="popup-cross" />
                   </svg>
                 </div>
-                <h2 className="admin-popup-title">Rejected</h2>
-                <p className="admin-popup-sub">{popup.data?.type} - {popup.data?.location}</p>
+                <h2 className="admin-popup-title">{popup.data?.reporter ? 'Rejected' : (popup.data?.type || 'Something went wrong')}</h2>
+                <p className="admin-popup-sub">
+                  {popup.data?.reporter ? [popup.data?.type, popup.data?.location].filter(Boolean).join(' · ') : popup.data?.location}
+                </p>
               </>
             )}
             {popup.type === 'review' && (
@@ -433,10 +437,15 @@ export default function AdminPortal() {
                   <div className="admin-popup-detail-row"><span>Type</span><strong>{popup.data?.type}</strong></div>
                   <div className="admin-popup-detail-row"><span>Location</span><strong>{popup.data?.location}</strong></div>
                   <div className="admin-popup-description">
-                    <p className="admin-popup-desc-label">Reporter</p>
+                    <p className="admin-popup-desc-label">Description</p>
                     <p className="admin-popup-desc-text">{popup.data?.description}</p>
                   </div>
-                  {popup.data?.liveLoading && <p>Pulling Open-Meteo for this area…</p>}
+                  {popup.data?.liveLoading && (
+                    <div className="ui-state">
+                      <div className="ui-spinner" aria-hidden="true" />
+                      <p className="ui-state__text">Checking live weather for this area…</p>
+                    </div>
+                  )}
                   {popup.data?.live && (
                     <div className={`area-check ${popup.data.live.likely ? 'area-check--yes' : 'area-check--no'}`}>
                       <strong>{popup.data.live.likely ? 'Looks valid for this area' : 'Weak match for this area'}</strong>
@@ -456,7 +465,7 @@ export default function AdminPortal() {
             {popup.type === 'view' && (
               <>
                 <div className="admin-popup-view-header">
-                  <h2 className="admin-popup-view-title">📋 Report Details</h2>
+                  <h2 className="admin-popup-view-title">Report details</h2>
                   <button className="admin-popup-close" onClick={() => { setPopupVisible(false); setTimeout(() => setPopup(null), 300); }}>✕</button>
                 </div>
                 <div className="admin-popup-view-body">
@@ -472,7 +481,7 @@ export default function AdminPortal() {
                     <p className="admin-popup-desc-text">{popup.data?.description}</p>
                   </div>
                 </div>
-                <p className="admin-popup-sub">View only - use Review to check live data, then verify and publish.</p>
+                <p className="admin-popup-sub">View only. Use Review to check live weather, then verify and publish.</p>
               </>
             )}
           </div>
@@ -481,8 +490,8 @@ export default function AdminPortal() {
 
       <div className="page__header">
         <div>
-          <h1 className="page__title">⚙️ Admin Portal</h1>
-          <p className="page__sub">Manage platform, review reports, and coordinate responses</p>
+          <h1 className="page__title">Admin portal</h1>
+          <p className="page__sub">Review reports, answer help requests and manage the community.</p>
         </div>
       </div>
 
@@ -495,7 +504,7 @@ export default function AdminPortal() {
           >
             {tab === 'overview' && 'Overview'}
             {tab === 'reports' && `Reports ${stats.pendingReports > 0 ? `(${stats.pendingReports})` : ''}`}
-            {tab === 'help-requests' && `Help Requests ${stats.helpRequests > 0 ? `(${stats.helpRequests})` : ''}`}
+            {tab === 'help-requests' && `Help requests ${stats.helpRequests > 0 ? `(${stats.helpRequests})` : ''}`}
             {tab === 'members' && 'Members'}
             {tab === 'faqs' && 'FAQs'}
             {tab === 'videos' && 'Videos'}
@@ -508,11 +517,11 @@ export default function AdminPortal() {
         <div className="admin-overview">
           <div className="admin-stats-grid">
             {[
-              { icon: '👥', value: stats.totalMembers.toLocaleString(), label: 'Total Members',        bg: 'linear-gradient(135deg,#dbeafe,#bfdbfe)' },
-              { icon: '🤝', value: stats.totalVolunteers,               label: 'Volunteers',           bg: 'linear-gradient(135deg,#e6f2f3,#a7f3d0)' },
-              { icon: '⚠️', value: stats.activeIncidents,              label: 'Active Incidents',     bg: 'linear-gradient(135deg,#fde8e8,#ffd1d1)' },
-              { icon: '📋', value: stats.pendingReports,               label: 'Pending Reports',      bg: 'linear-gradient(135deg,#fed7aa,#fdba74)' },
-              { icon: '🚨', value: stats.helpRequests,                 label: 'Active Help Requests', bg: 'linear-gradient(135deg,#fff8f0,#fde8e8)' },
+              { icon: '👥', value: stats.totalMembers.toLocaleString(), label: 'Total members',        bg: 'color-mix(in srgb, var(--primary-light) 22%, transparent)' },
+              { icon: '🤝', value: stats.totalVolunteers,               label: 'Volunteers',           bg: 'color-mix(in srgb, var(--primary-green) 18%, transparent)' },
+              { icon: '⚠️', value: stats.activeIncidents,              label: 'Active incidents',     bg: 'var(--danger-soft)' },
+              { icon: '📋', value: stats.pendingReports,               label: 'Pending reports',      bg: 'color-mix(in srgb, var(--danger) 12%, transparent)' },
+              { icon: '🚨', value: stats.helpRequests,                 label: 'Active help requests', bg: 'var(--bg-muted)' },
             ].map((s, i) => (
               <div key={i} className="admin-stat-card">
                 <div className="admin-stat-icon" style={{ background: s.bg }}>{s.icon}</div>
@@ -541,12 +550,12 @@ export default function AdminPortal() {
             </ul>
           </div>
           <div className="admin-quick-actions">
-            <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#072c30', marginBottom: '16px' }}>Quick Actions</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--heading-color)', marginBottom: '16px' }}>Quick actions</h3>
             <div className="action-grid">
               {[
-                { icon: '📋', title: 'Review Reports',  desc: 'Check live data, then verify and publish',          tab: 'reports' },
-                { icon: '🚨', title: 'Help Requests',   desc: 'View and respond to emergency requests',    tab: 'help-requests' },
-                { icon: '👥', title: 'Manage Members',  desc: 'View and manage community members',         tab: 'members' },
+                { icon: '📋', title: 'Review reports',  desc: 'Check live weather, then verify and publish', tab: 'reports' },
+                { icon: '🚨', title: 'Help requests',   desc: 'View and respond to emergency requests',      tab: 'help-requests' },
+                { icon: '👥', title: 'Manage members',  desc: 'View and manage community members',           tab: 'members' },
               ].map(a => (
                 <button key={a.tab} className="action-card" onClick={() => setActiveTab(a.tab)}>
                   <div className="action-card__icon">{a.icon}</div>
@@ -563,7 +572,7 @@ export default function AdminPortal() {
       {activeTab === 'reports' && (
         <div className="admin-table-container">
           <div className="admin-table-header">
-            <h3>Incident Reports</h3>
+            <h3>Incident reports</h3>
             <div className="filter-tabs" style={{ marginBottom: 0 }}>
               {['All', 'Pending', 'Verified', 'Investigating', 'Rejected'].map(f => (
                 <button key={f}
@@ -573,6 +582,15 @@ export default function AdminPortal() {
               ))}
             </div>
           </div>
+          {filteredReports.length === 0 ? (
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">📋</div>
+              <p className="ui-state__title">No reports here</p>
+              <p className="ui-state__text">
+                {reportFilter === 'All' ? 'New incident reports will show up here.' : `No ${reportFilter.toLowerCase()} reports right now.`}
+              </p>
+            </div>
+          ) : (
           <table className="admin-table">
             <thead>
               <tr>
@@ -596,16 +614,16 @@ export default function AdminPortal() {
                   <td>{report.date}</td>
                   <td className="admin-table-actions">
                     <button className="btn-table-action" onClick={() => triggerPopup('view', { ...report, reporter: report.reporter_name || 'Anonymous' })}>
-                      👁 View
+                      View
                     </button>
                     {report.status !== 'verified' && report.status !== 'rejected' && (
-                      <button className="btn-table-action btn-table-action--primary" onClick={() => openReview(report)}>
-                        ✓ Review
+                      <button className="btn-table-action" onClick={() => openReview(report)}>
+                        Review
                       </button>
                     )}
                     {report.status !== 'rejected' && report.status !== 'verified' && (
                       <button className="btn-table-action btn-table-action--danger" onClick={() => handleReject(report)}>
-                        ✕ Reject
+                        Reject
                       </button>
                     )}
                   </td>
@@ -613,6 +631,7 @@ export default function AdminPortal() {
               ))}
             </tbody>
           </table>
+          )}
         </div>
       )}
 
@@ -620,7 +639,11 @@ export default function AdminPortal() {
       {activeTab === 'help-requests' && (
         <div className="help-requests-list">
           {helpRequests.length === 0 && (
-            <div className="cb-empty">No help requests yet. 🌿</div>
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">🌿</div>
+              <p className="ui-state__title">No help requests yet</p>
+              <p className="ui-state__text">When someone asks for help, their request will show up here.</p>
+            </div>
           )}
           {helpRequests.map(req => (
             <div key={req.id} className={`help-request-card help-request-card--${req.priority}`}>
@@ -638,18 +661,18 @@ export default function AdminPortal() {
                 <div className="help-request-info">
                   <h4>{req.profiles?.name || 'Unknown user'}</h4>
                   <p>📍 {req.location} · {req.type}</p>
-                  <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>{req.description}</p>
+                  <p className="text-muted" style={{ fontSize: '13px', marginTop: '4px' }}>{req.description}</p>
                 </div>
               </div>
               <div className="help-request-actions">
                 {req.status === 'open' && (
-                  <button className="btn btn--primary" onClick={() => handleRespond(req)}>✓ Respond</button>
+                  <button className="btn btn--primary" onClick={() => handleRespond(req)}>Respond</button>
                 )}
                 {req.status === 'assigned' && (
-                  <button className="btn btn--primary" onClick={() => handleResolveHelp(req)}>✅ Mark Resolved</button>
+                  <button className="btn btn--primary" onClick={() => handleResolveHelp(req)}>Mark resolved</button>
                 )}
                 {req.profiles?.phone && (
-                  <a className="btn btn--secondary" href={`tel:${req.profiles.phone}`}>📞 Call {req.profiles.name}</a>
+                  <a className="btn btn--secondary" href={`tel:${req.profiles.phone}`}>Call {req.profiles.name}</a>
                 )}
               </div>
             </div>
@@ -661,16 +684,26 @@ export default function AdminPortal() {
       {activeTab === 'members' && (
         <div className="admin-table-container">
           <div className="admin-table-header">
-            <h3>Community Members</h3>
+            <h3>Community members</h3>
             <input
               type="search"
-              placeholder="Search members..."
+              placeholder="Search by name or area…"
+              aria-label="Search members"
               className="form-input"
               style={{ maxWidth: '300px' }}
               value={memberSearch}
               onChange={e => setMemberSearch(e.target.value)}
             />
           </div>
+          {filteredMembers.length === 0 ? (
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">👥</div>
+              <p className="ui-state__title">No members found</p>
+              <p className="ui-state__text">
+                {memberSearch ? 'Try a different name or area.' : 'Members will show up here once they join.'}
+              </p>
+            </div>
+          ) : (
           <table className="admin-table">
             <thead>
               <tr>
@@ -692,27 +725,28 @@ export default function AdminPortal() {
                   <td><span className={`status-badge status-badge--${member.status === 'active' ? 'verified' : 'rejected'}`}>{member.status}</span></td>
                   <td className="admin-table-actions">
                     <button className="btn-table-action" onClick={() => triggerPopup('view', { type: `${member.role} Profile`, reporter: member.name, location: member.location, date: member.joined, status: member.status, description: `Member since ${member.joined}. Located in ${member.location}. Current role: ${member.role}. Account status: ${member.status}.` })}>
-                      👁 View
+                      View
                     </button>
                     <button className="btn-table-action btn-table-action--primary"
                       onClick={() => {
                         setMembers(prev => prev.map(m => m.id === member.id ? { ...m, role: m.role === 'member' ? 'volunteer' : 'member' } : m));
-                        triggerPopup('verify', { type: 'Role Updated', location: member.name });
+                        triggerPopup('verify', { type: 'Role updated', location: member.name });
                       }}
-                    >↑ Promote</button>
-                    <button className="btn-table-action btn-table-action--danger"
+                    >Promote</button>
+                    <button className={`btn-table-action ${member.status === 'active' ? 'btn-table-action--danger' : 'btn-table-action--primary'}`}
                       onClick={() => {
                         setMembers(prev => prev.map(m => m.id === member.id ? { ...m, status: m.status === 'active' ? 'suspended' : 'active' } : m));
-                        triggerPopup(member.status === 'active' ? 'reject' : 'verify', { type: member.status === 'active' ? 'Member Suspended' : 'Member Reinstated', location: member.name });
+                        triggerPopup(member.status === 'active' ? 'reject' : 'verify', { type: member.status === 'active' ? 'Member suspended' : 'Member reinstated', location: member.name });
                       }}
                     >
-                      {member.status === 'active' ? '⏸ Suspend' : '▶ Reinstate'}
+                      {member.status === 'active' ? 'Suspend' : 'Reinstate'}
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          )}
         </div>
       )}
 
@@ -720,13 +754,17 @@ export default function AdminPortal() {
       {activeTab === 'alerts' && (
         <div className="admin-table-container">
           <div className="admin-table-header">
-            <h3>Pending Alerts</h3>
-            <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-              Anyone can propose an alert from the Alerts page - publishing here sends it live and triggers SMS/WhatsApp.
+            <h3>Pending alerts</h3>
+            <p className="text-muted" style={{ margin: 0, fontSize: '13px' }}>
+              Anyone can suggest an alert from the Alerts page. Publishing it here sends it live by SMS and WhatsApp.
             </p>
           </div>
           {pendingAlerts.length === 0 && (
-            <div className="cb-empty">No pending alerts to review. 🌿</div>
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">🌿</div>
+              <p className="ui-state__title">No alerts waiting</p>
+              <p className="ui-state__text">Suggested alerts will show up here for review.</p>
+            </div>
           )}
           {pendingAlerts.length > 0 && (
             <table className="admin-table">
@@ -744,14 +782,14 @@ export default function AdminPortal() {
                   <tr key={alert.id}>
                     <td>{alert.type}</td>
                     <td><span className={`status-badge status-badge--${alert.level === 'Emergency' || alert.level === 'Critical' ? 'pending' : 'investigating'}`}>{alert.level}</span></td>
-                    <td>{alert.area || 'All Areas'}</td>
+                    <td>{alert.area || 'All areas'}</td>
                     <td style={{ maxWidth: '320px' }}>{alert.message}</td>
                     <td className="admin-table-actions">
                       <button className="btn-table-action btn-table-action--primary" onClick={() => handlePublishAlert(alert)}>
-                        ✓ Publish
+                        Publish
                       </button>
                       <button className="btn-table-action btn-table-action--danger" onClick={() => handleRejectAlert(alert)}>
-                        ✕ Reject
+                        Reject
                       </button>
                     </td>
                   </tr>
@@ -767,42 +805,46 @@ export default function AdminPortal() {
         <div className="admin-table-container">
           <div className="admin-table-header">
             <h3>Manage FAQs</h3>
-            <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-              Shown on the Knowledge Hub page's FAQ list.
+            <p className="text-muted" style={{ margin: 0, fontSize: '13px' }}>
+              These show in the FAQ list on the Knowledge Hub.
             </p>
           </div>
 
           <form onSubmit={handleAddFaq} className="form-card" style={{ marginBottom: '20px' }}>
             <div className="form-group">
-              <label className="form-label">Question *</label>
-              <input type="text" className="form-input" placeholder="e.g., How do I report a climate incident?"
+              <label className="form-label" htmlFor="faq-question">Question *</label>
+              <input id="faq-question" type="text" className="form-input" placeholder="e.g. How do I report a climate incident?"
                 value={faqForm.question} onChange={e => setFaqForm({ ...faqForm, question: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">Answer *</label>
-              <textarea className="form-textarea" rows="3" placeholder="Enter the answer..."
+              <label className="form-label" htmlFor="faq-answer">Answer *</label>
+              <textarea id="faq-answer" className="form-textarea" rows="3" placeholder="Write the answer…"
                 value={faqForm.answer} onChange={e => setFaqForm({ ...faqForm, answer: e.target.value })} />
             </div>
             <button type="submit" className="btn btn--primary" disabled={!faqForm.question.trim() || !faqForm.answer.trim()}>
-              + Add FAQ
+              Add FAQ
             </button>
           </form>
 
           {faqs.length === 0 && (
-            <div className="cb-empty">No FAQs yet - add one above. 🌿</div>
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">💬</div>
+              <p className="ui-state__title">No FAQs yet</p>
+              <p className="ui-state__text">Add the first question above.</p>
+            </div>
           )}
           {faqs.map(faq => (
             <div key={faq.id} className="card" style={{ marginBottom: '12px' }}>
               {editingFaqId === faq.id ? (
                 <>
                   <div className="form-group">
-                    <label className="form-label">Question *</label>
-                    <input type="text" className="form-input"
+                    <label className="form-label" htmlFor={`faq-edit-question-${faq.id}`}>Question *</label>
+                    <input id={`faq-edit-question-${faq.id}`} type="text" className="form-input"
                       value={editFaqForm.question} onChange={e => setEditFaqForm({ ...editFaqForm, question: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Answer *</label>
-                    <textarea className="form-textarea" rows="3"
+                    <label className="form-label" htmlFor={`faq-edit-answer-${faq.id}`}>Answer *</label>
+                    <textarea id={`faq-edit-answer-${faq.id}`} className="form-textarea" rows="3"
                       value={editFaqForm.answer} onChange={e => setEditFaqForm({ ...editFaqForm, answer: e.target.value })} />
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -812,11 +854,11 @@ export default function AdminPortal() {
                 </>
               ) : (
                 <>
-                  <div style={{ fontWeight: 700, color: '#072c30' }}>Q: {faq.question}</div>
-                  <p style={{ margin: '8px 0', color: '#6b7280' }}>A: {faq.answer}</p>
+                  <div style={{ fontWeight: 700, color: 'var(--heading-color)' }}>Q: {faq.question}</div>
+                  <p className="text-muted" style={{ margin: '8px 0' }}>A: {faq.answer}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn-table-action" onClick={() => startEditFaq(faq)}>✏ Edit</button>
-                    <button className="btn-table-action btn-table-action--danger" onClick={() => handleDeleteFaq(faq)}>✕ Delete</button>
+                    <button className="btn-table-action" onClick={() => startEditFaq(faq)}>Edit</button>
+                    <button className="btn-table-action btn-table-action--danger" onClick={() => handleDeleteFaq(faq)}>Delete</button>
                   </div>
                 </>
               )}
@@ -829,76 +871,80 @@ export default function AdminPortal() {
       {activeTab === 'videos' && (
         <div className="admin-table-container">
           <div className="admin-table-header">
-            <h3>Manage Videos</h3>
-            <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
-              Shown on the Knowledge Hub page's Video Learning tab. Paste any standard YouTube URL.
+            <h3>Manage videos</h3>
+            <p className="text-muted" style={{ margin: 0, fontSize: '13px' }}>
+              These show in the Video learning tab on the Knowledge Hub. Paste any normal YouTube link.
             </p>
           </div>
 
           <form onSubmit={handleAddVideo} className="form-card" style={{ marginBottom: '20px' }}>
             <div className="form-group">
-              <label className="form-label">Title *</label>
-              <input type="text" className="form-input" placeholder="e.g., Understanding Climate Change"
+              <label className="form-label" htmlFor="video-title">Title *</label>
+              <input id="video-title" type="text" className="form-input" placeholder="e.g. Understanding climate change"
                 value={videoForm.title} onChange={e => setVideoForm({ ...videoForm, title: e.target.value })} />
             </div>
             <div className="form-group">
-              <label className="form-label">YouTube URL *</label>
-              <input type="text" className="form-input" placeholder="https://www.youtube.com/watch?v=..."
+              <label className="form-label" htmlFor="video-url">YouTube link *</label>
+              <input id="video-url" type="text" className="form-input" placeholder="https://www.youtube.com/watch?v=…"
                 value={videoForm.youtube_url} onChange={e => setVideoForm({ ...videoForm, youtube_url: e.target.value })} />
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="form-row" style={{ marginBottom: '16px' }}>
               <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label">Category</label>
-                <input type="text" className="form-input" placeholder="e.g., Water"
+                <label className="form-label" htmlFor="video-category">Category</label>
+                <input id="video-category" type="text" className="form-input" placeholder="e.g. Water"
                   value={videoForm.category} onChange={e => setVideoForm({ ...videoForm, category: e.target.value })} />
               </div>
               <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label">Duration</label>
-                <input type="text" className="form-input" placeholder="e.g., 8:45"
+                <label className="form-label" htmlFor="video-duration">Duration</label>
+                <input id="video-duration" type="text" className="form-input" placeholder="e.g. 8:45"
                   value={videoForm.duration} onChange={e => setVideoForm({ ...videoForm, duration: e.target.value })} />
               </div>
-              <div className="form-group" style={{ width: '80px' }}>
-                <label className="form-label">Emoji</label>
-                <input type="text" className="form-input"
+              <div className="form-group" style={{ flex: '0 0 80px' }}>
+                <label className="form-label" htmlFor="video-emoji">Emoji</label>
+                <input id="video-emoji" type="text" className="form-input"
                   value={videoForm.emoji} onChange={e => setVideoForm({ ...videoForm, emoji: e.target.value })} />
               </div>
             </div>
             <button type="submit" className="btn btn--primary" disabled={!videoForm.title.trim() || !videoForm.youtube_url.trim()}>
-              + Add Video
+              Add video
             </button>
           </form>
 
           {videos.length === 0 && (
-            <div className="cb-empty">No videos yet - add one above. 🌿</div>
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon" aria-hidden="true">🎥</div>
+              <p className="ui-state__title">No videos yet</p>
+              <p className="ui-state__text">Add the first video above.</p>
+            </div>
           )}
           {videos.map(video => (
             <div key={video.id} className="card" style={{ marginBottom: '12px' }}>
               {editingVideoId === video.id ? (
                 <>
                   <div className="form-group">
-                    <label className="form-label">Title *</label>
-                    <input type="text" className="form-input"
+                    <label className="form-label" htmlFor={`video-edit-title-${video.id}`}>Title *</label>
+                    <input id={`video-edit-title-${video.id}`} type="text" className="form-input"
                       value={editVideoForm.title} onChange={e => setEditVideoForm({ ...editVideoForm, title: e.target.value })} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">YouTube URL *</label>
-                    <input type="text" className="form-input"
+                    <label className="form-label" htmlFor={`video-edit-url-${video.id}`}>YouTube link *</label>
+                    <input id={`video-edit-url-${video.id}`} type="text" className="form-input"
                       value={editVideoForm.youtube_url} onChange={e => setEditVideoForm({ ...editVideoForm, youtube_url: e.target.value })} />
                   </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
+                  <div className="form-row" style={{ marginBottom: '16px' }}>
                     <div className="form-group" style={{ flex: 1 }}>
-                      <label className="form-label">Category</label>
-                      <input type="text" className="form-input"
+                      <label className="form-label" htmlFor={`video-edit-category-${video.id}`}>Category</label>
+                      <input id={`video-edit-category-${video.id}`} type="text" className="form-input"
                         value={editVideoForm.category} onChange={e => setEditVideoForm({ ...editVideoForm, category: e.target.value })} />
                     </div>
                     <div className="form-group" style={{ flex: 1 }}>
-                      <label className="form-label">Duration</label>
-                      <input type="text" className="form-input"
+                      <label className="form-label" htmlFor={`video-edit-duration-${video.id}`}>Duration</label>
+                      <input id={`video-edit-duration-${video.id}`} type="text" className="form-input"
                         value={editVideoForm.duration} onChange={e => setEditVideoForm({ ...editVideoForm, duration: e.target.value })} />
                     </div>
-                    <div className="form-group" style={{ width: '80px' }}>
-                      <label className="form-label">Emoji</label>
-                      <input type="text" className="form-input"
+                    <div className="form-group" style={{ flex: '0 0 80px' }}>
+                      <label className="form-label" htmlFor={`video-edit-emoji-${video.id}`}>Emoji</label>
+                      <input id={`video-edit-emoji-${video.id}`} type="text" className="form-input"
                         value={editVideoForm.emoji} onChange={e => setEditVideoForm({ ...editVideoForm, emoji: e.target.value })} />
                     </div>
                   </div>
@@ -909,11 +955,11 @@ export default function AdminPortal() {
                 </>
               ) : (
                 <>
-                  <div style={{ fontWeight: 700, color: '#072c30' }}>{video.emoji} {video.title}</div>
-                  <p style={{ margin: '8px 0', color: '#6b7280' }}>{video.category} · {video.duration} · {video.youtube_url}</p>
+                  <div style={{ fontWeight: 700, color: 'var(--heading-color)' }}>{video.emoji} {video.title}</div>
+                  <p className="text-muted" style={{ margin: '8px 0' }}>{video.category} · {video.duration} · {video.youtube_url}</p>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn-table-action" onClick={() => startEditVideo(video)}>✏ Edit</button>
-                    <button className="btn-table-action btn-table-action--danger" onClick={() => handleDeleteVideo(video)}>✕ Delete</button>
+                    <button className="btn-table-action" onClick={() => startEditVideo(video)}>Edit</button>
+                    <button className="btn-table-action btn-table-action--danger" onClick={() => handleDeleteVideo(video)}>Delete</button>
                   </div>
                 </>
               )}

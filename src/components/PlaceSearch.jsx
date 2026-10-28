@@ -13,7 +13,20 @@ export default function PlaceSearch({
   const [q, setQ] = useState('');
   const [hits, setHits] = useState([]);
   const [open, setOpen] = useState(false);
+  const [gpsError, setGpsError] = useState('');
   const boxRef = useRef(null);
+
+  const locateHere = () => {
+    setGpsError('');
+    locateMe({ persist })
+      .then((p) => onPicked?.(p, areaLabel(p)))
+      .catch((err) => {
+        setGpsError(err?.code === 1
+          ? 'Location access is blocked. Allow it in your browser settings.'
+          : "Couldn't find your location. Try again or search instead.");
+        setTimeout(() => setGpsError(''), 5000);
+      });
+  };
 
   useEffect(() => {
     if (q.trim().length < 2) {
@@ -48,7 +61,12 @@ export default function PlaceSearch({
   return (
     <div className={`place-search ${compact ? 'place-search--compact' : ''}`} ref={boxRef}>
       <label className="place-search__label" htmlFor={inputId}>Place</label>
-      <span className="place-search__pin" aria-hidden>📍</span>
+      <span className="place-search__pin" aria-hidden>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+      </span>
       <input
         id={inputId}
         className="place-search__input"
@@ -61,12 +79,18 @@ export default function PlaceSearch({
       />
       <button
         type="button"
-        className="place-search__gps"
-        onClick={() => locateMe({ persist }).then((p) => onPicked?.(p, areaLabel(p))).catch(() => {})}
-        title="Use current location"
+        className={`place-search__gps ${locating ? 'place-search__gps--busy' : ''}`}
+        onClick={locateHere}
+        disabled={locating}
+        title="Use my current location"
+        aria-label="Use my current location"
       >
-        📍
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </svg>
       </button>
+      {gpsError && <p className="place-search__error" role="alert">{gpsError}</p>}
       {open && hits.length > 0 && (
         <ul className="place-search__list">
           {hits.map((h) => (

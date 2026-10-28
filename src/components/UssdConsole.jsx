@@ -46,7 +46,7 @@ export default function UssdConsole() {
         setScreen('play');
         push(['PLAYBOOK', ...PLAYBOOK_STEPS.map((s) => `${s.n} ${s.title}`), '0 Back'].join('\n'));
       } else if (k === '5') {
-        push('STOKVEL: open the app Stokvel tab to log grain, goats, cash. Dial 0.');
+        push('STOKVEL: keep your group record of grain, goats and cash with your treasurer. Dial 0.');
         setScreen('home');
       } else if (k === '0') {
         push('Session ended. Dial *123# again.');
@@ -69,7 +69,12 @@ export default function UssdConsole() {
 
   return (
     <div className="page">
-      <p className="page__sub">Feature-phone path. Same menus a real *123# gateway (Africa&apos;s Talking / Twilio) would serve. Works offline from the last saved alerts.</p>
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">*123# phone menu</h1>
+          <p className="page__sub">Try the menus someone on a basic phone gets when they dial *123#. Works offline using the last saved alerts.</p>
+        </div>
+      </div>
       <div className="ussd-phone">
         <div className="ussd-phone__notch">*123# · {user?.phone || 'no SIM yet'}</div>
         <pre className="ussd-phone__screen" aria-live="polite">{log[log.length - 1]}</pre>
@@ -84,7 +89,7 @@ export default function UssdConsole() {
           ))}
         </div>
       </div>
-      <p style={{ fontSize: 13, color: 'var(--neutral-500)' }}>Network operators: map this screen to USSD code *123# and the same 1/2/0 replies.</p>
+      <p className="text-muted" style={{ fontSize: 'var(--fs-sm)' }}>For network operators: link the *123# code to these menus and the same number replies.</p>
     </div>
   );
 }

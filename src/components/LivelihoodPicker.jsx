@@ -44,8 +44,8 @@ export default function LivelihoodPicker({ value, onChange, onSuggestPriorities 
               if (known) onChange('');
             }}
           >
-            <span>✏️</span>
-            <span>Other - type what you do</span>
+            <span aria-hidden="true">✏️</span>
+            <span>Other: type what you do</span>
           </button>
         </li>
       </ul>

@@ -36,14 +36,24 @@ export default function HistoricIntel() {
 
   return (
     <div className="page">
-      <p className="page__sub">
-        Historic disaster intelligence: ReliefWeb live feed plus landmark EM-DAT-style markers (Idai, Day Zero, Horn of Africa, Sahel).
-        <SourceInfo sources={['reliefweb', 'emdat', 'openmeteo']} />
-      </p>
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">Past disasters</h1>
+          <p className="page__sub">
+            What has happened before: recent disaster reports plus landmark events such as Cyclone Idai, Cape Town&apos;s Day Zero, the Horn of Africa drought and the Sahel.
+            <SourceInfo sources={['reliefweb', 'emdat', 'openmeteo']} />
+          </p>
+        </div>
+      </div>
       <AfricaClimateMap hotspots={hotspots} events={events} mode="historic" />
-      {loading && <p>Loading historic layers...</p>}
+      {loading && (
+        <div className="ui-state" role="status">
+          <div className="ui-spinner" aria-hidden="true" />
+          <p className="ui-state__text">Loading past disasters…</p>
+        </div>
+      )}
       <div className="card">
-        <h3 className="card__title">Memory-weighted exposure <SourceInfo sources={['worldbank', 'emdat']} /></h3>
+        <h3 className="card__title">If past disasters happened again <SourceInfo sources={['worldbank', 'emdat']} /></h3>
         <p>If similar events repeated at today's city sizes, indicative loss across hubs is about <strong>{formatMoney(totalMemory)}</strong>.</p>
       </div>
       <DataGrid title="Historic hub grid" filename="ecokubatana-historic-hubs" sources={['emdat', 'openmeteo', 'worldbank']} rows={hubRows} />

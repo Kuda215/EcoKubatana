@@ -100,10 +100,17 @@ export default function Incidents() {
         </button>
       </div>
 
-      {loading && <p style={{ color: 'var(--text-muted)' }}>Loading…</p>}
+      {loading && (
+        <div className="ui-state">
+          <div className="ui-spinner" />
+          <p className="ui-state__text">Loading incidents…</p>
+        </div>
+      )}
       {error && (
-        <div className="card" style={{ padding: 16 }}>
-          <p>{error}</p>
+        <div className="ui-state ui-state--boxed ui-state--error">
+          <div className="ui-state__icon">⚠️</div>
+          <p className="ui-state__title">Could not load incidents</p>
+          <p className="ui-state__text">{error}</p>
           <button className="btn btn--primary" onClick={loadIncidents}>Try again</button>
         </div>
       )}
@@ -111,9 +118,10 @@ export default function Incidents() {
       {!loading && tab === 'overview' && (
         <div className="incident-overview">
           {counts.length === 0 && (
-            <div className="incident-stat">
-              <span className="incident-stat__n">0</span>
-              <span className="incident-stat__l">Reports yet</span>
+            <div className="ui-state ui-state--boxed">
+              <div className="ui-state__icon">📭</div>
+              <p className="ui-state__title">No reports yet</p>
+              <p className="ui-state__text">Nobody has reported an incident here yet.</p>
             </div>
           )}
           {counts.map(([type, n]) => (
@@ -128,10 +136,11 @@ export default function Incidents() {
 
       {!loading && tab === 'mine' && (
         mine.length === 0 ? (
-          <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-            <h3>No reports from you yet</h3>
-            <p style={{ color: 'var(--text-secondary)', margin: '8px 0 16px' }}>
-              When you log a flood, drought, or fire, it will sit here so you can follow it.
+          <div className="ui-state ui-state--boxed">
+            <div className="ui-state__icon">📝</div>
+            <p className="ui-state__title">No reports from you yet</p>
+            <p className="ui-state__text">
+              When you report a flood, drought or fire, it appears here so you can follow it.
             </p>
             <Link to="/report" className="btn btn--primary">Report an incident</Link>
           </div>

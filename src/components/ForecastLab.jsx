@@ -6,6 +6,9 @@ import { formatMoney, estimateLosses } from '../lib/dataSources';
 import { useState } from 'react';
 import './PageStyles.css';
 
+// Promise.allSettled status -> words people understand
+const SOURCE_STATUS_LABEL = { fulfilled: 'Live', rejected: 'Unavailable' };
+
 export default function ForecastLab() {
   const { hotspots, events, loading, syncedAt, sourcesStatus } = useClimateData();
   const [selected, setSelected] = useState(null);
@@ -33,15 +36,25 @@ export default function ForecastLab() {
 
   return (
     <div className="page">
-      <p className="page__sub">
-        Specialist forecast lab: 7-day weather plus GloFAS river discharge. Planning view, not panic.
-        <SourceInfo sources={['openmeteo', 'glofas', 'worldbank']} />
-      </p>
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">Forecast lab</h1>
+          <p className="page__sub">
+            The 7-day weather and river-level outlook for every hub. A planning view, not a reason to panic.
+            <SourceInfo sources={['openmeteo', 'glofas', 'worldbank']} />
+          </p>
+        </div>
+      </div>
       <AfricaClimateMap hotspots={hotspots} events={events} mode="forecast" onSelect={setSelected} selectedId={selected?.id} />
-      {loading && <p>Refreshing live forecast...</p>}
+      {loading && (
+        <div className="ui-state" role="status">
+          <div className="ui-spinner" aria-hidden="true" />
+          <p className="ui-state__text">Refreshing the live forecast…</p>
+        </div>
+      )}
       {syncedAt && (
-        <p style={{ fontSize: 12, color: 'var(--neutral-500)' }}>
-          Last pull: {new Date(syncedAt).toLocaleString()} · flood model {sourcesStatus?.flood}
+        <p className="text-muted" style={{ fontSize: 'var(--fs-sm)' }}>
+          Last updated: {new Date(syncedAt).toLocaleString()} · river flood model: {SOURCE_STATUS_LABEL[sourcesStatus?.flood] || sourcesStatus?.flood}
           <SourceInfo sources={['glofas']} />
         </p>
       )}

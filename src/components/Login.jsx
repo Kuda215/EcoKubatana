@@ -8,8 +8,8 @@ import PlaceSearch from './PlaceSearch';
 import './Login.css';
 
 const ROLE_OPTIONS = [
-  { value: 'member',    label: 'Member',    icon: '👤', color: '#1a5c63' },
-  { value: 'volunteer', label: 'Volunteer', icon: '🤝', color: '#1a5c63' },
+  { value: 'member',    label: 'Member',    icon: '👤', color: 'var(--primary-green)' },
+  { value: 'volunteer', label: 'Volunteer', icon: '🤝', color: 'var(--primary-green)' },
 ];
 
 export default function Login() {
@@ -105,7 +105,7 @@ export default function Login() {
             <span className="login-logo-icon">🌿</span>
             <h1>EcoKubatana</h1>
           </div>
-          <p className="login-tagline">Stronger Communities, Safer Tomorrow</p>
+          <p className="login-tagline">Neighbours acting on climate</p>
         </div>
 
         {/* Error Message */}
@@ -170,7 +170,7 @@ export default function Login() {
                 />
               </div>
               <button type="submit" className="btn-submit" disabled={loading}>
-                {loading ? 'Signing In...' : 'Sign In →'}
+                {loading ? 'Signing in…' : 'Sign in →'}
               </button>
             </form>
           </div>
@@ -209,7 +209,7 @@ export default function Login() {
             <div className="role-selection-header">
               <button className="back-button" onClick={() => setStep(1)}>← Back</button>
               <h2 className="section-title">What do you do?</h2>
-              <p className="section-subtitle">Pick from the list, or Other and type it. Example: Farmer - we will put crops, livestock and water first in an emergency.</p>
+              <p className="section-subtitle">Pick from the list, or choose Other and type it. For example, if you farm, we put crops, livestock and water first in an emergency.</p>
             </div>
             <LivelihoodPicker
               value={livelihood}
@@ -244,12 +244,12 @@ export default function Login() {
             </div>
             <form className="login-form" onSubmit={handleRegister}>
               <div className="form-group">
-                <label htmlFor="name" className="form-label">Full Name *</label>
+                <label htmlFor="name" className="form-label">Full name *</label>
                 <input type="text" id="name" name="name" className="form-input" value={formData.name}
                   onChange={handleChange} required placeholder="Enter your full name" />
               </div>
               <div className="form-group">
-                <label htmlFor="email" className="form-label">Email Address *</label>
+                <label htmlFor="email" className="form-label">Email address *</label>
                 <input type="email" id="email" name="email" className="form-input" value={formData.email}
                   onChange={handleChange} required placeholder="your.email@example.com" autoComplete="email" />
               </div>
@@ -259,14 +259,14 @@ export default function Login() {
                   onChange={handleChange} required placeholder="At least 6 characters" autoComplete="new-password" minLength={6} />
               </div>
               <div className="form-group">
-                <label htmlFor="confirmPassword" className="form-label">Confirm Password *</label>
+                <label htmlFor="confirmPassword" className="form-label">Confirm password *</label>
                 <input type="password" id="confirmPassword" name="confirmPassword" className="form-input" value={formData.confirmPassword}
                   onChange={handleChange} required placeholder="Re-enter your password" autoComplete="new-password" minLength={6} />
               </div>
               <div className="form-group">
-                <label htmlFor="phone" className="form-label">Phone Number *</label>
+                <label htmlFor="phone" className="form-label">Phone number *</label>
                 <input type="tel" id="phone" name="phone" className="form-input" value={formData.phone}
-                  onChange={handleChange} required placeholder="+27 XX XXX XXXX" />
+                  onChange={handleChange} required placeholder="+263 77 123 4567" />
               </div>
               <div className="form-group">
                 <label htmlFor="register-place" className="form-label">Location *</label>
@@ -277,7 +277,7 @@ export default function Login() {
                 />
               </div>
               <button type="submit" className="btn-submit" disabled={loading}>
-                {loading ? 'Creating Account...' : 'Join EcoKubatana →'}
+                {loading ? 'Creating account…' : 'Join EcoKubatana →'}
               </button>
               <p className="login-footer-text">
                 By joining, you agree to receive climate alerts and emergency notifications.
@@ -295,14 +295,14 @@ export default function Login() {
               <button className="auth-choice-btn auth-choice-btn--primary" onClick={() => setMode('signin')}>
                 <span className="auth-choice-icon">🔑</span>
                 <div>
-                  <strong>Sign In</strong>
+                  <strong>Sign in</strong>
                   <span>Already have an account</span>
                 </div>
               </button>
               <button className="auth-choice-btn auth-choice-btn--secondary" onClick={() => setMode('register')}>
                 <span className="auth-choice-icon">✨</span>
                 <div>
-                  <strong>Create Account</strong>
+                  <strong>Create account</strong>
                   <span>New to EcoKubatana</span>
                 </div>
               </button>

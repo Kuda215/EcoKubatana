@@ -26,15 +26,31 @@ export default function HazardFlags() {
 
   return (
     <div className="page">
-      <p className="page__sub">
-        Flags combine NASA EONET events with GloFAS river discharge and 7-day rain/heat. Red = act now. Amber = prepare. Green = keep watching.
-        <SourceInfo sources={['eonet', 'glofas', 'openmeteo']} />
-      </p>
+      <div className="page__header">
+        <div>
+          <h1 className="page__title">Hazard flags</h1>
+          <p className="page__sub">
+            Flags combine NASA fire and storm reports with river levels and the 7-day rain and heat forecast. Red means act now, amber means prepare, green means keep watching.
+            <SourceInfo sources={['eonet', 'glofas', 'openmeteo']} />
+          </p>
+        </div>
+      </div>
       <AfricaClimateMap hotspots={hotspots} events={events} mode="flags" />
-      {loading && <p>Checking live flags...</p>}
+      {loading && (
+        <div className="ui-state" role="status">
+          <div className="ui-spinner" aria-hidden="true" />
+          <p className="ui-state__text">Checking live flags…</p>
+        </div>
+      )}
       <div className="card">
         <h3 className="card__title">Places currently flagged</h3>
-        {flagged.length === 0 && <p>No emergency flags on the latest model run. Stay subscribed to alerts.</p>}
+        {flagged.length === 0 && (
+          <div className="ui-state">
+            <div className="ui-state__icon" aria-hidden="true">✅</div>
+            <p className="ui-state__title">No places flagged right now</p>
+            <p className="ui-state__text">The latest forecast shows no emergency flags. Keep alerts switched on so you hear if that changes.</p>
+          </div>
+        )}
         {flagged.map((h) => (
           <div key={h.id} className="alert-item" style={{ borderLeft: `4px solid ${riskColor(h.forecast_score, h.flag_status)}` }}>
             <div className="alert-item__body">

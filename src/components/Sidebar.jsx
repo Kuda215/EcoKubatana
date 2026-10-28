@@ -13,7 +13,7 @@ const navItems = [
   { path: '/settings',  key: 'settings',   icon: '⚙️' },
 ];
 
-const adminNavItem = { path: '/admin', key: 'admin', icon: '🔧' };
+const adminNavItem = { path: '/admin', key: 'admin', icon: '🛡️' };
 
 export default function Sidebar({ isOpen, onClose }) {
   const { isAdmin } = useAuth();

@@ -204,11 +204,11 @@ export default function ReportIncident() {
       <div className="page">
         <div className="success-banner">
           <div className="success-icon">✅</div>
-          <h2>Incident Reported!</h2>
+          <h2>Incident reported</h2>
           <p>Thank you for keeping your community informed. Our team will review and act on your report.</p>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <button className="btn btn--primary" onClick={() => setSubmitted(false)}>Report Another</button>
-            <a href="/incidents" className="btn btn--ghost">View All Incidents</a>
+            <button className="btn btn--primary" onClick={() => setSubmitted(false)}>Report another</button>
+            <a href="/incidents" className="btn btn--ghost">View all incidents</a>
           </div>
         </div>
       </div>
@@ -219,20 +219,14 @@ export default function ReportIncident() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1 className="page__title">📋 Report an Incident</h1>
-          <p className="page__sub">Report a climate or environment incident you can see - flood, drought, heat, storm, fire, landslide, or pollution.</p>
+          <h1 className="page__title">Report an incident</h1>
+          <p className="page__sub">Report a climate or environment incident you can see: flood, drought, heat, storm, fire, landslide or pollution.</p>
         </div>
       </div>
 
       {error && (
-        <div className="card" style={{ padding: '16px', marginBottom: '20px', background: '#fee', border: '1px solid #e63946' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '24px' }}>⚠️</span>
-            <div>
-              <strong style={{ color: '#e63946' }}>Error:</strong>
-              <p style={{ margin: '4px 0 0', color: '#666' }}>{error}</p>
-            </div>
-          </div>
+        <div className="form-note form-note--error" style={{ marginBottom: '20px' }}>
+          <strong>⚠️ Could not send your report.</strong> {error}
         </div>
       )}
 
@@ -240,13 +234,13 @@ export default function ReportIncident() {
         <div className="form-card">
           <form onSubmit={handleSubmit} className="report-form">
             <div className="form-group">
-              <label className="form-label">Incident Title *</label>
+              <label className="form-label">Incident title *</label>
               <input name="title" required className="form-input" placeholder="e.g. Flooding near the river bank" value={form.title} onChange={handleChange} />
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Type of Incident *</label>
+                <label className="form-label">Type of incident *</label>
                 {photoLocked ? (
                   <div className="form-input form-input--static">{form.type || 'Reading the photo…'}</div>
                 ) : (
@@ -281,11 +275,11 @@ export default function ReportIncident() {
             )}
 
             <div className="form-group">
-              <label className="form-label">Location / Area *</label>
+              <label className="form-label">Location or area *</label>
               <input name="location" required className="form-input" placeholder="e.g. Nkulu Village, Guta District" value={form.location} onChange={handleChange} />
               {areaCheck && (
                 <p className={`area-check ${areaCheck.likely ? 'area-check--yes' : 'area-check--no'}`}>
-                  {areaCheck.likely ? 'Live data supports this incident in the area. ' : 'Live data does not strongly support this incident here. '}
+                  {areaCheck.likely ? 'Current weather data backs up this report. ' : 'Current weather data does not clearly back up this report. '}
                   {areaCheck.reason}
                 </p>
               )}
@@ -293,12 +287,12 @@ export default function ReportIncident() {
 
             <div className="form-group">
               <label className="form-label">Description *</label>
-              <textarea name="description" required className="form-input" rows="4" placeholder="Describe what happened and current situation..." value={form.description} onChange={handleChange}></textarea>
+              <textarea name="description" required className="form-input" rows="4" placeholder="Describe what happened and what it looks like now…" value={form.description} onChange={handleChange}></textarea>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Your Name (optional)</label>
+                <label className="form-label">Your name (optional)</label>
                 <input name="reporter_name" className="form-input" placeholder={user?.name || "Anonymous if left blank"} value={form.reporter_name} onChange={handleChange} />
               </div>
               <div className="form-group">
@@ -308,7 +302,7 @@ export default function ReportIncident() {
             </div>
 
             <button type="submit" disabled={submitting || imageError === NOT_CLIMATE_MSG} className="btn btn--primary" style={{ width: '100%', padding: '12px', fontSize: '15px' }}>
-              {imageError === NOT_CLIMATE_MSG ? NOT_CLIMATE_MSG : submitting ? 'Submitting...' : 'Submit Incident Report'}
+              {imageError === NOT_CLIMATE_MSG ? NOT_CLIMATE_MSG : submitting ? 'Submitting…' : 'Submit report'}
             </button>
           </form>
         </div>
@@ -322,12 +316,12 @@ export default function ReportIncident() {
           {imageError && <p className="report-ai__err">{imageError}</p>}
 
           <div className="report-ai__photo">
-            {imageUrl ? <img src={imageUrl} alt="Uploaded incident" /> : <p style={{ padding: 40, opacity: 0.7 }}>Climate photos only - flood, dry fields, heat, wind damage, fire, slope, or pollution.</p>}
+            {imageUrl ? <img src={imageUrl} alt="Uploaded incident" /> : <p style={{ padding: 40, opacity: 0.7 }}>Climate photos only: flood, dry fields, heat, wind damage, fire, landslide or pollution.</p>}
             {(imageUploading || analyzing) && (
               <div className="report-ai__loader">
                 <div className="report-ai__rings" />
                 <div className="report-ai__scan" />
-                <p>ANALYZING</p>
+                <p>Checking photo</p>
                 <small>{imageUploading ? 'Uploading the photo…' : 'Checking this is a climate photo'}</small>
               </div>
             )}
@@ -354,7 +348,7 @@ export default function ReportIncident() {
                 ))}
               </div>
               {alertProposed ? (
-                <p style={{ fontWeight: 700 }}>Alert proposed - pending review</p>
+                <p style={{ fontWeight: 700 }}>Alert sent for review</p>
               ) : (
                 <button type="button" className="btn btn--primary" onClick={handleProposeAlert} disabled={alertProposing}>
                   {alertProposing ? 'Proposing…' : 'Alert nearby communities'}
@@ -365,7 +359,7 @@ export default function ReportIncident() {
             <p style={{ fontSize: 18, lineHeight: 1.4, opacity: 0.85 }}>
               {analyzing || imageUploading
                 ? 'Reading land, water, smoke, and heat…'
-                : 'AI only reads climate photos. Unrelated pictures are rejected.'}
+                : 'Only climate photos can be read. Other pictures are turned down.'}
             </p>
           )}
         </aside>

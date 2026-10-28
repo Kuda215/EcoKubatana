@@ -14,19 +14,54 @@ export function detectGps() {
   });
 }
 
+/**
+ * Open-Meteo has no reverse lookup, so GPS points are named with
+ * OpenStreetMap Nominatim, falling back to BigDataCloud's free client API.
+ * Coordinates always stay the GPS ones.
+ */
 export async function reverseGeocode(lat, lng) {
-  const res = await fetch(
-    `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lng}&language=en&format=json`
-  );
-  if (!res.ok) {
-    return { id: `gps-${lat}-${lng}`, name: 'Current location', admin: '', country: '', lat, lng, fromGps: true };
-  }
-  const data = await res.json();
-  const r = data.results?.[0];
-  if (!r) {
-    return { id: `gps-${lat}-${lng}`, name: 'Current location', admin: '', country: '', lat, lng, fromGps: true };
-  }
-  return placeFromGeo(r, { fromGps: true, lat, lng });
+  const fallback = { id: `gps-${lat}-${lng}`, name: 'Current location', admin: '', country: '', lat, lng, fromGps: true };
+
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=jsonv2&zoom=12&accept-language=en`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const a = data.address || {};
+      const name = a.suburb || a.city || a.town || a.village || a.municipality || a.county || data.name;
+      if (name) {
+        return placeFromGeo({
+          id: `osm-${data.osm_type}-${data.osm_id}`,
+          name,
+          admin2: a.city && a.city !== name ? a.city : (a.county !== name ? a.county : ''),
+          admin1: a.state || '',
+          country: a.country || '',
+        }, { fromGps: true, lat, lng });
+      }
+    }
+  } catch { /* try the next service */ }
+
+  try {
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+    );
+    if (res.ok) {
+      const d = await res.json();
+      const name = d.locality || d.city;
+      if (name) {
+        return placeFromGeo({
+          id: `bdc-${lat.toFixed(3)}-${lng.toFixed(3)}`,
+          name,
+          admin2: d.city && d.city !== name ? d.city : '',
+          admin1: d.principalSubdivision || '',
+          country: d.countryName || '',
+        }, { fromGps: true, lat, lng });
+      }
+    }
+  } catch { /* use the plain fallback */ }
+
+  return fallback;
 }
 
 function placeFromGeo(r, extra = {}) {
