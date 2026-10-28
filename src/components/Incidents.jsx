@@ -62,10 +62,12 @@ export default function Incidents() {
   };
 
   const scoped = useMemo(() => {
-    const needle = (place?.name || '').toLowerCase();
+    // "Manicaland Province" should match reports saved as "…, Manicaland, Zimbabwe"
+    const needle = (place?.name || '')
+      .replace(/\s+(province|county|region|district|state)$/i, '')
+      .toLowerCase();
     if (!needle) return incidents;
-    const local = incidents.filter((i) => String(i.location || '').toLowerCase().includes(needle));
-    return local.length ? local : incidents;
+    return incidents.filter((i) => String(i.location || '').toLowerCase().includes(needle));
   }, [incidents, place]);
 
   const counts = useMemo(() => {
@@ -121,7 +123,9 @@ export default function Incidents() {
             <div className="ui-state ui-state--boxed">
               <div className="ui-state__icon">📭</div>
               <p className="ui-state__title">No reports yet</p>
-              <p className="ui-state__text">Nobody has reported an incident here yet.</p>
+              <p className="ui-state__text">
+                Nobody has reported an incident in {place?.name || 'this area'} yet.
+              </p>
             </div>
           )}
           {counts.map(([type, n]) => (

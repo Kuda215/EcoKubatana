@@ -23,7 +23,7 @@ export default function ComingWatch() {
       return;
     }
     const t = setTimeout(() => {
-      searchPlaces(q).then(setHits).catch(() => setHits([]));
+      searchPlaces(q, 6, place).then(setHits).catch(() => setHits([]));
     }, 180);
     return () => clearTimeout(t);
   }, [q]);

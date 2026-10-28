@@ -145,15 +145,69 @@ export async function wikiPhotoForPlace(place) {
   return null;
 }
 
-export async function searchPlaces(query, count = 6) {
-  const q = String(query || '').trim();
-  if (q.length < 2) return [];
+// Photon result types worth offering, in display order: real places before
+// streets. Buildings and odd features are left out.
+const PHOTON_RANK = { country: 0, state: 1, city: 2, county: 3, district: 4, locality: 5, street: 6 };
+
+/**
+ * Photon (OpenStreetMap, built for search-as-you-type) finds countries,
+ * provinces, towns, suburbs and streets. `near` ranks results close to the
+ * current place first. Falls back to Open-Meteo, which only knows towns.
+ */
+async function searchPhoton(q, count, near) {
+  const bias = near?.lat != null && near?.lng != null ? `&lat=${near.lat}&lon=${near.lng}` : '';
+  const res = await fetch(
+    `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=${count * 2}&lang=en${bias}`
+  );
+  if (!res.ok) return [];
+  const data = await res.json();
+  const seen = new Set();
+  const places = [];
+  const typed = q.split(',')[0].trim().toLowerCase();
+  const exact = (f) => (String(f.properties.name).toLowerCase() === typed ? 0 : 1);
+  const features = (data.features || [])
+    .filter((f) => f.properties?.type in PHOTON_RANK)
+    .sort((a, b) => exact(a) - exact(b) || PHOTON_RANK[a.properties.type] - PHOTON_RANK[b.properties.type]);
+  for (const f of features) {
+    const p = f.properties || {};
+    const [lng, lat] = f.geometry?.coordinates || [];
+    if (!p.name || lat == null) continue;
+    const town = p.city || p.county || '';
+    const place = placeFromGeo({
+      id: `photon-${p.osm_type}${p.osm_id}`,
+      name: p.name,
+      admin2: town !== p.name ? town : '',
+      admin1: p.state !== p.name ? (p.state || '') : '',
+      country: p.country || '',
+      latitude: lat,
+      longitude: lng,
+    });
+    const key = areaLabel(place).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    places.push(place);
+    if (places.length >= count) break;
+  }
+  return places;
+}
+
+async function searchOpenMeteo(q, count) {
   const res = await fetch(
     `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=${count}&language=en&format=json`
   );
   if (!res.ok) return [];
   const data = await res.json();
   return (data.results || []).map((r) => placeFromGeo(r));
+}
+
+export async function searchPlaces(query, count = 6, near = null) {
+  const q = String(query || '').trim();
+  if (q.length < 2) return [];
+  try {
+    const hits = await searchPhoton(q, count, near);
+    if (hits.length) return hits;
+  } catch { /* fall back to Open-Meteo */ }
+  return searchOpenMeteo(q, count);
 }
 
 async function fetchTimeout(url, ms = 3500) {

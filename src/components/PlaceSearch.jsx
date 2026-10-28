@@ -18,6 +18,11 @@ export default function PlaceSearch({
 
   const locateHere = () => {
     setGpsError('');
+    // Drop any half-typed search so the box shows the live location
+    setQ('');
+    setHits([]);
+    setOpen(false);
+    document.getElementById(inputId)?.blur();
     locateMe({ persist })
       .then((p) => onPicked?.(p, areaLabel(p)))
       .catch((err) => {
@@ -34,7 +39,7 @@ export default function PlaceSearch({
       return;
     }
     const t = setTimeout(() => {
-      searchPlaces(q).then(setHits).catch(() => setHits([]));
+      searchPlaces(q, 6, place).then(setHits).catch(() => setHits([]));
     }, 280);
     return () => clearTimeout(t);
   }, [q]);
@@ -70,7 +75,7 @@ export default function PlaceSearch({
       <input
         id={inputId}
         className="place-search__input"
-        value={open ? q : q || full}
+        value={locating ? '' : open ? q : q || full}
         placeholder={locating ? 'Finding you…' : 'Search town, district, country…'}
         onFocus={() => { setOpen(true); setQ(''); }}
         onChange={(e) => { setQ(e.target.value); setOpen(true); }}

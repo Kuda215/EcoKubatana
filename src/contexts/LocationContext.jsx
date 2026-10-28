@@ -121,7 +121,9 @@ export function LocationProvider({ children }) {
       locating,
       area: areaLabel(place),
     }),
-    [place, watchlist, locating]
+    // user/updateUser are needed so saving the home place never uses the
+    // signed-out user captured before login
+    [place, watchlist, locating, user, updateUser]
   );
 
   return <LocationContext.Provider value={value}>{children}</LocationContext.Provider>;

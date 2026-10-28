@@ -315,6 +315,14 @@
 }
 .ui-state--error .ui-state__title { color: var(--danger); }
 
+/* Inside a card grid the state spans every column so it sits centred */
+.incident-overview > .ui-state,
+.incident-grid > .ui-state {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 220px;
+}
+
 .ui-spinner {
   width: 28px;
   height: 28px;
